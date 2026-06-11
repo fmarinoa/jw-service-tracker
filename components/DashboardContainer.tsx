@@ -217,7 +217,7 @@ Generado por *JW Service Tracker*`;
             <label className="text-xs font-bold text-muted-foreground uppercase">Tipo</label>
             <select 
               value={formType} 
-              onChange={e => setFormType(e.target.value)}
+              onChange={e => setFormType(e.target.value as SessionType)}
               className="w-full p-2.5 rounded-lg border border-border bg-background text-sm"
             >
               <option value="house_to_house">Casa en casa</option>
