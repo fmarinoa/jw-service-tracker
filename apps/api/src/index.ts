@@ -1,1 +1,0 @@
-export const { ENTRIES_TABLE } = process.env

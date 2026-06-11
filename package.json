@@ -1,20 +1,41 @@
 {
   "name": "jw-service-tracker",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Monorepo for JW Service Tracker",
   "scripts": {
-    "dev:web": "pnpm --filter web dev",
-    "build:web": "pnpm --filter web build",
-    "deploy:api:dev": "pnpm --filter api deploy:dev",
-    "test": "pnpm -r test"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
   },
   "engines": {
     "node": "24"
   },
-  "devDependencies": {
-    "@tsconfig/node24": "24.0.4",
-    "typescript": "6.0.3"
+  "dependencies": {
+    "@auth/mongodb-adapter": "3.11.2",
+    "@types/bcrypt": "6.0.0",
+    "@types/luxon": "3.7.1",
+    "bcrypt": "6.0.0",
+    "clsx": "2.1.1",
+    "lucide-react": "1.17.0",
+    "luxon": "3.7.2",
+    "mongodb": "7.3.0",
+    "next": "16.2.9",
+    "next-auth": "4.24.14",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tailwind-merge": "3.6.0",
+    "zod": "4.4.3"
   },
-  "packageManager": "pnpm@11.5.2+sha512.71c631e382066efc25625d5cf029075de07b61b37f6e27350fbd84b1bda5864c8c1967adc280776b45c30a715c0359a3be08fef42d5bb09e2b99029979692916"
+  "devDependencies": {
+    "@tailwindcss/postcss": "4",
+    "@types/node": "20",
+    "@types/react": "19",
+    "@types/react-dom": "19",
+    "eslint": "9",
+    "eslint-config-next": "16.2.9",
+    "tailwindcss": "4",
+    "typescript": "5"
+  }
 }
