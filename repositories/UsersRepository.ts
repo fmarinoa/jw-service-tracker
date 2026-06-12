@@ -1,21 +1,23 @@
 import { Collection, Document, ObjectId } from "mongodb";
-import { User } from "../domain/User";
+import { User } from "@/domain/User";
 import { DateTime } from "luxon";
 import bcrypt from 'bcrypt';
 
-export interface UserRepositoryProps {
+export interface UsersRepositoryProps {
     collection: Collection<Document>;
 }
 
-export class UserRepository {
-    constructor(private props: UserRepositoryProps) { }
+export class UsersRepository {
+    constructor(private props: UsersRepositoryProps) { }
 
     async findByPhone(phone: string) {
-        return this.props.collection.findOne({ phone });
+        const result = await this.props.collection.findOne({ phone });
+        return result ? new User({ ...result, id: result._id.toString() }) : null;
     }
 
     async findById(id: string){
-        return this.props.collection.findOne({ _id: new ObjectId(id) });
+        const result = await this.props.collection.findOne({ _id: new ObjectId(id) });
+        return result ? new User({ ...result, id: result._id.toString() }) : null;
     }
 
     async create(user: User): Promise<User> {

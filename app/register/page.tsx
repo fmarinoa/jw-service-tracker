@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
-import { User } from '../domain/User';
+import { User } from '@/domain/User';
+
 
 export default function RegisterPage() {
   const [identifier, setIdentifier] = useState('');

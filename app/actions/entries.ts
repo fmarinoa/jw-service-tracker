@@ -6,9 +6,9 @@ import { authOptions } from '@/lib/auth-options';
 import clientPromise from '@/lib/db';
 import { ObjectId } from 'mongodb';
 
-import { Entry } from '@/lib/types';
 import { DateTime } from 'luxon';
-import { User } from '../domain/User';
+import { User } from '@/domain/User';
+import { Entry } from '@/domain/Entry';
 
 export async function createEntry(data: Partial<Entry>) {
   const session = await getServerSession(authOptions);

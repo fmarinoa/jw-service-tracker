@@ -1,11 +1,42 @@
-import { NextAuthOptions } from "next-auth";
-import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import clientPromise from "@/lib/db";
+import { NextAuthOptions, DefaultSession, getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+import { usersRepository } from "@/repositories";
+import { PreacherType } from "@/domain/User";
+
+// 1. Tipamos los datos que queremos en la sesión de forma global
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      name: string;
+      phone: string;
+      preacherType: PreacherType;
+      monthlyGoal: number;
+    } & DefaultSession["user"]
+  }
+
+  interface User {
+    id: string;
+    name: string;
+    phone: string;
+    preacherType: PreacherType;
+    monthlyGoal: number;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    phone: string;
+    name: string;
+    preacherType: PreacherType;
+    monthlyGoal: number;
+  }
+}
 
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(clientPromise),
+  // El adapter no es necesario para flujo de Credentials con JWT
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -19,27 +50,20 @@ export const authOptions: NextAuthOptions = {
         const rawPhone = credentials.identifier.trim();
         const phoneWithPrefix = rawPhone.startsWith("+51") ? rawPhone : `+51${rawPhone}`;
 
-        const client = await clientPromise;
-        const db = client.db();
-        const users = db.collection("users");
+        const user = await usersRepository.findByPhone(phoneWithPrefix);
 
-        const user = await users.findOne({ phone: phoneWithPrefix }) as any; // Cast inicial para MongoDB
-
-        if (!user || !user.password) {
-          throw new Error("Usuario no encontrado.");
+        if (user && user.password && await bcrypt.compare(credentials.password, user.password)) {
+          // Retornamos todos los campos que queremos guardar en el token/sesión
+          return {
+            id: user.id,
+            name: user.name,
+            phone: user.phone,
+            preacherType: user.preacherType,
+            monthlyGoal: user.monthlyGoal
+          };
         }
-
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-
-        if (!isPasswordValid) {
-          throw new Error("Contraseña incorrecta.");
-        }
-
-        return {
-          id: user._id.toString(),
-          name: user.name,
-          phone: user.phone
-        };
+        
+        throw new Error("Credenciales inválidas.");
       }
     })
   ],
@@ -49,21 +73,34 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        // Al iniciar sesión, guardamos todo en el token
         token.id = user.id;
-        token.phone = (user as any).phone;
+        token.phone = user.phone;
+        token.name = user.name;
+        token.preacherType = user.preacherType;
+        token.monthlyGoal = user.monthlyGoal;
       }
       return token;
     },
     async session({ session, token }) {
-      if (session?.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).phone = token.phone;
+      if (session.user) {
+        // Pasamos los datos del token a la sesión
+        session.user.id = token.id;
+        session.user.phone = token.phone;
+        session.user.name = token.name;
+        session.user.preacherType = token.preacherType;
+        session.user.monthlyGoal = token.monthlyGoal;
       }
       return session;
     }
   },
   pages: {
     signIn: "/login",
-    error: "/login",
   }
+};
+
+// 2. Método fácil para recuperar el usuario actual en Server Components/Actions
+export const getCurrentUser = async () => {
+  const session = await getServerSession(authOptions);
+  return session?.user;
 };

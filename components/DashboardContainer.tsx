@@ -19,8 +19,8 @@ import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Dialog } from './ui/dialog';
 import { Input } from './ui/input';
-
-import { Entry, SessionType, User } from '@/lib/types';
+import { User } from '@/domain/User';
+import { Entry, SessionType } from '@/domain/Entry';
 
 export default function DashboardContainer({ initialEntries, user }: { initialEntries: Entry[], user: User }) {
   const [entries, setEntries] = useState<Entry[]>(initialEntries);
