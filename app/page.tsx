@@ -1,5 +1,5 @@
 import { authOptions } from "@/lib/auth-options";
-import { getServerSession } from "next-auth/next";
+import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import DashboardContainer from "@/components/DashboardContainer";
 import clientPromise from "@/lib/db";
