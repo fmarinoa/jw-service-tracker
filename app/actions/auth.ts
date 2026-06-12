@@ -1,40 +1,17 @@
 'use server';
 
-import clientPromise from '@/lib/db';
-import { registerSchema } from '@/lib/validations';
-import bcrypt from 'bcrypt';
-import { z } from 'zod';
+import { User } from '../domain/User';
+import { userRepository } from '../repositories';
 
-type RegisterInput = z.infer<typeof registerSchema>;
-
-export async function registerUser(data: RegisterInput) {
-  const validated = registerSchema.parse(data);
-  const { identifier, name, password } = validated;
-  
-  // Guardar siempre con prefijo +51
-  const phoneWithPrefix = `+51${identifier}`;
-  
-  const client = await clientPromise;
-  const db = client.db();
-  const users = db.collection('users');
-
-  const existingUser = await users.findOne({ phone: phoneWithPrefix });
+export async function registerUser(data: Partial<User>) {
+  const user = User.validateForRegistration(data);
+  const existingUser = await userRepository.findByPhone(user.phone);
 
   if (existingUser) {
     throw new Error('El celular ya está registrado.');
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const createdUser = await userRepository.create(user);
 
-  const newUser = {
-    name,
-    phone: phoneWithPrefix,
-    password: hashedPassword,
-    preacherType: 'publisher',
-    monthlyGoal: 0,
-    createdAt: new Date(),
-  };
-
-  await users.insertOne(newUser);
-  return { success: true };
+  return { user: createdUser, success: true };
 }

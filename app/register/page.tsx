@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { User } from '../domain/User';
 
 export default function RegisterPage() {
   const [identifier, setIdentifier] = useState('');
@@ -23,7 +24,7 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      await registerUser({ identifier, name, password });
+      await registerUser(new User({ phone: identifier, name, password }));
       router.push('/login?registered=true');
     } catch (err: any) {
       setError(err.message || 'Error al registrarse');
