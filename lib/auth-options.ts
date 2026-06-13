@@ -10,28 +10,19 @@ declare module "next-auth" {
     user: {
       id: string;
       name: string;
-      phone: string;
-      preacherType: PreacherType;
-      monthlyGoal: number;
     } & DefaultSession["user"]
   }
 
   interface User {
     id: string;
     name: string;
-    phone: string;
-    preacherType: PreacherType;
-    monthlyGoal: number;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
-    phone: string;
     name: string;
-    preacherType: PreacherType;
-    monthlyGoal: number;
   }
 }
 
@@ -56,10 +47,7 @@ export const authOptions: NextAuthOptions = {
           // Retornamos todos los campos que queremos guardar en el token/sesión
           return {
             id: user.id,
-            name: user.name,
-            phone: user.phone,
-            preacherType: user.preacherType,
-            monthlyGoal: user.monthlyGoal
+            name: user.name
           };
         }
         
@@ -75,10 +63,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         // Al iniciar sesión, guardamos todo en el token
         token.id = user.id;
-        token.phone = user.phone;
         token.name = user.name;
-        token.preacherType = user.preacherType;
-        token.monthlyGoal = user.monthlyGoal;
       }
       return token;
     },
@@ -86,10 +71,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         // Pasamos los datos del token a la sesión
         session.user.id = token.id;
-        session.user.phone = token.phone;
         session.user.name = token.name;
-        session.user.preacherType = token.preacherType;
-        session.user.monthlyGoal = token.monthlyGoal;
       }
       return session;
     }
@@ -99,7 +81,6 @@ export const authOptions: NextAuthOptions = {
   }
 };
 
-// 2. Método fácil para recuperar el usuario actual en Server Components/Actions
 export const getCurrentUser = async () => {
   const session = await getServerSession(authOptions);
   return session?.user;

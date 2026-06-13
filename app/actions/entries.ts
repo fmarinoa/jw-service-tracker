@@ -2,13 +2,26 @@
 
 import { revalidatePath } from 'next/cache';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-options';
+import { authOptions, getCurrentUser } from '@/lib/auth-options';
 import clientPromise from '@/lib/db';
 import { ObjectId } from 'mongodb';
 
 import { DateTime } from 'luxon';
 import { User } from '@/domain/User';
 import { Entry } from '@/domain/Entry';
+import { entriesRepository } from '@/repositories';
+
+export async function getEntriesForUser(): Promise<Entry[]> {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('Not authenticated');
+  const domainUser = new User(user);
+  const entries = await entriesRepository.getByUser(domainUser);
+  
+  return entries.map(entry => ({
+    ...entry,
+    user: { ...entry.user }
+  })) as Entry[];
+}
 
 export async function createEntry(data: Partial<Entry>) {
   const session = await getServerSession(authOptions);

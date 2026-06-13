@@ -17,6 +17,13 @@ export class EntriesRepository {
             .toArray();
 
         if (!result) return [];
-        return result.map((doc) => new Entry({ ...doc, id: doc._id.toString(), user: new User({ id: doc.userId }) }));
+        return result.map((doc) => {
+            const { _id, userId, ...rest } = doc;
+            return new Entry({
+                ...rest,
+                id: _id.toString(),
+                user: new User({ id: userId })
+            });
+        });
     }
 }
