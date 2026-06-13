@@ -11,7 +11,7 @@ export class Entry {
     type: SessionType;
     notes?: string;
     createdAt: number;
-    updatedAt: number;
+    updatedAt?: number;
 
     constructor(data: Partial<Entry>) {
         Object.assign(this, data);

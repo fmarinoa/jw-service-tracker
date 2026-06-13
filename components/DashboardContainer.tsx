@@ -12,7 +12,8 @@ import {
   LogOut,
   AlertCircle,
   GraduationCap,
-  MoreHorizontal
+  MoreHorizontal,
+  Settings
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -21,8 +22,8 @@ import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Dialog } from './ui/dialog';
 import { Input } from './ui/input';
-import { User } from '@/domain/User';
-import { Entry, SessionType } from '@/domain/Entry';
+import { PreacherType, PREACHER_TYPE_LABELS, DEFAULT_GOALS, User } from '@/domain/User';
+import { Entry, SessionType} from '@/domain/Entry';
 import { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
 
 const TYPE_LABELS: Record<SessionType, string> = {
@@ -55,6 +56,54 @@ export default function DashboardContainer({ initialEntries, user }: { initialEn
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Settings State
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [settingsPreacherType, setSettingsPreacherType] = useState<PreacherType>(user.preacherType || 'publisher');
+  const [settingsMonthlyGoal, setSettingsMonthlyGoal] = useState<number>(user.monthlyGoal ?? 0);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [settingsError, setSettingsError] = useState('');
+
+  const openSettingsModal = () => {
+    setSettingsPreacherType(user.preacherType || 'publisher');
+    setSettingsMonthlyGoal(user.monthlyGoal ?? 0);
+    setSettingsError('');
+    setShowSettingsModal(true);
+  };
+
+  const handlePreacherTypeChange = (type: PreacherType) => {
+    setSettingsPreacherType(type);
+    const defaultGoal = DEFAULT_GOALS[type];
+    setSettingsMonthlyGoal(defaultGoal !== null ? defaultGoal : 0);
+  };
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingSettings(true);
+    setSettingsError('');
+    try {
+      const res = await fetch('/api/user', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          preacherType: settingsPreacherType,
+          monthlyGoal: settingsMonthlyGoal,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error al guardar la configuración');
+      }
+
+      router.refresh();
+      setShowSettingsModal(false);
+    } catch (err: any) {
+      setSettingsError(err.message || 'Error al guardar');
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
   
   // Form State
   const [formDate, setFormDate] = useState(DateTime.now().toISODate()!);
@@ -205,28 +254,77 @@ Generado por *JW Service Tracker*`;
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6">
-      <header className="flex justify-between items-center py-4">
-        <h1 className="text-3xl font-bold text-primary">JW Tracker</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-muted-foreground">{user.name || user.phone}</span>
-          <Button variant="ghost" onClick={() => signOut()} className="text-red-600">
+      <header className="flex justify-between items-center py-4 border-b border-border/40">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight text-primary">JW Tracker</h1>
+          <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+            {PREACHER_TYPE_LABELS[user.preacherType || 'publisher']}
+            {user.monthlyGoal > 0 && (
+              <>
+                <br />
+                Meta: {user.monthlyGoal} horas
+              </>
+            )}
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="ghost" 
+            onClick={openSettingsModal} 
+            className="text-muted-foreground hover:text-primary hover:bg-primary/5 flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+          >
+            <Settings className="w-4 h-4" />
+            <span className="hidden sm:inline text-xs font-semibold">Configurar</span>
+          </Button>
+          <span className="text-sm font-medium border-l pl-3 py-1 border-border text-foreground">{user.name || user.phone}</span>
+          <Button variant="ghost" onClick={() => signOut()} className="text-red-600 hover:bg-red-50 hover:text-red-700 p-2 rounded-lg cursor-pointer">
             <LogOut className="w-5 h-5" />
           </Button>
         </div>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-2">
+        <Card className="md:col-span-2 shadow-sm border-border/80">
           <CardContent className="pt-6">
-            <div className="flex justify-between items-end">
+            <div className="flex justify-between items-start mb-4">
               <div>
-                <p className="text-sm text-muted-foreground uppercase tracking-widest">Horas del Mes</p>
-                <h2 className="text-5xl font-black text-primary mt-1">{reportedHours}h</h2>
+                <p className="text-sm text-muted-foreground uppercase tracking-widest font-semibold">Horas del Mes</p>
+                <h2 className="text-5xl font-black text-primary mt-1 tracking-tight">{reportedHours}h</h2>
               </div>
-              <Button onClick={() => { resetForm(); setShowAddModal(true); }} className="gap-2">
+              <Button onClick={() => { resetForm(); setShowAddModal(true); }} className="gap-2 shadow-sm hover:brightness-95 transition-all">
                 <Plus className="w-5 h-5" /> Registrar
               </Button>
             </div>
+
+            {user.monthlyGoal > 0 ? (
+              <div className="mt-4 pt-4 border-t border-border/60">
+                <div className="flex justify-between text-xs font-semibold text-muted-foreground mb-2">
+                  <span>Progreso de la meta</span>
+                  <span className="text-primary font-bold">{reportedHours} de {user.monthlyGoal} horas ({Math.round((reportedHours / user.monthlyGoal) * 100)}%)</span>
+                </div>
+                <div className="w-full bg-border/40 h-2.5 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-primary h-full transition-all duration-700 rounded-full" 
+                    style={{ width: `${Math.min(100, Math.round((reportedHours / user.monthlyGoal) * 100))}%` }} 
+                  />
+                </div>
+                {reportedHours >= user.monthlyGoal && (
+                  <p className="text-xs text-green-700 font-bold mt-2.5 animate-pulse flex items-center gap-1">
+                    🎉 ¡Felicidades! Has completado tu meta del mes.
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="mt-4 pt-4 border-t border-border/60 flex justify-between items-center text-xs text-muted-foreground">
+                <span>Sin meta de horas configurada.</span>
+                <button 
+                  onClick={openSettingsModal} 
+                  className="text-primary font-bold hover:underline transition-all cursor-pointer"
+                >
+                  Configurar una meta
+                </button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -330,6 +428,51 @@ Generado por *JW Service Tracker*`;
           {formError && <p className="text-red-600 text-xs flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {formError}</p>}
           <Button type="submit" className="w-full" disabled={isSubmitting || !!(editingEntry && !hasChanges)}>
             {isSubmitting ? 'Guardando...' : editingEntry ? 'Actualizar' : 'Guardar'}
+          </Button>
+        </form>
+      </Dialog>
+
+      <Dialog isOpen={showSettingsModal} onClose={() => setShowSettingsModal(false)} title="Configuración de Predicador">
+        <form onSubmit={handleSaveSettings} className="space-y-4">
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tipo de Predicador</label>
+            <select 
+              value={settingsPreacherType} 
+              onChange={e => handlePreacherTypeChange(e.target.value as PreacherType)}
+              className="w-full p-2.5 mt-1.5 rounded-lg border border-border bg-background text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all"
+            >
+              {(Object.keys(PREACHER_TYPE_LABELS) as PreacherType[]).map(type => (
+                <option key={type} value={type}>{PREACHER_TYPE_LABELS[type]}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <div className="flex justify-between items-center">
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Meta de Horas Mensual</label>
+              {DEFAULT_GOALS[settingsPreacherType] !== null && (
+                <button
+                  type="button"
+                  onClick={() => setSettingsMonthlyGoal(DEFAULT_GOALS[settingsPreacherType] || 0)}
+                  className="text-[10px] text-primary hover:underline font-bold cursor-pointer"
+                >
+                  Restablecer por defecto ({DEFAULT_GOALS[settingsPreacherType]}h)
+                </button>
+              )}
+            </div>
+            <Input 
+              type="number" 
+              value={settingsMonthlyGoal} 
+              onChange={e => setSettingsMonthlyGoal(parseInt(e.target.value) || 0)} 
+              min={0} 
+              className="mt-1.5"
+            />
+            <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">
+              Esta meta se utilizará para calcular tu progreso mensual en el panel principal.
+            </p>
+          </div>
+          {settingsError && <p className="text-red-600 text-xs flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {settingsError}</p>}
+          <Button type="submit" className="w-full mt-2 cursor-pointer" disabled={isSavingSettings}>
+            {isSavingSettings ? 'Guardando...' : 'Guardar Configuración'}
           </Button>
         </form>
       </Dialog>

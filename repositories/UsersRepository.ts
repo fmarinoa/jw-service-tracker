@@ -15,7 +15,7 @@ export class UsersRepository {
         return result ? new User({ ...result, id: result._id.toString() }) : null;
     }
 
-    async findById(id: string){
+    async findById(id: string) {
         const result = await this.props.collection.findOne({ _id: new ObjectId(id) });
         return result ? new User({ ...result, id: result._id.toString() }) : null;
     }
@@ -30,5 +30,19 @@ export class UsersRepository {
         }
         const result = await this.props.collection.insertOne(item);
         return new User({ ...item, id: result.insertedId.toString() });
+    }
+
+    async update(user: Partial<User>): Promise<User> {
+        const id = user.id;
+        if (!id) {
+            throw new Error('User ID is required for update');
+        }
+        const { id: _, ...updates } = user;
+        const updatedAt = DateTime.now().toMillis();
+        await this.props.collection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { ...updates, updatedAt } }
+        );
+        return new User({ ...user, updatedAt });
     }
 }
