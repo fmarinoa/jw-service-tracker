@@ -1,35 +1,21 @@
-import { NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth-options';
 import { User } from '@/domain/User';
 import { entriesRepository } from '@/repositories';
+import { handlerApiRequest } from '../_utils';
 
-export async function GET() {
-  const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-
+export const GET = handlerApiRequest(async (_req, { user }) => {
   const domainUser = new User(user);
   const entries = await entriesRepository.getByUser(domainUser);
 
-  // Serialize for JSON response
-  const serializedEntries = entries.map(entry => ({
+  // Return data directly, handler will wrap in JSON
+  return entries.map(entry => ({
     ...entry,
     user: { ...entry.user }
   }));
+}, { requiresAuth: true });
 
-  return NextResponse.json(serializedEntries);
-}
+export const POST = handlerApiRequest(async (_req, { user, body }) => {
+  const domainUser = new User(user);
+  const entry = await entriesRepository.create(domainUser, body);
 
-export async function POST(req: Request) {
-  const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-
-  try {
-    const data = await req.json();
-    const domainUser = new User(user);
-    await entriesRepository.create(domainUser, data);
-    
-    return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
+  return { success: true, entry };
+}, { requiresAuth: true, responseHttpCode: 201 });

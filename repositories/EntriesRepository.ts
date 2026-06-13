@@ -27,24 +27,39 @@ export class EntriesRepository {
         });
     }
 
-    async create(user: User, data: Partial<Entry>): Promise<void> {
-        await this.props.collection.insertOne({
+    async create(user: User, data: Partial<Entry>): Promise<Entry> {
+        const createdAt = DateTime.now().toMillis();
+        const result = await this.props.collection.insertOne({
             ...data,
             userId: user.id,
-            createdAt: DateTime.now().toMillis(),
+            createdAt,
+        });
+
+        return new Entry({
+            ...data,
+            id: result.insertedId.toString(),
+            user: new User({ id: user.id }),
+            createdAt,
         });
     }
 
-    async update(user: User, id: string, data: Partial<Entry>): Promise<void> {
+    async update(user: User, id: string, data: Partial<Entry>): Promise<Entry> {
+        const updatedAt = DateTime.now().toMillis();
         await this.props.collection.updateOne(
             { _id: new ObjectId(id), userId: user.id },
             {
                 $set: {
                     ...data,
-                    updatedAt: DateTime.now().toMillis(),
+                    updatedAt
                 },
             }
         );
+        return new Entry({
+            ...data,
+            id,
+            user: new User({ id: user.id }),
+            updatedAt,
+        });
     }
 
     async delete(user: User, id: string): Promise<void> {
@@ -53,4 +68,4 @@ export class EntriesRepository {
             userId: user.id,
         });
     }
-    }
+}
