@@ -1,11 +1,19 @@
-import { NextResponse } from 'next/server';
 import { User } from '@/domain/User';
+import { Entry } from '@/domain/Entry';
 import { entriesRepository } from '@/repositories';
 import { handlerApiRequest } from '../../_utils';
 
 export const PUT = handlerApiRequest(async (_req, { user, params, body }) => {
   const { id } = params;
   const domainUser = new User(user);
+
+  const error = Entry.validate(body);
+  if (error) {
+    return { 
+      status: 400, 
+      body: { error } 
+    };
+  }
   
   const updatedEntry = await entriesRepository.update(domainUser, id, body);
   

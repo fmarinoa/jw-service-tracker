@@ -1,4 +1,5 @@
 import { User } from '@/domain/User';
+import { Entry } from '@/domain/Entry';
 import { entriesRepository } from '@/repositories';
 import { handlerApiRequest } from '../_utils';
 
@@ -15,6 +16,15 @@ export const GET = handlerApiRequest(async (_req, { user }) => {
 
 export const POST = handlerApiRequest(async (_req, { user, body }) => {
   const domainUser = new User(user);
+  
+  const error = Entry.validate(body);
+  if (error) {
+    return { 
+      status: 400, 
+      body: { error } 
+    };
+  }
+
   const entry = await entriesRepository.create(domainUser, body);
 
   return { success: true, entry };

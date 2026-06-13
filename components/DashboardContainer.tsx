@@ -10,7 +10,9 @@ import {
   Edit2, 
   Trash2, 
   LogOut,
-  AlertCircle
+  AlertCircle,
+  GraduationCap,
+  MoreHorizontal
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -21,6 +23,21 @@ import { Dialog } from './ui/dialog';
 import { Input } from './ui/input';
 import { User } from '@/domain/User';
 import { Entry, SessionType } from '@/domain/Entry';
+import { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
+
+const TYPE_LABELS: Record<SessionType, string> = {
+  house_to_house: 'Casa en casa',
+  revisits: 'Revisitas',
+  bible_study: 'Estudio Bíblico',
+  other: 'Otro'
+};
+
+const TYPE_ICONS: Record<SessionType, React.ReactNode> = {
+  house_to_house: <BookOpen className="w-4 h-4 text-primary" />,
+  revisits: <RefreshCw className="w-4 h-4 text-primary" />,
+  bible_study: <GraduationCap className="w-4 h-4 text-primary" />,
+  other: <MoreHorizontal className="w-4 h-4 text-primary" />
+};
 
 export default function DashboardContainer({ initialEntries, user }: { initialEntries: Entry[], user: User }) {
   const router = useRouter();
@@ -32,6 +49,9 @@ export default function DashboardContainer({ initialEntries, user }: { initialEn
   }, [initialEntries]);
 
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,6 +63,15 @@ export default function DashboardContainer({ initialEntries, user }: { initialEn
   const [formType, setFormType] = useState<SessionType>('house_to_house');
   const [formNotes, setFormNotes] = useState('');
 
+  // Check if form has changes when editing
+  const hasChanges = editingEntry ? (
+    formDate !== DateTime.fromMillis(editingEntry.preachingDate).toISODate() ||
+    formHours !== editingEntry.hours ||
+    formMinutes !== editingEntry.minutes ||
+    formType !== editingEntry.type ||
+    formNotes.trim() !== (editingEntry.notes || '')
+  ) : true;
+
   const stats = entries.reduce((acc, curr) => {
     acc.totalMinutes += (curr.hours * 60) + curr.minutes;
     acc.byType[curr.type] = (acc.byType[curr.type] || 0) + (curr.hours * 60) + curr.minutes;
@@ -50,6 +79,15 @@ export default function DashboardContainer({ initialEntries, user }: { initialEn
   }, { totalMinutes: 0, byType: {} as Record<SessionType, number> });
 
   const reportedHours = Math.floor(stats.totalMinutes / 60);
+
+  const formatLongDate = (millis: number) => {
+    const dt = DateTime.fromMillis(millis).setLocale('es');
+    const formatted = dt.toFormat("EEEE d 'de' MMMM 'del' yyyy");
+    // Capitalizar primera letra
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  };
+
+  const [showExportSuccess, setShowExportSuccess] = useState(false);
 
   const handleExportWhatsApp = () => {
     const now = DateTime.now();
@@ -65,7 +103,8 @@ export default function DashboardContainer({ initialEntries, user }: { initialEn
 Generado por *JW Service Tracker*`;
 
     navigator.clipboard.writeText(text);
-    alert('¡Reporte copiado!');
+    setShowExportSuccess(true);
+    setTimeout(() => setShowExportSuccess(false), 5000);
   };
 
   const resetForm = () => {
@@ -80,6 +119,20 @@ Generado por *JW Service Tracker*`;
 
   const handleSaveEntry = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const trimmedNotes = formNotes.trim();
+
+    const validationError = Entry.validate({
+      hours: formHours,
+      minutes: formMinutes,
+      notes: trimmedNotes
+    });
+
+    if (validationError) {
+      setFormError(validationError);
+      return;
+    }
+
     if (formHours === 0 && formMinutes === 0) {
       setFormError('El tiempo debe ser mayor a 0');
       return;
@@ -92,7 +145,7 @@ Generado por *JW Service Tracker*`;
         hours: formHours,
         minutes: formMinutes,
         type: formType,
-        notes: formNotes
+        notes: trimmedNotes
       };
 
       if (editingEntry) {
@@ -119,16 +172,25 @@ Generado por *JW Service Tracker*`;
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('¿Borrar registro?')) return;
+  const handleDelete = async () => {
+    if (!entryToDelete) return;
+    setIsDeleting(true);
     try {
-      await fetch(`/api/entries/${id}`, {
+      await fetch(`/api/entries/${entryToDelete}`, {
         method: 'DELETE',
       });
       router.refresh();
+      setShowDeleteModal(false);
     } catch (err) {
       alert('Error al eliminar');
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const openDeleteModal = (id: string) => {
+    setEntryToDelete(id);
+    setShowDeleteModal(true);
   };
 
   const handleEdit = (entry: Entry) => {
@@ -173,17 +235,24 @@ Generado por *JW Service Tracker*`;
             <CardTitle className="text-base">Resumen</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="flex items-center gap-2"><BookOpen className="w-4 h-4 text-primary" /> Casa en casa</span>
-              <span className="font-bold">{Math.floor((stats.byType['house_to_house'] || 0)/60)}h</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="flex items-center gap-2"><RefreshCw className="w-4 h-4 text-primary" /> Revisitas</span>
-              <span className="font-bold">{Math.floor((stats.byType['revisits'] || 0)/60)}h</span>
-            </div>
-            <Button onClick={handleExportWhatsApp} variant="outline" className="w-full mt-2 gap-2">
-              <Share2 className="w-4 h-4" /> Exportar
-            </Button>
+            {(Object.keys(TYPE_LABELS) as SessionType[]).map((type) => (
+              <div key={type} className="flex justify-between text-sm">
+                <span className="flex items-center gap-2">
+                  {TYPE_ICONS[type]}
+                  {TYPE_LABELS[type]}
+                </span>
+                <span className="font-bold">{Math.floor((stats.byType[type] || 0)/60)}h</span>
+              </div>
+            ))}
+            {showExportSuccess ? (
+              <div className="w-full mt-2 h-10 flex items-center justify-center text-sm font-bold text-green-700 bg-green-50 rounded-lg border-2 border-green-600 animate-pulse">
+                ¡Copiado al portapapeles!
+              </div>
+            ) : (
+              <Button onClick={handleExportWhatsApp} variant="outline" className="w-full mt-2 gap-2">
+                <Share2 className="w-4 h-4" /> Exportar
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -200,12 +269,13 @@ Generado por *JW Service Tracker*`;
               {entries.map(entry => (
                 <div key={entry.id} className="py-4 flex justify-between items-center">
                   <div>
-                    <p className="font-medium">{DateTime.fromMillis(entry.preachingDate).toISODate()}</p>
-                    <p className="text-sm text-muted-foreground">{entry.hours}h {entry.minutes}m • {entry.type}</p>
+                    <p className="font-medium">{formatLongDate(entry.preachingDate)}</p>
+                    <p className="text-sm text-muted-foreground">{entry.hours}h {entry.minutes}m • {TYPE_LABELS[entry.type]}</p>
+                    {entry.notes && <p className="text-xs text-muted-foreground mt-1 italic">"{entry.notes}"</p>}
                   </div>
                   <div className="flex gap-2">
                     <Button variant="ghost" className="p-2" onClick={() => handleEdit(entry)}><Edit2 className="w-4 h-4" /></Button>
-                    <Button variant="ghost" className="p-2 text-red-600" onClick={() => handleDelete(entry.id)}><Trash2 className="w-4 h-4" /></Button>
+                    <Button variant="ghost" className="p-2 text-red-600" onClick={() => openDeleteModal(entry.id)}><Trash2 className="w-4 h-4" /></Button>
                   </div>
                 </div>
               ))}
@@ -239,18 +309,37 @@ Generado por *JW Service Tracker*`;
               onChange={e => setFormType(e.target.value as SessionType)}
               className="w-full p-2.5 rounded-lg border border-border bg-background text-sm"
             >
-              <option value="house_to_house">Casa en casa</option>
-              <option value="revisits">Revisitas</option>
-              <option value="bible_study">Estudio Bíblico</option>
-              <option value="other">Otro</option>
+              {(Object.keys(TYPE_LABELS) as SessionType[]).map(type => (
+                <option key={type} value={type}>{TYPE_LABELS[type]}</option>
+              ))}
             </select>
           </div>
+          <div>
+            <div className="flex justify-between items-center">
+              <label className="text-xs font-bold text-muted-foreground uppercase">Notas</label>
+              <span className="text-[10px] text-muted-foreground">{formNotes.length}/50</span>
+            </div>
+            <textarea
+              value={formNotes}
+              onChange={e => setFormNotes(e.target.value.slice(0, 50))}
+              className="w-full p-2.5 rounded-lg border border-border bg-background text-sm resize-none"
+              rows={2}
+              placeholder="Notas opcionales..."
+            />
+          </div>
           {formError && <p className="text-red-600 text-xs flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {formError}</p>}
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button type="submit" className="w-full" disabled={isSubmitting || (editingEntry && !hasChanges)}>
             {isSubmitting ? 'Guardando...' : editingEntry ? 'Actualizar' : 'Guardar'}
           </Button>
         </form>
       </Dialog>
+
+      <ConfirmDeleteDialog 
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
