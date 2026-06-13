@@ -12,12 +12,16 @@ export class UsersRepository {
 
     async findByPhone(phone: string) {
         const result = await this.props.collection.findOne({ phone });
-        return result ? new User({ ...result, id: result._id.toString() }) : null;
+        if (!result) return null;
+        const { _id, ...rest } = result;
+        return new User({ ...rest, id: _id.toString() });
     }
 
     async findById(id: string) {
         const result = await this.props.collection.findOne({ _id: new ObjectId(id) });
-        return result ? new User({ ...result, id: result._id.toString() }) : null;
+        if (!result) return null;
+        const { _id, ...rest } = result;
+        return new User({ ...rest, id: _id.toString() });
     }
 
     async create(user: User): Promise<User> {
