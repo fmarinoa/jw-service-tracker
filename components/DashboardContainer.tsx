@@ -328,7 +328,7 @@ Generado por *JW Service Tracker*`;
             />
           </div>
           {formError && <p className="text-red-600 text-xs flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {formError}</p>}
-          <Button type="submit" className="w-full" disabled={isSubmitting || (editingEntry && !hasChanges)}>
+          <Button type="submit" className="w-full" disabled={isSubmitting || !!(editingEntry && !hasChanges)}>
             {isSubmitting ? 'Guardando...' : editingEntry ? 'Actualizar' : 'Guardar'}
           </Button>
         </form>
