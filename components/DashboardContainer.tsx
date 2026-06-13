@@ -13,7 +13,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
-import { createEntry, deleteEntry, updateEntry } from '@/app/actions/entries';
+import { useRouter } from 'next/navigation';
 
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
@@ -23,7 +23,14 @@ import { User } from '@/domain/User';
 import { Entry, SessionType } from '@/domain/Entry';
 
 export default function DashboardContainer({ initialEntries, user }: { initialEntries: Entry[], user: User }) {
+  const router = useRouter();
   const [entries, setEntries] = useState<Entry[]>(initialEntries);
+  
+  // Sincronizar estado local con las props del servidor cuando hay revalidación
+  React.useEffect(() => {
+    setEntries(initialEntries);
+  }, [initialEntries]);
+
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [formError, setFormError] = useState('');
@@ -89,12 +96,22 @@ Generado por *JW Service Tracker*`;
       };
 
       if (editingEntry) {
-        await updateEntry(editingEntry.id, payload);
+        await fetch(`/api/entries/${editingEntry.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
       } else {
-        await createEntry(payload);
+        await fetch('/api/entries', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
       }
       
-      window.location.reload(); 
+      router.refresh();
+      setShowAddModal(false);
+      resetForm();
     } catch (err) {
       setFormError('Error al guardar');
     } finally {
@@ -105,8 +122,10 @@ Generado por *JW Service Tracker*`;
   const handleDelete = async (id: string) => {
     if (!confirm('¿Borrar registro?')) return;
     try {
-      await deleteEntry(id);
-      window.location.reload();
+      await fetch(`/api/entries/${id}`, {
+        method: 'DELETE',
+      });
+      router.refresh();
     } catch (err) {
       alert('Error al eliminar');
     }

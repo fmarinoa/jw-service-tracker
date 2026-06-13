@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { registerUser } from '@/app/actions/auth';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -25,7 +24,17 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      await registerUser(new User({ phone: identifier, name, password }));
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: identifier, name, password }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Error al registrarse');
+      }
+
       router.push('/login?registered=true');
     } catch (err: any) {
       setError(err.message || 'Error al registrarse');
