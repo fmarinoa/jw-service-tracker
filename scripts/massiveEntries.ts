@@ -79,6 +79,8 @@ function mapSessionType(input: string): SessionType {
   return "other";
 }
 
+const TIMEZONE = process.env.TIMEZONE || "America/Lima";
+
 function parsePreachingDate(input: string): number {
   const dateStr = input.trim();
 
@@ -100,7 +102,7 @@ function parsePreachingDate(input: string): number {
         month: parseInt(month, 10),
         year: parseInt(year, 10),
       },
-      { zone: "utc" },
+      { zone: TIMEZONE },
     );
     if (dt.isValid) return dt.toMillis();
   }
@@ -115,14 +117,19 @@ function parsePreachingDate(input: string): number {
         month: parseInt(month, 10),
         year: parseInt(year, 10),
       },
-      { zone: "utc" },
+      { zone: TIMEZONE },
     );
     if (dt.isValid) return dt.toMillis();
   }
 
+  const dtIso = DateTime.fromISO(dateStr, { zone: TIMEZONE });
+  if (dtIso.isValid) {
+    return dtIso.startOf("day").toMillis();
+  }
+
   const parsed = Date.parse(dateStr);
   if (!isNaN(parsed)) {
-    return parsed;
+    return DateTime.fromMillis(parsed, { zone: TIMEZONE }).startOf("day").toMillis();
   }
 
   throw new Error(`Fecha inválida o no soportada: "${input}"`);

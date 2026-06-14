@@ -32,7 +32,7 @@ export class UsersRepository extends BaseRepository {
     return this.handlerCollection(async (collection) => {
       const hashedPassword = await bcrypt.hash(user.password, 10);
       const item = {
-        ...user,
+        ...this.cleanObject(user),
         name: user.name.toUpperCase(),
         password: hashedPassword,
         createdAt: DateTime.now().toMillis(),
@@ -48,11 +48,18 @@ export class UsersRepository extends BaseRepository {
       if (!id) {
         throw new Error("User ID is required for update");
       }
+
       const { id: _, ...updates } = user;
       const updatedAt = DateTime.now().toMillis();
+      const item = {
+        ...this.cleanObject(updates),
+        updatedAt,
+      }
+
       await collection.updateOne(this.buildIdFilter(id), {
-        $set: { ...updates, updatedAt },
+        $set: item,
       });
+      
       return new User({ ...user, updatedAt });
     });
   }

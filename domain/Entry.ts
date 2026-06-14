@@ -75,8 +75,12 @@ export class Entry {
   }
 
   preachingDateNotInFuture() {
-    const dateToValidate = DateTime.now().startOf("day").toMillis();
-    if (this.preachingDate > dateToValidate) {
+    // Para evitar que se registren fechas futuras en la zona horaria del cliente
+    // (por ejemplo, registrar el día de mañana antes de tiempo), comparamos contra
+    // el tiempo absoluto actual más un margen de 10 minutos para tolerar desfases de reloj.
+    const toleranceBufferMs = 10 * 60 * 1000; // 10 minutos
+    const maxAllowedTimestamp = DateTime.now().toMillis() + toleranceBufferMs;
+    if (this.preachingDate > maxAllowedTimestamp) {
       throw new Error("La fecha de predicación no puede ser futura.");
     }
   }
