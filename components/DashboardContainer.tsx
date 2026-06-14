@@ -2,13 +2,13 @@
 
 import React, { useState } from 'react';
 import { DateTime } from 'luxon';
-import { 
-  Plus, 
-  Share2, 
-  BookOpen, 
-  RefreshCw, 
-  Edit2, 
-  Trash2, 
+import {
+  Plus,
+  Share2,
+  BookOpen,
+  RefreshCw,
+  Edit2,
+  Trash2,
   LogOut,
   AlertCircle,
   GraduationCap,
@@ -16,14 +16,13 @@ import {
   Settings
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Dialog } from './ui/dialog';
 import { Input } from './ui/input';
 import { PreacherType, PREACHER_TYPE_LABELS, DEFAULT_GOALS, User } from '@/domain/User';
-import { Entry, SessionType} from '@/domain/Entry';
+import { Entry, SessionType } from '@/domain/Entry';
 import { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
 
 const TYPE_LABELS: Record<SessionType, string> = {
@@ -40,14 +39,40 @@ const TYPE_ICONS: Record<SessionType, React.ReactNode> = {
   other: <MoreHorizontal className="w-4 h-4 text-primary" />
 };
 
-export default function DashboardContainer({ initialEntries, user }: { initialEntries: Entry[], user: User }) {
-  const router = useRouter();
-  const [entries, setEntries] = useState<Entry[]>(initialEntries);
-  
-  // Sincronizar estado local con las props del servidor cuando hay revalidación
+export default function DashboardContainer({ userId }: { userId: string }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [entries, setEntries] = useState<Entry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchDashboardData = React.useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const [userRes, entriesRes] = await Promise.all([
+        fetch('/api/user'),
+        fetch('/api/entries')
+      ]);
+
+      if (!userRes.ok || !entriesRes.ok) {
+        throw new Error('Error al obtener datos');
+      }
+
+      const userData = await userRes.json();
+      const entriesData = await entriesRes.json();
+
+      setUser(new User(userData.user));
+      setEntries(entriesData.map((e: any) => new Entry(e)));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   React.useEffect(() => {
-    setEntries(initialEntries);
-  }, [initialEntries]);
+    if (userId) {
+      fetchDashboardData();
+    }
+  }, [userId, fetchDashboardData]);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -56,17 +81,20 @@ export default function DashboardContainer({ initialEntries, user }: { initialEn
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Settings State
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [settingsPreacherType, setSettingsPreacherType] = useState<PreacherType>(user.preacherType || 'publisher');
-  const [settingsMonthlyGoal, setSettingsMonthlyGoal] = useState<number>(user.monthlyGoal ?? 0);
+  const [settingsPreacherType, setSettingsPreacherType] = useState<PreacherType>('publisher');
+  const [settingsMonthlyGoal, setSettingsMonthlyGoal] = useState<number>(0);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [settingsError, setSettingsError] = useState('');
+  const [showExportSuccess, setShowExportSuccess] = useState(false);
 
   const openSettingsModal = () => {
-    setSettingsPreacherType(user.preacherType || 'publisher');
-    setSettingsMonthlyGoal(user.monthlyGoal ?? 0);
+    if (user) {
+      setSettingsPreacherType(user.preacherType || 'publisher');
+      setSettingsMonthlyGoal(user.monthlyGoal ?? 0);
+    }
     setSettingsError('');
     setShowSettingsModal(true);
   };
@@ -96,7 +124,7 @@ export default function DashboardContainer({ initialEntries, user }: { initialEn
         throw new Error(data.error || 'Error al guardar la configuración');
       }
 
-      router.refresh();
+      await fetchDashboardData();
       setShowSettingsModal(false);
     } catch (err: any) {
       setSettingsError(err.message || 'Error al guardar');
@@ -104,7 +132,7 @@ export default function DashboardContainer({ initialEntries, user }: { initialEn
       setIsSavingSettings(false);
     }
   };
-  
+
   // Form State
   const [formDate, setFormDate] = useState(DateTime.now().toISODate()!);
   const [formHours, setFormHours] = useState(1);
@@ -121,6 +149,83 @@ export default function DashboardContainer({ initialEntries, user }: { initialEn
     formNotes.trim() !== (editingEntry.notes || '')
   ) : true;
 
+  if (isLoading || !user) {
+    return (
+      <div className="max-w-4xl mx-auto p-4 space-y-6 animate-pulse">
+        {/* Header Skeleton */}
+        <header className="flex justify-between items-center py-4 border-b border-border/40">
+          <div className="space-y-2">
+            <div className="h-8 w-40 bg-muted rounded-md" />
+            <div className="h-4 w-24 bg-muted rounded-md" />
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-24 bg-muted rounded-md hidden sm:block" />
+            <div className="h-5 w-20 bg-muted rounded-md" />
+            <div className="h-8 w-8 bg-muted rounded-md" />
+          </div>
+        </header>
+
+        {/* Grid Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Main Stats Card Skeleton */}
+          <div className="md:col-span-2 border border-border/80 rounded-xl p-6 space-y-6">
+            <div className="flex justify-between items-start">
+              <div className="space-y-2">
+                <div className="h-3 w-24 bg-muted rounded-md" />
+                <div className="h-12 w-28 bg-muted rounded-md" />
+              </div>
+              <div className="h-10 w-28 bg-muted rounded-md" />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <div className="h-3 w-32 bg-muted rounded-md" />
+                <div className="h-3 w-16 bg-muted rounded-md" />
+              </div>
+              <div className="h-2.5 w-full bg-muted rounded-full" />
+            </div>
+          </div>
+
+          {/* Summary Card Skeleton */}
+          <div className="border border-border/80 rounded-xl p-6 space-y-4">
+            <div className="h-4 w-20 bg-muted rounded-md mb-2" />
+            <div className="space-y-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 bg-muted rounded-full" />
+                    <div className="h-4.5 w-24 bg-muted rounded-md" />
+                  </div>
+                  <div className="h-4 w-8 bg-muted rounded-md" />
+                </div>
+              ))}
+            </div>
+            <div className="h-10 w-full bg-muted rounded-md" />
+          </div>
+        </div>
+
+        {/* Recent Activity Skeleton */}
+        <div className="border border-border/80 rounded-xl p-6 space-y-4">
+          <div className="h-5 w-36 bg-muted rounded-md" />
+          <div className="divide-y divide-border/60">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="py-4 flex justify-between items-center">
+                <div className="space-y-2">
+                  <div className="h-4.5 w-48 bg-muted rounded-md" />
+                  <div className="h-3.5 w-32 bg-muted rounded-md" />
+                  <div className="h-3.5 w-56 bg-muted rounded-md" />
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-8 w-8 bg-muted rounded-md" />
+                  <div className="h-8 w-8 bg-muted rounded-md" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const stats = entries.reduce((acc, curr) => {
     acc.totalMinutes += (curr.hours * 60) + curr.minutes;
     acc.byType[curr.type] = (acc.byType[curr.type] || 0) + (curr.hours * 60) + curr.minutes;
@@ -129,10 +234,10 @@ export default function DashboardContainer({ initialEntries, user }: { initialEn
 
   const reportedHours = Math.floor(stats.totalMinutes / 60);
 
-  const progressPercentage = user.monthlyGoal > 0 
+  const progressPercentage = user.monthlyGoal > 0
     ? Math.min(100, Math.round((reportedHours / user.monthlyGoal) * 100))
     : 0;
-  const hoursLeft = user.monthlyGoal > 0 
+  const hoursLeft = user.monthlyGoal > 0
     ? Math.max(0, user.monthlyGoal - reportedHours)
     : 0;
   const percentageLeft = Math.max(0, 100 - progressPercentage);
@@ -147,8 +252,6 @@ export default function DashboardContainer({ initialEntries, user }: { initialEn
     // Capitalizar primera letra
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   };
-
-  const [showExportSuccess, setShowExportSuccess] = useState(false);
 
   const handleExportWhatsApp = () => {
     const now = DateTime.now();
@@ -180,14 +283,20 @@ Generado por *JW Service Tracker*`;
 
   const handleSaveEntry = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const trimmedNotes = formNotes.trim();
 
-    const validationError = Entry.validate({
-      hours: formHours,
-      minutes: formMinutes,
-      notes: trimmedNotes
-    });
+    const trimmedNotes = formNotes.trim();
+    let validationError: string | null = null;
+
+    try {
+      const entry = new Entry({
+        hours: formHours,
+        minutes: formMinutes,
+        notes: trimmedNotes
+      });
+      entry.validateHourPlusMinutes();
+    } catch (err) {
+      validationError = err instanceof Error ? err.message : 'Error de validación';
+    }
 
     if (validationError) {
       setFormError(validationError);
@@ -222,8 +331,8 @@ Generado por *JW Service Tracker*`;
           body: JSON.stringify(payload),
         });
       }
-      
-      router.refresh();
+
+      await fetchDashboardData();
       setShowAddModal(false);
       resetForm();
     } catch (err) {
@@ -240,7 +349,7 @@ Generado por *JW Service Tracker*`;
       await fetch(`/api/entries/${entryToDelete}`, {
         method: 'DELETE',
       });
-      router.refresh();
+      await fetchDashboardData();
       setShowDeleteModal(false);
     } catch (err) {
       alert('Error al eliminar');
@@ -280,9 +389,9 @@ Generado por *JW Service Tracker*`;
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button 
-            variant="ghost" 
-            onClick={openSettingsModal} 
+          <Button
+            variant="ghost"
+            onClick={openSettingsModal}
             className="text-muted-foreground hover:text-primary hover:bg-primary/5 flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer"
           >
             <Settings className="w-4 h-4" />
@@ -319,9 +428,9 @@ Generado por *JW Service Tracker*`;
                         <span className="text-primary font-bold">{reportedHours} de {user.monthlyGoal} horas ({progressPercentage}%)</span>
                       </div>
                       <div className="w-full bg-border/40 h-2.5 rounded-full overflow-hidden">
-                        <div 
-                          className="bg-primary h-full transition-all duration-700 rounded-full" 
-                          style={{ width: `${progressPercentage}%` }} 
+                        <div
+                          className="bg-primary h-full transition-all duration-700 rounded-full"
+                          style={{ width: `${progressPercentage}%` }}
                         />
                       </div>
                       {reportedHours >= user.monthlyGoal ? (
@@ -337,8 +446,8 @@ Generado por *JW Service Tracker*`;
                   ) : (
                     <div className="mt-6 pt-4 border-t border-border/60 flex justify-between items-center text-xs text-muted-foreground">
                       <span>Sin meta de horas configurada.</span>
-                      <button 
-                        onClick={openSettingsModal} 
+                      <button
+                        onClick={openSettingsModal}
                         className="text-primary font-bold hover:underline transition-all cursor-pointer"
                       >
                         Configurar una meta
@@ -415,7 +524,7 @@ Generado por *JW Service Tracker*`;
                   {TYPE_ICONS[type]}
                   {TYPE_LABELS[type]}
                 </span>
-                <span className="font-bold">{Math.floor((stats.byType[type] || 0)/60)}h</span>
+                <span className="font-bold">{Math.floor((stats.byType[type] || 0) / 60)}h</span>
               </div>
             ))}
             {showExportSuccess ? (
@@ -478,8 +587,8 @@ Generado por *JW Service Tracker*`;
           </div>
           <div>
             <label className="text-xs font-bold text-muted-foreground uppercase">Tipo</label>
-            <select 
-              value={formType} 
+            <select
+              value={formType}
               onChange={e => setFormType(e.target.value as SessionType)}
               className="w-full p-2.5 rounded-lg border border-border bg-background text-sm"
             >
@@ -501,7 +610,7 @@ Generado por *JW Service Tracker*`;
               placeholder="Notas opcionales..."
             />
           </div>
-          {formError && <p className="text-red-600 text-xs flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {formError}</p>}
+          {formError && <p className="text-red-600 text-xs flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {formError}</p>}
           <Button type="submit" className="w-full" disabled={isSubmitting || !!(editingEntry && !hasChanges)}>
             {isSubmitting ? 'Guardando...' : editingEntry ? 'Actualizar' : 'Guardar'}
           </Button>
@@ -512,8 +621,8 @@ Generado por *JW Service Tracker*`;
         <form onSubmit={handleSaveSettings} className="space-y-4">
           <div>
             <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tipo de Predicador</label>
-            <select 
-              value={settingsPreacherType} 
+            <select
+              value={settingsPreacherType}
               onChange={e => handlePreacherTypeChange(e.target.value as PreacherType)}
               className="w-full p-2.5 mt-1.5 rounded-lg border border-border bg-background text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all"
             >
@@ -535,25 +644,25 @@ Generado por *JW Service Tracker*`;
                 </button>
               )}
             </div>
-            <Input 
-              type="number" 
-              value={settingsMonthlyGoal} 
-              onChange={e => setSettingsMonthlyGoal(parseInt(e.target.value) || 0)} 
-              min={0} 
+            <Input
+              type="number"
+              value={settingsMonthlyGoal}
+              onChange={e => setSettingsMonthlyGoal(parseInt(e.target.value) || 0)}
+              min={0}
               className="mt-1.5"
             />
             <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">
               Esta meta se utilizará para calcular tu progreso mensual en el panel principal.
             </p>
           </div>
-          {settingsError && <p className="text-red-600 text-xs flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {settingsError}</p>}
+          {settingsError && <p className="text-red-600 text-xs flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {settingsError}</p>}
           <Button type="submit" className="w-full mt-2 cursor-pointer" disabled={isSavingSettings}>
             {isSavingSettings ? 'Guardando...' : 'Guardar Configuración'}
           </Button>
         </form>
       </Dialog>
 
-      <ConfirmDeleteDialog 
+      <ConfirmDeleteDialog
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDelete}

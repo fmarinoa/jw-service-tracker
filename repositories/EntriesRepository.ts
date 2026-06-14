@@ -29,11 +29,12 @@ export class EntriesRepository {
 
     async create(user: User, data: Partial<Entry>): Promise<Entry> {
         const createdAt = DateTime.now().toMillis();
-        const result = await this.props.collection.insertOne({
+        const item = {
             ...data,
             userId: user.id,
             createdAt,
-        });
+        }
+        const result = await this.props.collection.insertOne(item);
 
         return new Entry({
             ...data,
@@ -43,20 +44,23 @@ export class EntriesRepository {
         });
     }
 
-    async update(user: User, id: string, data: Partial<Entry>): Promise<Entry> {
+    async update(user: User, entry: Entry): Promise<Entry> {
         const updatedAt = DateTime.now().toMillis();
+        const item = {
+            ...entry,
+            updatedAt,
+        }
         await this.props.collection.updateOne(
-            { _id: new ObjectId(id), userId: user.id },
+            { _id: new ObjectId(entry.id), userId: user.id },
             {
                 $set: {
-                    ...data,
-                    updatedAt
+                    item
                 },
             }
         );
         return new Entry({
-            ...data,
-            id,
+            ...entry,
+            id: entry.id,
             user: new User({ id: user.id }),
             updatedAt,
         });

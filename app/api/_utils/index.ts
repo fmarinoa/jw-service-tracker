@@ -44,7 +44,7 @@ export function handlerApiRequest(
       const resolvedParams = await params;
       const result = await callback(req, { user, params: resolvedParams, body });
 
-      if (result instanceof Response) {
+      if (result instanceof NextResponse) {
         return result;
       }
 
