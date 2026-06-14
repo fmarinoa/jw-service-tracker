@@ -1,5 +1,6 @@
 import z from "zod";
 import { User } from "./User";
+import { DateTime } from "luxon";
 
 export const SessionType = {
     house_to_house: 'house_to_house',
@@ -17,7 +18,7 @@ export const baseSchema = z.object({
     notes: z.string().max(50, "Las notas no pueden tener más de 50 caracteres").optional()
 });
 
-export const updateSchema = z.object({
+export const updateSchema = baseSchema.extend({
     id: z.string().min(1, "ID de entrada inválido"),
 });
 
@@ -56,6 +57,13 @@ export class Entry {
         const totalMinutes = (this.hours * 60) + this.minutes;
         if (totalMinutes > 24 * 60) {
             throw new Error("La duración total no puede exceder las 24 horas en un día.");
+        }
+    }
+
+    preachingDateNotInFuture() {
+        const dateToValidate =  DateTime.now().startOf('day').toMillis();
+        if (this.preachingDate > dateToValidate) {
+            throw new Error("La fecha de predicación no puede ser futura.");
         }
     }
 }

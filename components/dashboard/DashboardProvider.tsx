@@ -280,6 +280,7 @@ Generado por *JW Service Tracker*`;
     }
 
     setIsSubmitting(true);
+    setFormError('');
     try {
       const payload = {
         preachingDate: DateTime.fromISO(formDate).toMillis(),
@@ -289,25 +290,28 @@ Generado por *JW Service Tracker*`;
         notes: trimmedNotes
       };
 
-      if (editingEntry) {
-        await fetch(`/api/entries/${editingEntry.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-      } else {
-        await fetch('/api/entries', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+      const res = editingEntry
+        ? await fetch(`/api/entries/${editingEntry.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+        : await fetch('/api/entries', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error al guardar');
       }
 
       await fetchDashboardData();
       setShowAddModal(false);
       resetForm();
-    } catch (err) {
-      setFormError('Error al guardar');
+    } catch (err: any) {
+      setFormError(err.message || 'Error al guardar');
     } finally {
       setIsSubmitting(false);
     }
@@ -317,13 +321,17 @@ Generado por *JW Service Tracker*`;
     if (!entryToDelete) return;
     setIsDeleting(true);
     try {
-      await fetch(`/api/entries/${entryToDelete}`, {
+      const res = await fetch(`/api/entries/${entryToDelete}`, {
         method: 'DELETE',
       });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Error al eliminar');
+      }
       await fetchDashboardData();
       setShowDeleteModal(false);
-    } catch (err) {
-      alert('Error al eliminar');
+    } catch (err: any) {
+      alert(err.message || 'Error al eliminar');
     } finally {
       setIsDeleting(false);
     }

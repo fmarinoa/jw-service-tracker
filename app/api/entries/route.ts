@@ -22,6 +22,7 @@ export const POST = handlerApiRequest(async (_req, { user, body }) => {
   try {
     entry = Entry.validateForCreate(body);
     entry.validateHourPlusMinutes();
+    entry.preachingDateNotInFuture();
   } catch (error) {
     return NextResponse.json({
       success: false,

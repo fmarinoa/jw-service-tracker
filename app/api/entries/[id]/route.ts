@@ -12,6 +12,7 @@ export const PUT = handlerApiRequest(async (_req, { user, params, body }) => {
   try {
     entry = Entry.validateForUpdate({ ...body, id });
     entry.validateHourPlusMinutes();
+    entry.preachingDateNotInFuture();
   } catch (error) {
     return NextResponse.json({
       success: false,
