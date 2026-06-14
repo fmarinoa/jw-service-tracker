@@ -1,12 +1,14 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Share2 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
-import { SessionType } from '@/domain/Entry';
-import { useDashboard } from './DashboardProvider';
-import { TYPE_LABELS, TYPE_ICONS } from './constants';
+import { Share2 } from "lucide-react";
+import React from "react";
+
+import { SessionType } from "@/domain/Entry";
+
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { TYPE_ICONS, TYPE_LABELS } from "./constants";
+import { useDashboard } from "./DashboardProvider";
 
 export function SummaryCard() {
   const { stats, showExportSuccess, handleExportWhatsApp } = useDashboard();
@@ -33,7 +35,11 @@ export function SummaryCard() {
             ¡Copiado al portapapeles!
           </div>
         ) : (
-          <Button onClick={handleExportWhatsApp} variant="outline" className="w-full mt-2 gap-2">
+          <Button
+            onClick={handleExportWhatsApp}
+            variant="outline"
+            className="w-full mt-2 gap-2"
+          >
             <Share2 className="w-4 h-4" /> Exportar
           </Button>
         )}

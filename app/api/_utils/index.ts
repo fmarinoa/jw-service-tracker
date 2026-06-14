@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth-options';
+import { NextResponse } from "next/server";
+
+import { getCurrentUser } from "@/lib/auth-options";
 
 export async function withAuth() {
   const user = await getCurrentUser();
@@ -7,7 +8,10 @@ export async function withAuth() {
   if (!user) {
     return {
       user: null,
-      errorResponse: NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+      errorResponse: NextResponse.json(
+        { error: "Not authenticated" },
+        { status: 401 },
+      ),
     };
   }
 
@@ -20,8 +24,11 @@ interface HandlerOptions {
 }
 
 export function handlerApiRequest(
-  callback: (req: Request, context: { user?: any; params?: any; body?: any }) => Promise<Response | any>,
-  options?: HandlerOptions
+  callback: (
+    req: Request,
+    context: { user?: any; params?: any; body?: any },
+  ) => Promise<Response | any>,
+  options?: HandlerOptions,
 ) {
   return async (req: Request, { params }: { params?: any } = {}) => {
     try {
@@ -33,7 +40,7 @@ export function handlerApiRequest(
       }
 
       let body = null;
-      if (req.method !== 'GET' && req.method !== 'DELETE') {
+      if (req.method !== "GET" && req.method !== "DELETE") {
         try {
           body = await req.json();
         } catch (e) {
@@ -42,18 +49,24 @@ export function handlerApiRequest(
         }
       }
       const resolvedParams = await params;
-      const result = await callback(req, { user, params: resolvedParams, body });
+      const result = await callback(req, {
+        user,
+        params: resolvedParams,
+        body,
+      });
 
       if (result instanceof NextResponse) {
         return result;
       }
 
-      return NextResponse.json(result, { status: options?.responseHttpCode || 200 });
+      return NextResponse.json(result, {
+        status: options?.responseHttpCode || 200,
+      });
     } catch (error: any) {
-      console.error('API Error:', error);
+      console.error("API Error:", error);
       return NextResponse.json(
-        { error: error.message || 'Internal Server Error' },
-        { status: 500 }
+        { error: error.message || "Internal Server Error" },
+        { status: 500 },
       );
     }
   };

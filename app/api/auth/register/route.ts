@@ -1,19 +1,27 @@
-import { NextResponse } from 'next/server';
-import { User } from '@/domain/User';
-import { usersRepository } from '@/repositories';
-import { handlerApiRequest } from '../../_utils';
+import { NextResponse } from "next/server";
 
-export const POST = handlerApiRequest(async (_req, { body }) => {
-  const user = User.validateForRegistration(body);
-  const existingUser = await usersRepository.findByPhone(user.phone);
+import { User } from "@/domain/User";
+import { usersRepository } from "@/repositories";
 
-  if (existingUser) {
-    return NextResponse.json({ error: 'El celular ya está registrado.' }, { status: 400 });
-  }
+import { handlerApiRequest } from "../../_utils";
 
-  const createdUser = await usersRepository.create(user);
-  // Serialize for response
-  const { password, ...safeUser } = createdUser;
+export const POST = handlerApiRequest(
+  async (_req, { body }) => {
+    const user = User.validateForRegistration(body);
+    const existingUser = await usersRepository.findByPhone(user.phone);
 
-  return { user: safeUser, success: true };
-}, { responseHttpCode: 201 });
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "El celular ya está registrado." },
+        { status: 400 },
+      );
+    }
+
+    const createdUser = await usersRepository.create(user);
+    // Serialize for response
+    const { password, ...safeUser } = createdUser;
+
+    return { user: safeUser, success: true };
+  },
+  { responseHttpCode: 201 },
+);

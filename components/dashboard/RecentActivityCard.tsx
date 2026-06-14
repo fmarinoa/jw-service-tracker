@@ -1,18 +1,19 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Edit2, Trash2 } from 'lucide-react';
-import { DateTime } from 'luxon';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
-import { useDashboard } from './DashboardProvider';
-import { TYPE_LABELS } from './constants';
+import { Edit2, Trash2 } from "lucide-react";
+import { DateTime } from "luxon";
+import React from "react";
+
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { TYPE_LABELS } from "./constants";
+import { useDashboard } from "./DashboardProvider";
 
 export function RecentActivityCard() {
   const { entries, handleEdit, openDeleteModal } = useDashboard();
 
   const formatLongDate = (millis: number) => {
-    const dt = DateTime.fromMillis(millis).setLocale('es');
+    const dt = DateTime.fromMillis(millis).setLocale("es");
     const formatted = dt.toFormat("EEEE d 'de' MMMM 'del' yyyy");
     // Capitalize first letter
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
@@ -31,9 +32,14 @@ export function RecentActivityCard() {
         ) : (
           <div className="divide-y divide-border">
             {entries.map((entry) => (
-              <div key={entry.id} className="py-4 flex justify-between items-center">
+              <div
+                key={entry.id}
+                className="py-4 flex justify-between items-center"
+              >
                 <div>
-                  <p className="font-medium">{formatLongDate(entry.preachingDate)}</p>
+                  <p className="font-medium">
+                    {formatLongDate(entry.preachingDate)}
+                  </p>
                   <p className="text-sm text-muted-foreground">
                     {entry.hours}h {entry.minutes}m • {TYPE_LABELS[entry.type]}
                   </p>

@@ -1,10 +1,17 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { DateTime } from 'luxon';
-import { signOut } from 'next-auth/react';
-import { PreacherType, DEFAULT_GOALS, User } from '@/domain/User';
-import { Entry, SessionType } from '@/domain/Entry';
+import { DateTime } from "luxon";
+import { signOut } from "next-auth/react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
+import { Entry, SessionType } from "@/domain/Entry";
+import { DEFAULT_GOALS, PreacherType, User } from "@/domain/User";
 
 interface DashboardContextType {
   userId: string;
@@ -77,11 +84,13 @@ interface DashboardContextType {
   handleExportWhatsApp: () => void;
 }
 
-const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
+const DashboardContext = createContext<DashboardContextType | undefined>(
+  undefined,
+);
 
 export function DashboardProvider({
   userId,
-  children
+  children,
 }: {
   userId: string;
   children: React.ReactNode;
@@ -94,12 +103,12 @@ export function DashboardProvider({
     try {
       setIsLoading(true);
       const [userRes, entriesRes] = await Promise.all([
-        fetch('/api/user'),
-        fetch('/api/entries')
+        fetch("/api/user"),
+        fetch("/api/entries"),
       ]);
 
       if (!userRes.ok || !entriesRes.ok) {
-        throw new Error('Error al obtener datos');
+        throw new Error("Error al obtener datos");
       }
 
       const userData = await userRes.json();
@@ -125,15 +134,16 @@ export function DashboardProvider({
   const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
-  const [formError, setFormError] = useState('');
+  const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Settings State
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [settingsPreacherType, setSettingsPreacherType] = useState<PreacherType>('publisher');
+  const [settingsPreacherType, setSettingsPreacherType] =
+    useState<PreacherType>("publisher");
   const [settingsMonthlyGoal, setSettingsMonthlyGoal] = useState<number>(0);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
-  const [settingsError, setSettingsError] = useState('');
+  const [settingsError, setSettingsError] = useState("");
   const [showExportSuccess, setShowExportSuccess] = useState(false);
   const [disableLogout, setDisableLogout] = useState(false);
 
@@ -141,15 +151,15 @@ export function DashboardProvider({
   const [formDate, setFormDate] = useState(DateTime.now().toISODate()!);
   const [formHours, setFormHours] = useState(1);
   const [formMinutes, setFormMinutes] = useState(0);
-  const [formType, setFormType] = useState<SessionType>('house_to_house');
-  const [formNotes, setFormNotes] = useState('');
+  const [formType, setFormType] = useState<SessionType>("house_to_house");
+  const [formNotes, setFormNotes] = useState("");
 
   const openSettingsModal = () => {
     if (user) {
-      setSettingsPreacherType(user.preacherType || 'publisher');
+      setSettingsPreacherType(user.preacherType || "publisher");
       setSettingsMonthlyGoal(user.monthlyGoal ?? 0);
     }
-    setSettingsError('');
+    setSettingsError("");
     setShowSettingsModal(true);
   };
 
@@ -167,11 +177,11 @@ export function DashboardProvider({
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSavingSettings(true);
-    setSettingsError('');
+    setSettingsError("");
     try {
-      const res = await fetch('/api/user', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/user", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           preacherType: settingsPreacherType,
           monthlyGoal: settingsMonthlyGoal,
@@ -180,53 +190,56 @@ export function DashboardProvider({
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Error al guardar la configuración');
+        throw new Error(data.error || "Error al guardar la configuración");
       }
 
       await fetchDashboardData();
       setShowSettingsModal(false);
     } catch (err: any) {
-      setSettingsError(err.message || 'Error al guardar');
+      setSettingsError(err.message || "Error al guardar");
     } finally {
       setIsSavingSettings(false);
     }
   };
 
   // Check if form has changes when editing
-  const hasChanges = editingEntry ? (
-    formDate !== DateTime.fromMillis(editingEntry.preachingDate).toISODate() ||
-    formHours !== editingEntry.hours ||
-    formMinutes !== editingEntry.minutes ||
-    formType !== editingEntry.type ||
-    formNotes.trim() !== (editingEntry.notes || '')
-  ) : true;
+  const hasChanges = editingEntry
+    ? formDate !==
+        DateTime.fromMillis(editingEntry.preachingDate).toISODate() ||
+      formHours !== editingEntry.hours ||
+      formMinutes !== editingEntry.minutes ||
+      formType !== editingEntry.type ||
+      formNotes.trim() !== (editingEntry.notes || "")
+    : true;
 
   // Computed stats
-  const stats = entries.reduce((acc, curr) => {
-    acc.totalMinutes += (curr.hours * 60) + curr.minutes;
-    acc.byType[curr.type] = (acc.byType[curr.type] || 0) + (curr.hours * 60) + curr.minutes;
-    return acc;
-  }, { totalMinutes: 0, byType: {} as Record<SessionType, number> });
+  const stats = entries.reduce(
+    (acc, curr) => {
+      acc.totalMinutes += curr.hours * 60 + curr.minutes;
+      acc.byType[curr.type] =
+        (acc.byType[curr.type] || 0) + curr.hours * 60 + curr.minutes;
+      return acc;
+    },
+    { totalMinutes: 0, byType: {} as Record<SessionType, number> },
+  );
 
   const reportedHours = Math.floor(stats.totalMinutes / 60);
 
   const goal = user?.monthlyGoal ?? 0;
-  const progressPercentage = goal > 0
-    ? Math.min(100, Math.round((reportedHours / goal) * 100))
-    : 0;
-  const hoursLeft = goal > 0
-    ? Math.max(0, goal - reportedHours)
-    : 0;
+  const progressPercentage =
+    goal > 0 ? Math.min(100, Math.round((reportedHours / goal) * 100)) : 0;
+  const hoursLeft = goal > 0 ? Math.max(0, goal - reportedHours) : 0;
   const percentageLeft = Math.max(0, 100 - progressPercentage);
 
   const radius = 52;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (progressPercentage / 100) * circumference;
+  const strokeDashoffset =
+    circumference - (progressPercentage / 100) * circumference;
 
   const handleExportWhatsApp = () => {
     if (!user) return;
     const now = DateTime.now();
-    const monthName = now.setLocale('es-ES').monthLong.toUpperCase();
+    const monthName = now.setLocale("es-ES").monthLong.toUpperCase();
     const year = now.year;
 
     const text = `📖 *Informe de Actividad*
@@ -246,10 +259,10 @@ Generado por *JW Service Tracker*`;
     setFormDate(DateTime.now().toISODate()!);
     setFormHours(1);
     setFormMinutes(0);
-    setFormType('house_to_house');
-    setFormNotes('');
+    setFormType("house_to_house");
+    setFormNotes("");
     setEditingEntry(null);
-    setFormError('');
+    setFormError("");
   };
 
   const handleSaveEntry = async (e: React.FormEvent) => {
@@ -262,11 +275,12 @@ Generado por *JW Service Tracker*`;
       const entry = new Entry({
         hours: formHours,
         minutes: formMinutes,
-        notes: trimmedNotes
+        notes: trimmedNotes,
       });
       entry.validateHourPlusMinutes();
     } catch (err) {
-      validationError = err instanceof Error ? err.message : 'Error de validación';
+      validationError =
+        err instanceof Error ? err.message : "Error de validación";
     }
 
     if (validationError) {
@@ -275,43 +289,43 @@ Generado por *JW Service Tracker*`;
     }
 
     if (formHours === 0 && formMinutes === 0) {
-      setFormError('El tiempo debe ser mayor a 0');
+      setFormError("El tiempo debe ser mayor a 0");
       return;
     }
 
     setIsSubmitting(true);
-    setFormError('');
+    setFormError("");
     try {
       const payload = {
         preachingDate: DateTime.fromISO(formDate).toMillis(),
         hours: formHours,
         minutes: formMinutes,
         type: formType,
-        notes: trimmedNotes
+        notes: trimmedNotes,
       };
 
       const res = editingEntry
         ? await fetch(`/api/entries/${editingEntry.id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           })
-        : await fetch('/api/entries', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        : await fetch("/api/entries", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Error al guardar');
+        throw new Error(data.error || "Error al guardar");
       }
 
       await fetchDashboardData();
       setShowAddModal(false);
       resetForm();
     } catch (err: any) {
-      setFormError(err.message || 'Error al guardar');
+      setFormError(err.message || "Error al guardar");
     } finally {
       setIsSubmitting(false);
     }
@@ -322,16 +336,16 @@ Generado por *JW Service Tracker*`;
     setIsDeleting(true);
     try {
       const res = await fetch(`/api/entries/${entryToDelete}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Error al eliminar');
+        throw new Error(data.error || "Error al eliminar");
       }
       await fetchDashboardData();
       setShowDeleteModal(false);
     } catch (err: any) {
-      alert(err.message || 'Error al eliminar');
+      alert(err.message || "Error al eliminar");
     } finally {
       setIsDeleting(false);
     }
@@ -348,7 +362,7 @@ Generado por *JW Service Tracker*`;
     setFormHours(entry.hours);
     setFormMinutes(entry.minutes);
     setFormType(entry.type);
-    setFormNotes(entry.notes || '');
+    setFormNotes(entry.notes || "");
     setShowAddModal(true);
   };
 
@@ -414,7 +428,7 @@ Generado por *JW Service Tracker*`;
         openDeleteModal,
         handleEdit,
         resetForm,
-        handleExportWhatsApp
+        handleExportWhatsApp,
       }}
     >
       {children}
@@ -425,7 +439,7 @@ Generado por *JW Service Tracker*`;
 export function useDashboard() {
   const context = useContext(DashboardContext);
   if (!context) {
-    throw new Error('useDashboard must be used within a DashboardProvider');
+    throw new Error("useDashboard must be used within a DashboardProvider");
   }
   return context;
 }

@@ -1,8 +1,9 @@
-import { NextAuthOptions, DefaultSession, getServerSession } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import { usersRepository } from "@/repositories";
+import { DefaultSession, getServerSession, NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+
 import { PreacherType } from "@/domain/User";
+import { usersRepository } from "@/repositories";
 
 // 1. Tipamos los datos que queremos en la sesión de forma global
 declare module "next-auth" {
@@ -10,7 +11,7 @@ declare module "next-auth" {
     user: {
       id: string;
       name: string;
-    } & DefaultSession["user"]
+    } & DefaultSession["user"];
   }
 
   interface User {
@@ -33,27 +34,33 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {
         identifier: { label: "Celular", type: "text" },
-        password: { label: "Contraseña", type: "password" }
+        password: { label: "Contraseña", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.identifier || !credentials?.password) return null;
 
         const rawPhone = credentials.identifier.trim();
-        const phoneWithPrefix = rawPhone.startsWith("+51") ? rawPhone : `+51${rawPhone}`;
+        const phoneWithPrefix = rawPhone.startsWith("+51")
+          ? rawPhone
+          : `+51${rawPhone}`;
 
         const user = await usersRepository.findByPhone(phoneWithPrefix);
 
-        if (user && user.password && await bcrypt.compare(credentials.password, user.password)) {
+        if (
+          user &&
+          user.password &&
+          (await bcrypt.compare(credentials.password, user.password))
+        ) {
           // Retornamos todos los campos que queremos guardar en el token/sesión
           return {
             id: user.id,
-            name: user.name
+            name: user.name,
           };
         }
-        
+
         throw new Error("Credenciales inválidas.");
-      }
-    })
+      },
+    }),
   ],
   session: {
     strategy: "jwt",
@@ -74,11 +81,11 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name;
       }
       return session;
-    }
+    },
   },
   pages: {
     signIn: "/login",
-  }
+  },
 };
 
 export const getCurrentUser = async () => {

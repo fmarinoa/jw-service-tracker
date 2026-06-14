@@ -1,42 +1,48 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { AlertCircle } from 'lucide-react';
-import Link from 'next/link';
+import { AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 export default function RegisterPage() {
-  const [identifier, setIdentifier] = useState('');
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [identifier, setIdentifier] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: identifier, name, password }),
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Error al registrarse');
+        throw new Error(data.error || "Error al registrarse");
       }
 
-      router.push('/login?registered=true');
+      router.push("/login?registered=true");
     } catch (err: any) {
-      setError(err.message || 'Error al registrarse');
+      setError(err.message || "Error al registrarse");
     } finally {
       setIsLoading(false);
     }
@@ -46,25 +52,33 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-4xl font-black text-primary mb-2">Crear Cuenta</CardTitle>
-          <CardDescription>Regístrate para empezar a trackear tu servicio.</CardDescription>
+          <CardTitle className="text-4xl font-black text-primary mb-2">
+            Crear Cuenta
+          </CardTitle>
+          <CardDescription>
+            Regístrate para empezar a trackear tu servicio.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-foreground mb-1">Nombre</label>
+              <label className="block text-sm font-bold text-foreground mb-1">
+                Nombre
+              </label>
               <Input
                 value={name}
-                onChange={e => setName(e.target.value)}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Tu nombre completo"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-foreground mb-1">Celular</label>
+              <label className="block text-sm font-bold text-foreground mb-1">
+                Celular
+              </label>
               <Input
                 value={identifier}
-                onChange={e => setIdentifier(e.target.value)}
+                onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="ej: 999888777"
                 maxLength={9}
                 required
@@ -74,11 +88,13 @@ export default function RegisterPage() {
               </p>
             </div>
             <div>
-              <label className="block text-sm font-bold text-foreground mb-1">Contraseña</label>
+              <label className="block text-sm font-bold text-foreground mb-1">
+                Contraseña
+              </label>
               <Input
                 type="password"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Mínimo 6 caracteres"
                 required
               />
@@ -91,13 +107,20 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <Button type="submit" className="w-full h-12 mt-2" disabled={isLoading}>
-              {isLoading ? 'Registrando...' : 'Registrarse'}
+            <Button
+              type="submit"
+              className="w-full h-12 mt-2"
+              disabled={isLoading}
+            >
+              {isLoading ? "Registrando..." : "Registrarse"}
             </Button>
           </form>
           <div className="mt-6 text-center text-sm">
-            ¿Ya tienes cuenta?{' '}
-            <Link href="/login" className="text-primary font-bold hover:underline">
+            ¿Ya tienes cuenta?{" "}
+            <Link
+              href="/login"
+              className="text-primary font-bold hover:underline"
+            >
               Inicia Sesión
             </Link>
           </div>

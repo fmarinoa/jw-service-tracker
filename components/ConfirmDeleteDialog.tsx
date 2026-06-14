@@ -1,7 +1,8 @@
-import React from 'react';
-import { AlertTriangle } from 'lucide-react';
-import { Dialog } from './ui/dialog';
-import { Button } from './ui/button';
+import { AlertTriangle } from "lucide-react";
+import React from "react";
+
+import { Button } from "./ui/button";
+import { Dialog } from "./ui/dialog";
 
 interface ConfirmDeleteDialogProps {
   isOpen: boolean;
@@ -18,7 +19,7 @@ export const ConfirmDeleteDialog = ({
   onConfirm,
   title = "¿Eliminar registro?",
   description = "Esta acción no se puede deshacer. El registro se borrará permanentemente.",
-  isLoading = false
+  isLoading = false,
 }: ConfirmDeleteDialogProps) => {
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title={title}>
@@ -27,18 +28,14 @@ export const ConfirmDeleteDialog = ({
           <AlertTriangle className="w-5 h-5 mt-0.5 shrink-0" />
           <p className="text-sm">{description}</p>
         </div>
-        
+
         <div className="flex gap-3 justify-end mt-6">
-          <Button 
-            variant="outline" 
-            onClick={onClose} 
-            disabled={isLoading}
-          >
+          <Button variant="outline" onClick={onClose} disabled={isLoading}>
             Cancelar
           </Button>
-          <Button 
-            variant="ghost" 
-            onClick={onConfirm} 
+          <Button
+            variant="ghost"
+            onClick={onConfirm}
             disabled={isLoading}
             className="bg-red-600 text-white hover:bg-red-700 hover:text-white"
           >

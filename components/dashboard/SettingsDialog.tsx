@@ -1,12 +1,18 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { AlertCircle } from 'lucide-react';
-import { Dialog } from '../ui/dialog';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { PreacherType, PREACHER_TYPE_LABELS, DEFAULT_GOALS } from '@/domain/User';
-import { useDashboard } from './DashboardProvider';
+import { AlertCircle } from "lucide-react";
+import React from "react";
+
+import {
+  DEFAULT_GOALS,
+  PREACHER_TYPE_LABELS,
+  PreacherType,
+} from "@/domain/User";
+
+import { Button } from "../ui/button";
+import { Dialog } from "../ui/dialog";
+import { Input } from "../ui/input";
+import { useDashboard } from "./DashboardProvider";
 
 export function SettingsDialog() {
   const {
@@ -18,7 +24,7 @@ export function SettingsDialog() {
     setSettingsMonthlyGoal,
     handleSaveSettings,
     isSavingSettings,
-    settingsError
+    settingsError,
   } = useDashboard();
 
   return (
@@ -34,14 +40,18 @@ export function SettingsDialog() {
           </label>
           <select
             value={settingsPreacherType}
-            onChange={(e) => handlePreacherTypeChange(e.target.value as PreacherType)}
+            onChange={(e) =>
+              handlePreacherTypeChange(e.target.value as PreacherType)
+            }
             className="w-full p-2.5 mt-1.5 rounded-lg border border-border bg-background text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all"
           >
-            {(Object.keys(PREACHER_TYPE_LABELS) as PreacherType[]).map((type) => (
-              <option key={type} value={type}>
-                {PREACHER_TYPE_LABELS[type]}
-              </option>
-            ))}
+            {(Object.keys(PREACHER_TYPE_LABELS) as PreacherType[]).map(
+              (type) => (
+                <option key={type} value={type}>
+                  {PREACHER_TYPE_LABELS[type]}
+                </option>
+              ),
+            )}
           </select>
         </div>
         <div>
@@ -52,7 +62,11 @@ export function SettingsDialog() {
             {DEFAULT_GOALS[settingsPreacherType] !== null && (
               <button
                 type="button"
-                onClick={() => setSettingsMonthlyGoal(DEFAULT_GOALS[settingsPreacherType] || 0)}
+                onClick={() =>
+                  setSettingsMonthlyGoal(
+                    DEFAULT_GOALS[settingsPreacherType] || 0,
+                  )
+                }
                 className="text-[10px] text-primary hover:underline font-bold cursor-pointer"
               >
                 Restablecer por defecto ({DEFAULT_GOALS[settingsPreacherType]}h)
@@ -62,12 +76,15 @@ export function SettingsDialog() {
           <Input
             type="number"
             value={settingsMonthlyGoal}
-            onChange={(e) => setSettingsMonthlyGoal(parseInt(e.target.value) || 0)}
+            onChange={(e) =>
+              setSettingsMonthlyGoal(parseInt(e.target.value) || 0)
+            }
             min={0}
             className="mt-1.5"
           />
           <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">
-            Esta meta se utilizará para calcular tu progreso mensual en el panel principal.
+            Esta meta se utilizará para calcular tu progreso mensual en el panel
+            principal.
           </p>
         </div>
         {settingsError && (
@@ -80,7 +97,7 @@ export function SettingsDialog() {
           className="w-full mt-2 cursor-pointer"
           disabled={isSavingSettings}
         >
-          {isSavingSettings ? 'Guardando...' : 'Guardar Configuración'}
+          {isSavingSettings ? "Guardando..." : "Guardar Configuración"}
         </Button>
       </form>
     </Dialog>

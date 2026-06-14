@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { DashboardProvider, useDashboard } from './dashboard/DashboardProvider';
-import { DashboardHeader } from './dashboard/DashboardHeader';
-import { HoursCard } from './dashboard/HoursCard';
-import { SummaryCard } from './dashboard/SummaryCard';
-import { RecentActivityCard } from './dashboard/RecentActivityCard';
-import { EntryDialog } from './dashboard/EntryDialog';
-import { SettingsDialog } from './dashboard/SettingsDialog';
-import { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
-import { DashboardSkeleton } from './dashboard/DashboardSkeleton';
+import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
+import { DashboardHeader } from "./dashboard/DashboardHeader";
+import { DashboardProvider, useDashboard } from "./dashboard/DashboardProvider";
+import { DashboardSkeleton } from "./dashboard/DashboardSkeleton";
+import { EntryDialog } from "./dashboard/EntryDialog";
+import { HoursCard } from "./dashboard/HoursCard";
+import { RecentActivityCard } from "./dashboard/RecentActivityCard";
+import { SettingsDialog } from "./dashboard/SettingsDialog";
+import { SummaryCard } from "./dashboard/SummaryCard";
 
 function DashboardContent() {
   const {
@@ -17,7 +17,7 @@ function DashboardContent() {
     showDeleteModal,
     setShowDeleteModal,
     handleDelete,
-    isDeleting
+    isDeleting,
   } = useDashboard();
 
   if (isLoading || !user) {

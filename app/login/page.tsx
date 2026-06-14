@@ -1,51 +1,58 @@
-'use client';
+"use client";
 
-import React, { useState, Suspense } from 'react';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { AlertCircle, CheckCircle } from 'lucide-react';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { AlertCircle, CheckCircle } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
+import React, { Suspense, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 function LoginForm() {
-  const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
-  const registered = searchParams.get('registered');
+  const registered = searchParams.get("registered");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     if (!identifier || !password) {
-      setError('Ingresa tus credenciales');
+      setError("Ingresa tus credenciales");
       setIsLoading(false);
       return;
     }
 
     try {
-      const res = await signIn('credentials', {
+      const res = await signIn("credentials", {
         identifier,
         password,
-        callbackUrl: '/',
+        callbackUrl: "/",
         redirect: false,
       });
 
       if (res?.error) {
-        setError('Credenciales incorrectas o usuario no encontrado.');
+        setError("Credenciales incorrectas o usuario no encontrado.");
         setIsLoading(false);
       } else {
-        router.push('/')
+        router.push("/");
       }
     } catch (err) {
-      setError('Ocurrió un error inesperado');
+      setError("Ocurrió un error inesperado");
       setIsLoading(false);
     }
   };
@@ -53,8 +60,12 @@ function LoginForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
-        <CardTitle className="text-4xl font-black text-primary mb-2">JW Tracker</CardTitle>
-        <CardDescription>Tu informe de servicio, simple y elegante.</CardDescription>
+        <CardTitle className="text-4xl font-black text-primary mb-2">
+          JW Tracker
+        </CardTitle>
+        <CardDescription>
+          Tu informe de servicio, simple y elegante.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {registered && (
@@ -66,21 +77,25 @@ function LoginForm() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-bold text-foreground mb-2">Celular</label>
+            <label className="block text-sm font-bold text-foreground mb-2">
+              Celular
+            </label>
             <Input
               value={identifier}
-              onChange={e => setIdentifier(e.target.value)}
+              onChange={(e) => setIdentifier(e.target.value)}
               placeholder="ej: 999888777"
               maxLength={9}
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-foreground mb-2">Contraseña</label>
+            <label className="block text-sm font-bold text-foreground mb-2">
+              Contraseña
+            </label>
             <Input
               type="password"
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
             />
@@ -94,12 +109,15 @@ function LoginForm() {
           )}
 
           <Button type="submit" className="w-full h-12" disabled={isLoading}>
-            {isLoading ? 'Iniciando...' : 'Entrar'}
+            {isLoading ? "Iniciando..." : "Entrar"}
           </Button>
         </form>
         <div className="mt-6 text-center text-sm">
-          ¿No tienes cuenta?{' '}
-          <Link href="/register" className="text-primary font-bold hover:underline">
+          ¿No tienes cuenta?{" "}
+          <Link
+            href="/register"
+            className="text-primary font-bold hover:underline"
+          >
             Regístrate aquí
           </Link>
         </div>
@@ -111,19 +129,21 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Suspense fallback={
-        <Card className="w-full max-w-md animate-pulse">
-          <CardHeader className="text-center">
-            <div className="h-10 w-48 bg-muted mx-auto mb-2 rounded" />
-            <div className="h-4 w-64 bg-muted mx-auto rounded" />
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="h-12 bg-muted rounded" />
-            <div className="h-12 bg-muted rounded" />
-            <div className="h-12 bg-primary/20 rounded" />
-          </CardContent>
-        </Card>
-      }>
+      <Suspense
+        fallback={
+          <Card className="w-full max-w-md animate-pulse">
+            <CardHeader className="text-center">
+              <div className="h-10 w-48 bg-muted mx-auto mb-2 rounded" />
+              <div className="h-4 w-64 bg-muted mx-auto rounded" />
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="h-12 bg-muted rounded" />
+              <div className="h-12 bg-muted rounded" />
+              <div className="h-12 bg-primary/20 rounded" />
+            </CardContent>
+          </Card>
+        }
+      >
         <LoginForm />
       </Suspense>
     </div>

@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import { Plus } from 'lucide-react';
-import { Card, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
-import { useDashboard } from './DashboardProvider';
+import { Plus } from "lucide-react";
+
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
+import { useDashboard } from "./DashboardProvider";
 
 export function HoursCard() {
   const {
@@ -16,7 +17,7 @@ export function HoursCard() {
     strokeDashoffset,
     resetForm,
     setShowAddModal,
-    openSettingsModal
+    openSettingsModal,
   } = useDashboard();
 
   if (!user) return null;
@@ -53,7 +54,8 @@ export function HoursCard() {
                   <div className="flex justify-between text-xs font-semibold text-muted-foreground mb-1">
                     <span>Progreso de la meta</span>
                     <span className="text-primary font-bold">
-                      {reportedHours} de {user.monthlyGoal} horas ({progressPercentage}%)
+                      {reportedHours} de {user.monthlyGoal} horas (
+                      {progressPercentage}%)
                     </span>
                   </div>
                   <div className="w-full bg-border/40 h-2.5 rounded-full overflow-hidden">
@@ -68,7 +70,15 @@ export function HoursCard() {
                     </p>
                   ) : (
                     <p className="text-xs text-muted-foreground leading-relaxed mt-2">
-                      Llevas el <span className="font-bold text-foreground">{progressPercentage}%</span> de tu meta. Te faltan <span className="font-bold text-primary">{hoursLeft} horas</span> para cumplirla ({percentageLeft}% restante).
+                      Llevas el{" "}
+                      <span className="font-bold text-foreground">
+                        {progressPercentage}%
+                      </span>{" "}
+                      de tu meta. Te faltan{" "}
+                      <span className="font-bold text-primary">
+                        {hoursLeft} horas
+                      </span>{" "}
+                      para cumplirla ({percentageLeft}% restante).
                     </p>
                   )}
                 </div>
@@ -118,22 +128,34 @@ export function HoursCard() {
                 <div className="absolute flex flex-col items-center text-center">
                   {hoursLeft > 0 ? (
                     <>
-                      <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">Faltan</span>
-                      <span className="text-xl font-black text-primary leading-none my-0.5">{hoursLeft}h</span>
-                      <span className="text-[10px] font-semibold text-muted-foreground">-{percentageLeft}%</span>
+                      <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">
+                        Faltan
+                      </span>
+                      <span className="text-xl font-black text-primary leading-none my-0.5">
+                        {hoursLeft}h
+                      </span>
+                      <span className="text-[10px] font-semibold text-muted-foreground">
+                        -{percentageLeft}%
+                      </span>
                     </>
                   ) : (
                     <>
-                      <span className="text-[9px] uppercase tracking-wider text-green-700 font-bold">Completado</span>
-                      <span className="text-xl font-black text-green-600 leading-none my-0.5">Listo</span>
-                      <span className="text-[10px] font-bold text-green-700">100%</span>
+                      <span className="text-[9px] uppercase tracking-wider text-green-700 font-bold">
+                        Completado
+                      </span>
+                      <span className="text-xl font-black text-green-600 leading-none my-0.5">
+                        Listo
+                      </span>
+                      <span className="text-[10px] font-bold text-green-700">
+                        100%
+                      </span>
                     </>
                   )}
                 </div>
               </div>
               <div className="mt-2 text-center">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                  {hoursLeft > 0 ? 'En progreso' : '¡Completada!'}
+                  {hoursLeft > 0 ? "En progreso" : "¡Completada!"}
                 </p>
               </div>
             </div>

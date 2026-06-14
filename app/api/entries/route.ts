@@ -1,36 +1,50 @@
-import { User } from '@/domain/User';
-import { Entry } from '@/domain/Entry';
-import { entriesRepository } from '@/repositories';
-import { handlerApiRequest } from '../_utils';
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-export const GET = handlerApiRequest(async (_req, { user }) => {
-  const domainUser = new User(user);
-  const entries = await entriesRepository.getByUser(domainUser);
+import { Entry } from "@/domain/Entry";
+import { User } from "@/domain/User";
+import { entriesRepository } from "@/repositories";
 
-  // Return data directly, handler will wrap in JSON
-  return entries.map(entry => ({
-    ...entry,
-    user: { ...entry.user }
-  }));
-}, { requiresAuth: true });
+import { handlerApiRequest } from "../_utils";
 
-export const POST = handlerApiRequest(async (_req, { user, body }) => {
-  const domainUser = new User(user);
+export const GET = handlerApiRequest(
+  async (_req, { user }) => {
+    const domainUser = new User(user);
+    const entries = await entriesRepository.getByUser(domainUser);
 
-  let entry: Entry;
-  try {
-    entry = Entry.validateForCreate(body);
-    entry.validateHourPlusMinutes();
-    entry.preachingDateNotInFuture();
-  } catch (error) {
-    return NextResponse.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 400 });
-  }
+    // Return data directly, handler will wrap in JSON
+    return entries.map((entry) => ({
+      ...entry,
+      user: { ...entry.user },
+    }));
+  },
+  { requiresAuth: true },
+);
 
-  const entryCreated = await entriesRepository.create(domainUser, entry);
+export const POST = handlerApiRequest(
+  async (_req, { user, body }) => {
+    const domainUser = new User(user);
 
-  return NextResponse.json({ success: true, entry: entryCreated }, { status: 201 });
-}, { requiresAuth: true });
+    let entry: Entry;
+    try {
+      entry = Entry.validateForCreate(body);
+      entry.validateHourPlusMinutes();
+      entry.preachingDateNotInFuture();
+    } catch (error) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        },
+        { status: 400 },
+      );
+    }
+
+    const entryCreated = await entriesRepository.create(domainUser, entry);
+
+    return NextResponse.json(
+      { success: true, entry: entryCreated },
+      { status: 201 },
+    );
+  },
+  { requiresAuth: true },
+);

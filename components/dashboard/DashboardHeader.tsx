@@ -1,22 +1,27 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Settings, LogOut } from 'lucide-react';
-import { Button } from '../ui/button';
-import { PREACHER_TYPE_LABELS } from '@/domain/User';
-import { useDashboard } from './DashboardProvider';
+import { LogOut, Settings } from "lucide-react";
+import React from "react";
+
+import { PREACHER_TYPE_LABELS } from "@/domain/User";
+
+import { Button } from "../ui/button";
+import { useDashboard } from "./DashboardProvider";
 
 export function DashboardHeader() {
-  const { user, openSettingsModal, disableLogout, handleLogout } = useDashboard();
+  const { user, openSettingsModal, disableLogout, handleLogout } =
+    useDashboard();
 
   if (!user) return null;
 
   return (
     <header className="flex justify-between items-center py-4 border-b border-border/40">
       <div>
-        <h1 className="text-3xl font-black tracking-tight text-primary">JW Tracker</h1>
+        <h1 className="text-3xl font-black tracking-tight text-primary">
+          JW Tracker
+        </h1>
         <p className="text-xs text-muted-foreground mt-0.5 font-medium">
-          {PREACHER_TYPE_LABELS[user.preacherType || 'publisher']}
+          {PREACHER_TYPE_LABELS[user.preacherType || "publisher"]}
           {user.monthlyGoal > 0 && (
             <>
               <br />
@@ -32,7 +37,9 @@ export function DashboardHeader() {
           className="text-muted-foreground hover:text-primary hover:bg-primary/5 flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer"
         >
           <Settings className="w-4 h-4" />
-          <span className="hidden sm:inline text-xs font-semibold">Configurar</span>
+          <span className="hidden sm:inline text-xs font-semibold">
+            Configurar
+          </span>
         </Button>
         <span className="text-sm font-medium border-l pl-3 py-1 border-border text-foreground">
           {user.name || user.phone}

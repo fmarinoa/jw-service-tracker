@@ -1,13 +1,15 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { AlertCircle } from 'lucide-react';
-import { Dialog } from '../ui/dialog';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { SessionType } from '@/domain/Entry';
-import { useDashboard } from './DashboardProvider';
-import { TYPE_LABELS } from './constants';
+import { AlertCircle } from "lucide-react";
+import React from "react";
+
+import { SessionType } from "@/domain/Entry";
+
+import { Button } from "../ui/button";
+import { Dialog } from "../ui/dialog";
+import { Input } from "../ui/input";
+import { TYPE_LABELS } from "./constants";
+import { useDashboard } from "./DashboardProvider";
 
 export function EntryDialog() {
   const {
@@ -27,19 +29,21 @@ export function EntryDialog() {
     setFormNotes,
     formError,
     isSubmitting,
-    hasChanges
+    hasChanges,
   } = useDashboard();
 
   return (
     <Dialog
       isOpen={showAddModal}
       onClose={() => setShowAddModal(false)}
-      title={editingEntry ? 'Editar Registro' : 'Nuevo Registro'}
+      title={editingEntry ? "Editar Registro" : "Nuevo Registro"}
     >
       <form onSubmit={handleSaveEntry} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-xs font-bold text-muted-foreground uppercase">Fecha</label>
+            <label className="text-xs font-bold text-muted-foreground uppercase">
+              Fecha
+            </label>
             <Input
               type="date"
               value={formDate}
@@ -49,7 +53,9 @@ export function EntryDialog() {
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs font-bold text-muted-foreground uppercase">Horas</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase">
+                Horas
+              </label>
               <Input
                 type="number"
                 value={formHours}
@@ -58,7 +64,9 @@ export function EntryDialog() {
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-muted-foreground uppercase">Mins</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase">
+                Mins
+              </label>
               <Input
                 type="number"
                 value={formMinutes}
@@ -70,7 +78,9 @@ export function EntryDialog() {
           </div>
         </div>
         <div>
-          <label className="text-xs font-bold text-muted-foreground uppercase">Tipo</label>
+          <label className="text-xs font-bold text-muted-foreground uppercase">
+            Tipo
+          </label>
           <select
             value={formType}
             onChange={(e) => setFormType(e.target.value as SessionType)}
@@ -85,7 +95,9 @@ export function EntryDialog() {
         </div>
         <div>
           <div className="flex justify-between items-center">
-            <label className="text-xs font-bold text-muted-foreground uppercase">Notas</label>
+            <label className="text-xs font-bold text-muted-foreground uppercase">
+              Notas
+            </label>
             <span className="text-[10px] text-muted-foreground">
               {formNotes.length}/50
             </span>
@@ -108,7 +120,11 @@ export function EntryDialog() {
           className="w-full"
           disabled={isSubmitting || !!(editingEntry && !hasChanges)}
         >
-          {isSubmitting ? 'Guardando...' : editingEntry ? 'Actualizar' : 'Guardar'}
+          {isSubmitting
+            ? "Guardando..."
+            : editingEntry
+              ? "Actualizar"
+              : "Guardar"}
         </Button>
       </form>
     </Dialog>
