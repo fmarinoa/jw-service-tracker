@@ -2,6 +2,7 @@
 
 import React, { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const registered = searchParams.get('registered');
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,15 +37,15 @@ function LoginForm() {
         callbackUrl: '/',
         redirect: false,
       });
-      
+
       if (res?.error) {
         setError('Credenciales incorrectas o usuario no encontrado.');
+        setIsLoading(false);
       } else {
-        window.location.href = '/';
+        router.push('/')
       }
     } catch (err) {
       setError('Ocurrió un error inesperado');
-    } finally {
       setIsLoading(false);
     }
   };

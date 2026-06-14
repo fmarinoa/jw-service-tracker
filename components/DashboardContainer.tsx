@@ -89,6 +89,7 @@ export default function DashboardContainer({ userId }: { userId: string }) {
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [settingsError, setSettingsError] = useState('');
   const [showExportSuccess, setShowExportSuccess] = useState(false);
+  const [disableLogout, setDisableLogout] = useState(false);
 
   const openSettingsModal = () => {
     if (user) {
@@ -98,6 +99,11 @@ export default function DashboardContainer({ userId }: { userId: string }) {
     setSettingsError('');
     setShowSettingsModal(true);
   };
+
+  const handleLogout=()=>{
+    setDisableLogout(true);
+    signOut();
+  }
 
   const handlePreacherTypeChange = (type: PreacherType) => {
     setSettingsPreacherType(type);
@@ -398,7 +404,7 @@ Generado por *JW Service Tracker*`;
             <span className="hidden sm:inline text-xs font-semibold">Configurar</span>
           </Button>
           <span className="text-sm font-medium border-l pl-3 py-1 border-border text-foreground">{user.name || user.phone}</span>
-          <Button variant="ghost" onClick={() => signOut()} className="text-red-600 hover:bg-red-50 hover:text-red-700 p-2 rounded-lg cursor-pointer">
+          <Button disabled={disableLogout} variant="ghost" onClick={() => handleLogout()} className="text-red-600 hover:bg-red-50 hover:text-red-700 p-2 rounded-lg cursor-pointer">
             <LogOut className="w-5 h-5" />
           </Button>
         </div>
