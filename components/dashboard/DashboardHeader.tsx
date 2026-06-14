@@ -1,7 +1,6 @@
 "use client";
 
 import { LogOut, Settings } from "lucide-react";
-import React from "react";
 
 import { PREACHER_TYPE_LABELS } from "@/domain/User";
 

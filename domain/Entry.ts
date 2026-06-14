@@ -34,6 +34,16 @@ export const updateSchema = baseSchema.extend({
   id: z.string().min(1, "ID de entrada inválido"),
 });
 
+export interface MonthlyStats {
+  totalMinutes: number;
+  byType: {
+    house_to_house: number;
+    revisits: number;
+    bible_study: number;
+    other: number;
+  };
+}
+
 export class Entry {
   id: string;
   user: User;
@@ -83,5 +93,27 @@ export class Entry {
     if (this.preachingDate > maxAllowedTimestamp) {
       throw new Error("La fecha de predicación no puede ser futura.");
     }
+  }
+
+  static computeMonthlyStats(entries: Entry[]): MonthlyStats {
+    return entries.reduce(
+      (acc, curr) => {
+        const hours = curr.hours || 0;
+        const minutes = curr.minutes || 0;
+        acc.totalMinutes += hours * 60 + minutes;
+        acc.byType[curr.type] =
+          (acc.byType[curr.type] || 0) + hours * 60 + minutes;
+        return acc;
+      },
+      {
+        totalMinutes: 0,
+        byType: {
+          house_to_house: 0,
+          revisits: 0,
+          bible_study: 0,
+          other: 0,
+        },
+      },
+    );
   }
 }

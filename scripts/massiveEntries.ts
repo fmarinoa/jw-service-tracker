@@ -129,7 +129,9 @@ function parsePreachingDate(input: string): number {
 
   const parsed = Date.parse(dateStr);
   if (!isNaN(parsed)) {
-    return DateTime.fromMillis(parsed, { zone: TIMEZONE }).startOf("day").toMillis();
+    return DateTime.fromMillis(parsed, { zone: TIMEZONE })
+      .startOf("day")
+      .toMillis();
   }
 
   throw new Error(`Fecha inválida o no soportada: "${input}"`);

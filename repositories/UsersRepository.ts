@@ -54,12 +54,12 @@ export class UsersRepository extends BaseRepository {
       const item = {
         ...this.cleanObject(updates),
         updatedAt,
-      }
+      };
 
       await collection.updateOne(this.buildIdFilter(id), {
         $set: item,
       });
-      
+
       return new User({ ...user, updatedAt });
     });
   }

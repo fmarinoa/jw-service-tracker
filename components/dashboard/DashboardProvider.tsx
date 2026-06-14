@@ -18,6 +18,7 @@ interface DashboardContextType {
   user: User | null;
   entries: Entry[];
   isLoading: boolean;
+  isEntriesLoading: boolean;
 
   // Modals state
   showAddModal: boolean;
@@ -70,8 +71,28 @@ interface DashboardContextType {
     byType: Record<SessionType, number>;
   };
 
+  // Pagination state
+  page: number;
+  totalPages: number;
+  totalEntries: number;
+  setPage: (val: number) => void;
+
+  // Export states
+  showExportOptions: boolean;
+  setShowExportOptions: (val: boolean) => void;
+  exportingMonthOffset: number | null;
+
+  // Month selection state
+  monthOffset: number;
+  setMonthOffset: (val: number) => void;
+  handleMonthChange: (offset: number) => Promise<void>;
+
   // Actions
-  fetchDashboardData: () => Promise<void>;
+  fetchDashboardData: (
+    page?: number,
+    offset?: number,
+    forceFetchUser?: boolean,
+  ) => Promise<void>;
   openSettingsModal: () => void;
   handleLogout: () => void;
   handlePreacherTypeChange: (type: PreacherType) => void;
@@ -81,7 +102,7 @@ interface DashboardContextType {
   openDeleteModal: (id: string) => void;
   handleEdit: (entry: Entry) => void;
   resetForm: () => void;
-  handleExportWhatsApp: () => void;
+  handleExportWhatsApp: (offset: number) => Promise<void>;
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(
@@ -98,36 +119,122 @@ export function DashboardProvider({
   const [user, setUser] = useState<User | null>(null);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEntriesLoading, setIsEntriesLoading] = useState(false);
 
-  const fetchDashboardData = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const [userRes, entriesRes] = await Promise.all([
-        fetch("/api/user"),
-        fetch("/api/entries"),
-      ]);
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalEntries, setTotalEntries] = useState(0);
 
-      if (!userRes.ok || !entriesRes.ok) {
-        throw new Error("Error al obtener datos");
+  // Month selection state
+  const [monthOffset, setMonthOffset] = useState(0);
+
+  // Export states
+  const [showExportOptions, setShowExportOptions] = useState(false);
+  const [exportingMonthOffset, setExportingMonthOffset] = useState<
+    number | null
+  >(null);
+
+  // Monthly stats state
+  const [stats, setStats] = useState({
+    totalMinutes: 0,
+    byType: {
+      house_to_house: 0,
+      revisits: 0,
+      bible_study: 0,
+      other: 0,
+    } as Record<SessionType, number>,
+  });
+
+  const fetchDashboardData = useCallback(
+    async (
+      targetPage: number = 1,
+      offset: number = monthOffset,
+      forceFetchUser: boolean = false,
+    ) => {
+      try {
+        const shouldFetchUser = !user || forceFetchUser;
+        if (shouldFetchUser) {
+          setIsLoading(true);
+        } else {
+          setIsEntriesLoading(true);
+        }
+
+        const fetchPromises: [Promise<Response>, Promise<Response> | null] = [
+          fetch(`/api/entries?page=${targetPage}&monthOffset=${offset}`),
+          shouldFetchUser ? fetch("/api/user") : null,
+        ];
+
+        const [entriesRes, userRes] = await Promise.all([
+          fetchPromises[0],
+          fetchPromises[1] || Promise.resolve(null),
+        ]);
+
+        if (!entriesRes.ok || (userRes && !userRes.ok)) {
+          throw new Error("Error al obtener datos");
+        }
+
+        const entriesData = await entriesRes.json();
+
+        if (userRes) {
+          const userData = await userRes.json();
+          setUser(new User(userData.user));
+        }
+
+        setEntries(
+          entriesData.entries.map((e: Partial<Entry>) => new Entry(e)),
+        );
+        setStats(entriesData.stats);
+        setTotalEntries(entriesData.total);
+
+        const newTotalPages = Math.ceil(entriesData.total / 10) || 1;
+        setTotalPages(newTotalPages);
+
+        if (targetPage > newTotalPages && newTotalPages > 0) {
+          const res = await fetch(
+            `/api/entries?page=${newTotalPages}&monthOffset=${offset}`,
+          );
+          if (res.ok) {
+            const secondEntriesData = await res.json();
+            setEntries(
+              secondEntriesData.entries.map(
+                (e: Partial<Entry>) => new Entry(e),
+              ),
+            );
+            setStats(secondEntriesData.stats);
+            setTotalEntries(secondEntriesData.total);
+            setPage(newTotalPages);
+            setMonthOffset(offset);
+            return;
+          }
+        }
+
+        setPage(targetPage);
+        setMonthOffset(offset);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+        setIsEntriesLoading(false);
       }
+    },
+    [user, monthOffset],
+  );
 
-      const userData = await userRes.json();
-      const entriesData = await entriesRes.json();
-
-      setUser(new User(userData.user));
-      setEntries(entriesData.map((e: any) => new Entry(e)));
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const handleMonthChange = useCallback(
+    async (offset: number) => {
+      await fetchDashboardData(1, offset);
+    },
+    [fetchDashboardData],
+  );
 
   useEffect(() => {
     if (userId) {
-      fetchDashboardData();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchDashboardData(1, 0);
     }
-  }, [userId, fetchDashboardData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -193,10 +300,10 @@ export function DashboardProvider({
         throw new Error(data.error || "Error al guardar la configuración");
       }
 
-      await fetchDashboardData();
+      await fetchDashboardData(page, monthOffset, true);
       setShowSettingsModal(false);
-    } catch (err: any) {
-      setSettingsError(err.message || "Error al guardar");
+    } catch (err) {
+      setSettingsError(err instanceof Error ? err.message : "Error al guardar");
     } finally {
       setIsSavingSettings(false);
     }
@@ -212,17 +319,6 @@ export function DashboardProvider({
       formNotes.trim() !== (editingEntry.notes || "")
     : true;
 
-  // Computed stats
-  const stats = entries.reduce(
-    (acc, curr) => {
-      acc.totalMinutes += curr.hours * 60 + curr.minutes;
-      acc.byType[curr.type] =
-        (acc.byType[curr.type] || 0) + curr.hours * 60 + curr.minutes;
-      return acc;
-    },
-    { totalMinutes: 0, byType: {} as Record<SessionType, number> },
-  );
-
   const reportedHours = Math.floor(stats.totalMinutes / 60);
 
   const goal = user?.monthlyGoal ?? 0;
@@ -236,23 +332,47 @@ export function DashboardProvider({
   const strokeDashoffset =
     circumference - (progressPercentage / 100) * circumference;
 
-  const handleExportWhatsApp = () => {
+  const handleExportWhatsApp = async (offset: number) => {
     if (!user) return;
-    const now = DateTime.now();
-    const monthName = now.setLocale("es-ES").monthLong.toUpperCase();
-    const year = now.year;
+    setExportingMonthOffset(offset);
+    try {
+      let targetStats = stats;
+      const targetMonth = DateTime.now()
+        .setZone("America/Lima")
+        .plus({ months: offset });
+      const monthName =
+        targetMonth.setLocale("es-ES").monthLong?.toUpperCase() || "";
+      const year = targetMonth.year;
 
-    const text = `📖 *Informe de Actividad*
+      if (offset !== 0) {
+        const res = await fetch(
+          `/api/entries?page=1&limit=1&monthOffset=${offset}`,
+        );
+        if (!res.ok)
+          throw new Error("Error al obtener datos del mes seleccionado");
+        const data = await res.json();
+        targetStats = data.stats;
+      }
+
+      const totalHours = Math.floor(targetStats.totalMinutes / 60);
+
+      const text = `📖 *Informe de Actividad*
 📅 *Mes:* ${monthName} ${year}
 👤 *Publicador:* ${user.name || user.phone}
 
-⏱️ *Total de horas:* ${reportedHours}
+⏱️ *Total de horas:* ${totalHours}
 
 Generado por *JW Service Tracker*`;
 
-    navigator.clipboard.writeText(text);
-    setShowExportSuccess(true);
-    setTimeout(() => setShowExportSuccess(false), 5000);
+      await navigator.clipboard.writeText(text);
+      setShowExportSuccess(true);
+      setTimeout(() => setShowExportSuccess(false), 5000);
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo exportar el informe.");
+    } finally {
+      setExportingMonthOffset(null);
+    }
   };
 
   const resetForm = () => {
@@ -321,11 +441,11 @@ Generado por *JW Service Tracker*`;
         throw new Error(data.error || "Error al guardar");
       }
 
-      await fetchDashboardData();
+      await fetchDashboardData(page, monthOffset);
       setShowAddModal(false);
       resetForm();
-    } catch (err: any) {
-      setFormError(err.message || "Error al guardar");
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Error al guardar");
     } finally {
       setIsSubmitting(false);
     }
@@ -342,10 +462,10 @@ Generado por *JW Service Tracker*`;
         const data = await res.json();
         throw new Error(data.error || "Error al eliminar");
       }
-      await fetchDashboardData();
+      await fetchDashboardData(page, monthOffset);
       setShowDeleteModal(false);
-    } catch (err: any) {
-      alert(err.message || "Error al eliminar");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error al eliminar");
     } finally {
       setIsDeleting(false);
     }
@@ -417,6 +537,18 @@ Generado por *JW Service Tracker*`;
         strokeDashoffset,
         hasChanges,
         stats,
+
+        page,
+        totalPages,
+        totalEntries,
+        setPage,
+        showExportOptions,
+        setShowExportOptions,
+        exportingMonthOffset,
+        monthOffset,
+        setMonthOffset,
+        handleMonthChange,
+        isEntriesLoading,
 
         fetchDashboardData,
         openSettingsModal,
