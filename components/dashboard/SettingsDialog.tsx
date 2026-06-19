@@ -76,9 +76,10 @@ export function SettingsDialog() {
           <Input
             type="number"
             value={settingsMonthlyGoal}
-            onChange={(e) =>
-              setSettingsMonthlyGoal(parseInt(e.target.value) || 0)
-            }
+            onChange={(e) => {
+              const val = e.target.value;
+              setSettingsMonthlyGoal(val === "" ? "" : parseInt(val) || 0);
+            }}
             min={0}
             className="mt-1.5"
           />

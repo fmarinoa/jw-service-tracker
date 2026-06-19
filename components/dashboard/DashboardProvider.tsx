@@ -38,8 +38,8 @@ interface DashboardContextType {
   setShowSettingsModal: (val: boolean) => void;
   settingsPreacherType: PreacherType;
   setSettingsPreacherType: (val: PreacherType) => void;
-  settingsMonthlyGoal: number;
-  setSettingsMonthlyGoal: (val: number) => void;
+  settingsMonthlyGoal: number | "";
+  setSettingsMonthlyGoal: (val: number | "") => void;
   isSavingSettings: boolean;
   settingsError: string;
   setSettingsError: (val: string) => void;
@@ -49,10 +49,10 @@ interface DashboardContextType {
   // Form state
   formDate: string;
   setFormDate: (val: string) => void;
-  formHours: number;
-  setFormHours: (val: number) => void;
-  formMinutes: number;
-  setFormMinutes: (val: number) => void;
+  formHours: number | "";
+  setFormHours: (val: number | "") => void;
+  formMinutes: number | "";
+  setFormMinutes: (val: number | "") => void;
   formType: SessionType;
   setFormType: (val: SessionType) => void;
   formNotes: string;
@@ -248,7 +248,7 @@ export function DashboardProvider({
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [settingsPreacherType, setSettingsPreacherType] =
     useState<PreacherType>("publisher");
-  const [settingsMonthlyGoal, setSettingsMonthlyGoal] = useState<number>(0);
+  const [settingsMonthlyGoal, setSettingsMonthlyGoal] = useState<number | "">(0);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [settingsError, setSettingsError] = useState("");
   const [showExportSuccess, setShowExportSuccess] = useState(false);
@@ -256,8 +256,8 @@ export function DashboardProvider({
 
   // Form State
   const [formDate, setFormDate] = useState(DateTime.now().toISODate()!);
-  const [formHours, setFormHours] = useState(1);
-  const [formMinutes, setFormMinutes] = useState(0);
+  const [formHours, setFormHours] = useState<number | "">(1);
+  const [formMinutes, setFormMinutes] = useState<number | "">(0);
   const [formType, setFormType] = useState<SessionType>("house_to_house");
   const [formNotes, setFormNotes] = useState("");
 
@@ -291,7 +291,7 @@ export function DashboardProvider({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           preacherType: settingsPreacherType,
-          monthlyGoal: settingsMonthlyGoal,
+          monthlyGoal: settingsMonthlyGoal === "" ? 0 : Number(settingsMonthlyGoal),
         }),
       });
 
@@ -313,8 +313,8 @@ export function DashboardProvider({
   const hasChanges = editingEntry
     ? formDate !==
         DateTime.fromMillis(editingEntry.preachingDate).toISODate() ||
-      formHours !== editingEntry.hours ||
-      formMinutes !== editingEntry.minutes ||
+      (formHours === "" ? 0 : Number(formHours)) !== editingEntry.hours ||
+      (formMinutes === "" ? 0 : Number(formMinutes)) !== editingEntry.minutes ||
       formType !== editingEntry.type ||
       formNotes.trim() !== (editingEntry.notes || "")
     : true;
@@ -391,10 +391,13 @@ Generado por *JW Service Tracker*`;
     const trimmedNotes = formNotes.trim();
     let validationError: string | null = null;
 
+    const parsedHours = formHours === "" ? 0 : Number(formHours);
+    const parsedMinutes = formMinutes === "" ? 0 : Number(formMinutes);
+
     try {
       const entry = new Entry({
-        hours: formHours,
-        minutes: formMinutes,
+        hours: parsedHours,
+        minutes: parsedMinutes,
         notes: trimmedNotes,
       });
       entry.validateHourPlusMinutes();
@@ -408,7 +411,7 @@ Generado por *JW Service Tracker*`;
       return;
     }
 
-    if (formHours === 0 && formMinutes === 0) {
+    if (parsedHours === 0 && parsedMinutes === 0) {
       setFormError("El tiempo debe ser mayor a 0");
       return;
     }
@@ -418,8 +421,8 @@ Generado por *JW Service Tracker*`;
     try {
       const payload = {
         preachingDate: DateTime.fromISO(formDate).toMillis(),
-        hours: formHours,
-        minutes: formMinutes,
+        hours: parsedHours,
+        minutes: parsedMinutes,
         type: formType,
         notes: trimmedNotes,
       };

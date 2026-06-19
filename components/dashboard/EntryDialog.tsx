@@ -58,7 +58,10 @@ export function EntryDialog() {
               <Input
                 type="number"
                 value={formHours}
-                onChange={(e) => setFormHours(parseInt(e.target.value) || 0)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormHours(val === "" ? "" : parseInt(val) || 0);
+                }}
                 min={0}
               />
             </div>
@@ -69,7 +72,10 @@ export function EntryDialog() {
               <Input
                 type="number"
                 value={formMinutes}
-                onChange={(e) => setFormMinutes(parseInt(e.target.value) || 0)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormMinutes(val === "" ? "" : parseInt(val) || 0);
+                }}
                 min={0}
                 max={59}
               />
