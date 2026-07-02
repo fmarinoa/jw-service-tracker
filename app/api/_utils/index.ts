@@ -43,7 +43,7 @@ export function handlerApiRequest(
       if (req.method !== "GET" && req.method !== "DELETE") {
         try {
           body = await req.json();
-        } catch (e) {
+        } catch {
           // Body might be empty or not JSON
           body = null;
         }

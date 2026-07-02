@@ -248,7 +248,9 @@ export function DashboardProvider({
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [settingsPreacherType, setSettingsPreacherType] =
     useState<PreacherType>("publisher");
-  const [settingsMonthlyGoal, setSettingsMonthlyGoal] = useState<number | "">(0);
+  const [settingsMonthlyGoal, setSettingsMonthlyGoal] = useState<number | "">(
+    0,
+  );
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [settingsError, setSettingsError] = useState("");
   const [showExportSuccess, setShowExportSuccess] = useState(false);
@@ -291,7 +293,8 @@ export function DashboardProvider({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           preacherType: settingsPreacherType,
-          monthlyGoal: settingsMonthlyGoal === "" ? 0 : Number(settingsMonthlyGoal),
+          monthlyGoal:
+            settingsMonthlyGoal === "" ? 0 : Number(settingsMonthlyGoal),
         }),
       });
 

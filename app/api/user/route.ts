@@ -5,16 +5,29 @@ import { usersRepository } from "@/repositories";
 
 import { handlerApiRequest } from "../_utils";
 
-export const GET = handlerApiRequest(
-  async (_req, { user }) => {
-    const dbUser = await usersRepository.findById(user.id);
-    if (!dbUser) {
-      return NextResponse.json(
+async function getUserById(
+  userId: string,
+): Promise<{ error?: NextResponse; user: User; finded: boolean }> {
+  const user = await usersRepository.findById(userId);
+  if (!user) {
+    return {
+      error: NextResponse.json(
         { error: "Usuario no encontrado" },
         { status: 404 },
-      );
-    }
-    const { password, ...userWithoutPassword } = dbUser;
+      ),
+      finded: false,
+      user: {} as User,
+    };
+  }
+  return { user, finded: true };
+}
+
+export const GET = handlerApiRequest(
+  async (_req, { user }) => {
+    const result = await getUserById(user.id);
+    if (!result.finded) return result.error;
+
+    const { password, ...userWithoutPassword } = result.user;
     return { success: true, user: userWithoutPassword };
   },
   { requiresAuth: true },
@@ -24,7 +37,15 @@ export const PUT = handlerApiRequest(
   async (_req, { user, body }) => {
     const userToUpdate = User.validateForUpdate({ ...body, id: user.id });
 
-    const updatedUser = await usersRepository.update(userToUpdate);
+    const result = await getUserById(userToUpdate.id);
+    if (!result.finded) return result.error;
+
+    result.user.updateGoals(
+      userToUpdate.monthlyGoal,
+      userToUpdate.preacherType,
+    );
+
+    const updatedUser = await usersRepository.update(result.user);
 
     if (!updatedUser) {
       return NextResponse.json(

@@ -79,4 +79,12 @@ export class User {
     }
     return new User(user);
   }
+
+  updateGoals(newGoal: number, newPreacherType: PreacherType) {
+    if (newGoal < 0 || !Number.isInteger(newGoal)) {
+      throw new Error("La meta debe ser un número entero no negativo");
+    }
+    this.monthlyGoal = newGoal;
+    this.preacherType = newPreacherType;
+  }
 }

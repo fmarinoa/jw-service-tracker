@@ -2,7 +2,6 @@ import bcrypt from "bcrypt";
 import { DefaultSession, getServerSession, NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-import { PreacherType } from "@/domain/User";
 import { usersRepository } from "@/repositories";
 
 // 1. Tipamos los datos que queremos en la sesión de forma global
