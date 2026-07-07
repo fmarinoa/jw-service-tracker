@@ -59,7 +59,12 @@ export class UsersRepository extends BaseRepository {
         },
       });
 
-      return new User({ ...user, updatedAt });
+      return new User({
+        id,
+        updatedAt,
+        monthlyGoal: user.monthlyGoal,
+        preacherType: user.preacherType,
+      });
     });
   }
 }
