@@ -49,15 +49,14 @@ export class UsersRepository extends BaseRepository {
         throw new Error("User ID is required for update");
       }
 
-      const { id: _, ...updates } = user;
       const updatedAt = DateTime.now().toMillis();
-      const item = {
-        ...this.cleanObject(updates),
-        updatedAt,
-      };
 
       await collection.updateOne(this.buildIdFilter(id), {
-        $set: item,
+        $set: {
+          monthlyGoal: user.monthlyGoal,
+          preacherType: user.preacherType,
+          updatedAt,
+        },
       });
 
       return new User({ ...user, updatedAt });
