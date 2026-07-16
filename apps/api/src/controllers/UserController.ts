@@ -22,7 +22,10 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Patch()
   async update(@CurrentUser() user: User, @Body() body: unknown) {
-    const instanceForUpdate = User.validateForUpdate({ ...body as any, id: user.id });
+    const instanceForUpdate = User.validateForUpdate({
+      ...(body as any),
+      id: user.id,
+    });
     return await this.userService.updateUser(instanceForUpdate);
-  } 
+  }
 }

@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import z from 'zod';
 
@@ -62,7 +63,7 @@ export class Entry {
   static validateForCreate(data: Partial<Entry>): Entry {
     const result = baseSchema.safeParse(data);
     if (!result.success) {
-      throw new Error(result.error.issues[0].message);
+      throw new BadRequestException(result.error.issues[0].message);
     }
     return new Entry(result.data);
   }
@@ -70,7 +71,7 @@ export class Entry {
   static validateForUpdate(data: Partial<Entry>): Entry {
     const result = updateSchema.safeParse(data);
     if (!result.success) {
-      throw new Error(result.error.issues[0].message);
+      throw new BadRequestException(result.error.issues[0].message);
     }
     return new Entry(result.data);
   }
@@ -78,7 +79,7 @@ export class Entry {
   validateHourPlusMinutes() {
     const totalMinutes = this.hours * 60 + this.minutes;
     if (totalMinutes > 24 * 60) {
-      throw new Error(
+      throw new BadRequestException(
         'La duración total no puede exceder las 24 horas en un día.',
       );
     }
@@ -91,7 +92,9 @@ export class Entry {
     const toleranceBufferMs = 10 * 60 * 1000; // 10 minutos
     const maxAllowedTimestamp = DateTime.now().toMillis() + toleranceBufferMs;
     if (this.preachingDate > maxAllowedTimestamp) {
-      throw new Error('La fecha de predicación no puede ser futura.');
+      throw new BadRequestException(
+        'La fecha de predicación no puede ser futura.',
+      );
     }
   }
 
