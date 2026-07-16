@@ -7,6 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -64,6 +65,24 @@ export class EntriesController {
     }
 
     await this.entriesService.delete(new User({ ...user, id: userId }), id);
+    return;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async updateEntry(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    const userId = user?.id;
+    if (!userId) {
+      throw new BadRequestException('User not found in request context');
+    }
+
+    const entry = Entry.validateForUpdate({ ...body, id });
+
+    await this.entriesService.update(new User({ ...user, id: userId }), entry);
     return;
   }
 }
