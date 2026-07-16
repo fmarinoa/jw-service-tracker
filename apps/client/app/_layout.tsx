@@ -3,6 +3,7 @@ import '../src/global.css';
 import { Slot } from 'expo-router';
 import React from 'react';
 import { LogBox, Platform } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider } from '../src/features/auth/AuthProvider';
 
@@ -12,8 +13,10 @@ if (Platform.OS === 'web') {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <Slot />
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <Slot />
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
