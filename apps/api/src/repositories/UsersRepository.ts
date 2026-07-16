@@ -1,9 +1,9 @@
-import bcrypt from "bcrypt";
-import { DateTime } from "luxon";
+import bcrypt from 'bcrypt';
+import { DateTime } from 'luxon';
 
-import { User } from "@/domain/User";
+import { User } from '@/domain/User';
 
-import { BaseRepository, BaseRepositoryProps } from "./BaseRepository";
+import { BaseRepository, BaseRepositoryProps } from './BaseRepository';
 
 export class UsersRepository extends BaseRepository {
   constructor(props: BaseRepositoryProps) {
@@ -46,7 +46,7 @@ export class UsersRepository extends BaseRepository {
     return this.handlerCollection(async (collection) => {
       const id = user.id;
       if (!id) {
-        throw new Error("User ID is required for update");
+        throw new Error('User ID is required for update');
       }
 
       const updatedAt = DateTime.now().toMillis();

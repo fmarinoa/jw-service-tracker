@@ -1,7 +1,8 @@
-import { MongoClient, MongoClientOptions, ServerApiVersion } from "mongodb";
+import { MongoClient, MongoClientOptions, ServerApiVersion } from 'mongodb';
 
-import { EntriesRepository } from "./EntriesRepository";
-import { UsersRepository } from "./UsersRepository";
+import { AuthSessionsRepository } from './AuthSessionsRepository';
+import { EntriesRepository } from './EntriesRepository';
+import { UsersRepository } from './UsersRepository';
 
 const uri = process.env.MONGODB_URI!;
 const options: MongoClientOptions = {
@@ -13,7 +14,7 @@ const options: MongoClientOptions = {
 };
 let client: MongoClient;
 
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV === 'development') {
   const globalWithMongo = global as typeof globalThis & {
     _mongoClient?: MongoClient;
   };
@@ -27,13 +28,20 @@ if (process.env.NODE_ENV === "development") {
 export const usersRepository = new UsersRepository({
   client,
   config: {
-    collectionName: "users",
+    collectionName: 'users',
   },
 });
 
 export const entriesRepository = new EntriesRepository({
   client,
   config: {
-    collectionName: "entries",
+    collectionName: 'entries',
+  },
+});
+
+export const authSessionsRepository = new AuthSessionsRepository({
+  client,
+  config: {
+    collectionName: 'auth_sessions',
   },
 });

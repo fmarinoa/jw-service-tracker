@@ -96,3 +96,21 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## JWT Authentication
+
+This project uses a JWT-based authentication system with short-lived access tokens and rotating refresh tokens.
+
+### Environment Configuration
+
+Configure the following variables in your `.env` file:
+* `JWT_SECRET`: Secret key used to sign the access tokens.
+* `JWT_EXPIRES_IN`: Access token lifetime in seconds (default: 900).
+* `REFRESH_TOKEN_EXPIRES_IN`: Refresh token lifetime in seconds (default: 604800).
+
+### Authentication Endpoints
+
+* `POST /auth/login`: Authenticate with phone and password. Returns access token, refresh token, and user details.
+* `POST /auth/refresh`: Rotate refresh token and obtain a new access token.
+* `POST /auth/logout`: Revoke active refresh token.
+* `GET /auth/me`: Fetch authenticated user profile details.

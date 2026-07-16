@@ -1,9 +1,9 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const PreacherType = {
-  regular_pioneer: "regular_pioneer",
-  auxiliary_pioneer: "auxiliary_pioneer",
-  publisher: "publisher",
+  regular_pioneer: 'regular_pioneer',
+  auxiliary_pioneer: 'auxiliary_pioneer',
+  publisher: 'publisher',
 } as const;
 export type PreacherType = (typeof PreacherType)[keyof typeof PreacherType];
 
@@ -15,13 +15,13 @@ export const phoneSchema = z
   .trim()
   .regex(
     phoneRegex,
-    "Debe ser un número de celular de 9 dígitos que empiece con 9",
+    'Debe ser un número de celular de 9 dígitos que empiece con 9',
   );
 
 export const registerSchema = z.object({
-  name: z.string().min(2, "Nombre muy corto").max(50),
+  name: z.string().min(2, 'Nombre muy corto').max(50),
   phone: phoneSchema,
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
 });
 
 const updateSettingsSchema = z.object({
@@ -30,7 +30,7 @@ const updateSettingsSchema = z.object({
   monthlyGoal: z
     .number()
     .int()
-    .min(0, "La meta debe ser un número entero no negativo"),
+    .min(0, 'La meta debe ser un número entero no negativo'),
 });
 
 export const DEFAULT_GOALS: Record<PreacherType, number | null> = {
@@ -40,9 +40,9 @@ export const DEFAULT_GOALS: Record<PreacherType, number | null> = {
 };
 
 export const PREACHER_TYPE_LABELS: Record<PreacherType, string> = {
-  regular_pioneer: "Precursor Regular",
-  auxiliary_pioneer: "Precursor Auxiliar",
-  publisher: "Publicador",
+  regular_pioneer: 'Precursor Regular',
+  auxiliary_pioneer: 'Precursor Auxiliar',
+  publisher: 'Publicador',
 };
 
 export class User {
@@ -62,12 +62,12 @@ export class User {
   static validateForRegistration(data: Partial<User>) {
     const { data: validated, error } = registerSchema.safeParse(data);
     if (error) {
-      throw new Error(error.issues[0]?.message || "Datos inválidos");
+      throw new Error(error.issues[0]?.message || 'Datos inválidos');
     }
     return new User({
       ...validated,
       phone: `+51${validated.phone}`,
-      preacherType: "publisher",
+      preacherType: 'publisher',
       monthlyGoal: 0,
     });
   }
@@ -75,14 +75,14 @@ export class User {
   static validateForUpdate(data: Partial<User>) {
     const { data: user, error } = updateSettingsSchema.safeParse(data);
     if (error) {
-      throw new Error(error.issues[0]?.message || "Datos inválidos");
+      throw new Error(error.issues[0]?.message || 'Datos inválidos');
     }
     return new User(user);
   }
 
   updateGoals(newGoal: number, newPreacherType: PreacherType) {
     if (newGoal < 0 || !Number.isInteger(newGoal)) {
-      throw new Error("La meta debe ser un número entero no negativo");
+      throw new Error('La meta debe ser un número entero no negativo');
     }
     this.monthlyGoal = newGoal;
     this.preacherType = newPreacherType;

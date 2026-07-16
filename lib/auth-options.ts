@@ -1,8 +1,7 @@
-import bcrypt from "bcrypt";
 import { DefaultSession, getServerSession, NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-import { usersRepository } from "@/repositories";
+import { AuthClient } from "./auth-client";
 
 // 1. Tipamos los datos que queremos en la sesión de forma global
 declare module "next-auth" {
@@ -11,11 +10,16 @@ declare module "next-auth" {
       id: string;
       name: string;
     } & DefaultSession["user"];
+    accessToken?: string;
+    error?: string;
   }
 
   interface User {
     id: string;
     name: string;
+    accessToken: string;
+    refreshToken: string;
+    expiresAt: number;
   }
 }
 
@@ -23,11 +27,14 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     name: string;
+    accessToken: string;
+    refreshToken: string;
+    expiresAt: number;
+    error?: string;
   }
 }
 
 export const authOptions: NextAuthOptions = {
-  // El adapter no es necesario para flujo de Credentials con JWT
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -38,26 +45,23 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.identifier || !credentials?.password) return null;
 
-        const rawPhone = credentials.identifier.trim();
-        const phoneWithPrefix = rawPhone.startsWith("+51")
-          ? rawPhone
-          : `+51${rawPhone}`;
+        try {
+          const loginRes = await AuthClient.login({
+            phone: credentials.identifier.trim(),
+            password: credentials.password,
+          });
 
-        const user = await usersRepository.findByPhone(phoneWithPrefix);
-
-        if (
-          user &&
-          user.password &&
-          (await bcrypt.compare(credentials.password, user.password))
-        ) {
-          // Retornamos todos los campos que queremos guardar en el token/sesión
           return {
-            id: user.id,
-            name: user.name,
+            id: loginRes.user.id,
+            name: loginRes.user.name,
+            accessToken: loginRes.accessToken,
+            refreshToken: loginRes.refreshToken,
+            expiresAt: Date.now() + loginRes.expiresIn * 1000,
           };
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Credenciales inválidas.";
+          throw new Error(message);
         }
-
-        throw new Error("Credenciales inválidas.");
       },
     }),
   ],
@@ -67,19 +71,54 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        // Al iniciar sesión, guardamos todo en el token
         token.id = user.id;
         token.name = user.name;
+        token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
+        token.expiresAt = user.expiresAt;
       }
-      return token;
+
+      // Check if access token is expired (or close to expiring, e.g. within 60s)
+      if (Date.now() < token.expiresAt - 60000) {
+        return token;
+      }
+
+      // Access token expired, try to refresh it
+      try {
+        const refreshRes = await AuthClient.refresh(token.refreshToken);
+        return {
+          ...token,
+          accessToken: refreshRes.accessToken,
+          refreshToken: refreshRes.refreshToken,
+          expiresAt: Date.now() + refreshRes.expiresIn * 1000,
+        };
+      } catch (error) {
+        console.error("Error refreshing token:", error);
+        return {
+          ...token,
+          error: "RefreshAccessTokenError",
+        };
+      }
     },
     async session({ session, token }) {
       if (session.user) {
-        // Pasamos los datos del token a la sesión
         session.user.id = token.id;
         session.user.name = token.name;
+        session.accessToken = token.accessToken;
+        session.error = token.error;
       }
       return session;
+    },
+  },
+  events: {
+    async signOut({ token }) {
+      if (token?.refreshToken) {
+        try {
+          await AuthClient.logout(token.refreshToken);
+        } catch (error) {
+          console.error("Failed to revoke session on logout", error);
+        }
+      }
     },
   },
   pages: {
