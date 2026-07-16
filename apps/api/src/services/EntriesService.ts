@@ -53,4 +53,16 @@ export class EntriesService {
       );
     }
   }
+
+  async update(user: User, entry: Entry) {
+    entry.validateHourPlusMinutes();
+    entry.preachingDateNotInFuture();
+    const updatedEntry = await entriesRepository.update(user, entry);
+    if (!updatedEntry) {
+      throw new NotFoundException(
+        `Entry with ID ${entry.id} not found for user ${user.id}`,
+      );
+    }
+    return updatedEntry;
+  }
 }
