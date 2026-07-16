@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
 
 import { CurrentUser } from '@/auth/current-user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
@@ -18,4 +18,11 @@ export class UserController {
     }
     return await this.userService.getUserById(user.id);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch()
+  async update(@CurrentUser() user: User, @Body() body: unknown) {
+    const instanceForUpdate = User.validateForUpdate({ ...body as any, id: user.id });
+    return await this.userService.updateUser(instanceForUpdate);
+  } 
 }
