@@ -19,6 +19,7 @@ import { EntriesApi } from "../../services/entriesApi";
 import { AuthApi } from "../../services/authApi";
 import { AuthTokenStorage } from "../../storage/authTokens";
 import { useAuth } from "../auth/useAuth";
+import { UserApi } from "../../services/userApi";
 
 interface DashboardContextType {
   user: User | null;
@@ -168,18 +169,16 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
           Promise<any> | null
         ] = [
           EntriesApi.getEntries(targetPage, offset),
-          shouldFetchUser && token ? AuthApi.me(token) : Promise.resolve(null),
+          shouldFetchUser && token ? UserApi.getProfile() : Promise.resolve(null),
         ];
 
         const [entriesData, userData] = await Promise.all(fetchPromises);
 
         if (userData) {
-          setUser(new User(userData));
+          setUser(userData);
         }
 
-        setEntries(
-          entriesData.entries.map((e: Partial<Entry>) => new Entry(e))
-        );
+        setEntries(entriesData.entries);
         setStats(entriesData.stats);
         setTotalEntries(entriesData.total);
 
@@ -188,9 +187,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
         if (targetPage > newTotalPages && newTotalPages > 0) {
           const secondEntriesData = await EntriesApi.getEntries(newTotalPages, offset);
-          setEntries(
-            secondEntriesData.entries.map((e: Partial<Entry>) => new Entry(e))
-          );
+          setEntries(secondEntriesData.entries);
           setStats(secondEntriesData.stats);
           setTotalEntries(secondEntriesData.total);
           setPage(newTotalPages);
@@ -212,6 +209,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const handleMonthChange = useCallback(
     async (offset: number) => {
+      if (offset < -2 || offset > 0) return;
       await fetchDashboardData(1, offset);
     },
     [fetchDashboardData]
@@ -272,13 +270,13 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     setIsSavingSettings(true);
     setSettingsError("");
     try {
-      const updatedUser = await EntriesApi.updateUserSettings({
+      const updatedUser = await UserApi.updateSettings({
         preacherType: settingsPreacherType,
         monthlyGoal:
           settingsMonthlyGoal === "" ? 0 : Number(settingsMonthlyGoal),
       });
 
-      setUser(new User(updatedUser));
+      setUser(prev => prev ? { ...prev, ...updatedUser } : null);
       setShowSettingsModal(false);
     } catch (err) {
       setSettingsError(
@@ -374,16 +372,9 @@ Generado por *JW Service Tracker*`;
     const parsedHours = formHours === "" ? 0 : Number(formHours);
     const parsedMinutes = formMinutes === "" ? 0 : Number(formMinutes);
 
-    try {
-      const entry = new Entry({
-        hours: parsedHours,
-        minutes: parsedMinutes,
-        notes: trimmedNotes,
-      });
-      entry.validateHourPlusMinutes();
-    } catch (err) {
-      validationError =
-        err instanceof Error ? err.message : "Error de validación";
+    const totalMinutes = parsedHours * 60 + parsedMinutes;
+    if (totalMinutes > 24 * 60) {
+      validationError = "La duración total no puede exceder las 24 horas en un día.";
     }
 
     if (validationError) {

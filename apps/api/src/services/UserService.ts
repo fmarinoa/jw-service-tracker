@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { User } from '@/domain/User';
 import { usersRepository } from '@/repositories';
+import { PathcResponse } from '@jw-tracker/shared';
 
 @Injectable()
 export class UserService {
@@ -15,7 +16,7 @@ export class UserService {
     return user;
   }
 
-  async updateUser(user: User) {
+  async updateUser(user: User): Promise<PathcResponse> {
     const originalUser = await usersRepository.findById(user.id);
     if (!originalUser) {
       throw new BadRequestException(`User with ID ${user.id} not found`);
@@ -23,6 +24,6 @@ export class UserService {
 
     originalUser.updateGoals(user.monthlyGoal, user.preacherType);
 
-    return usersRepository.update(originalUser);
+    return usersRepository.update(originalUser) ;
   }
 }
