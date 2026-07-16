@@ -1,4 +1,4 @@
-import { SessionType } from '@jw-tracker/shared';
+import { formatLongDate, SessionType } from '@jw-tracker/shared';
 import { DateTime } from 'luxon';
 import React from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
@@ -23,9 +23,9 @@ export default function RecentActivityCard() {
     fetchDashboardData,
   } = useDashboard();
 
-  const formatLongDate = (millis: number) => {
-    const dt = DateTime.fromMillis(millis).setLocale('es');
-    const formatted = dt.toFormat("EEEE d 'de' MMMM 'del' yyyy");
+  const formatLongDateLabel = (millis: number) => {
+    const dt = DateTime.fromMillis(millis);
+    const formatted = formatLongDate(dt);
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   };
 
@@ -57,7 +57,7 @@ export default function RecentActivityCard() {
             >
               <View className="flex-1 pr-4">
                 <Text className="font-semibold text-foreground text-sm sm:text-base">
-                  {formatLongDate(entry.preachingDate)}
+                  {formatLongDateLabel(entry.preachingDate)}
                 </Text>
                 <Text className="text-xs sm:text-sm text-muted-foreground mt-0.5">
                   {entry.hours}h {entry.minutes}m • {TYPE_LABELS[entry.type]}

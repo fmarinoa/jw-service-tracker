@@ -3,3 +3,4 @@ export * from './auth/auth.schema';
 export * from './domain/Entry';
 export * from './domain/User';
 export * from './types';
+export * from './utils/dateFormatter';
