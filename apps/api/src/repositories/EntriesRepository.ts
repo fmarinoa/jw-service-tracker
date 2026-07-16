@@ -4,6 +4,7 @@ import { Entry } from '@/domain/Entry';
 import { User } from '@/domain/User';
 
 import { BaseRepository, BaseRepositoryProps } from './BaseRepository';
+import { FilterEntries } from '@/domain/FilterEntries';
 
 export class EntriesRepository extends BaseRepository {
   constructor(props: BaseRepositoryProps) {
@@ -18,10 +19,7 @@ export class EntriesRepository extends BaseRepository {
 
   async getByUser(
     user: User,
-    options?: {
-      startOfMonth: number;
-      endOfMonth: number;
-    },
+    filters?: FilterEntries,
   ): Promise<{
     entries: Entry[];
     total: number;
@@ -30,10 +28,10 @@ export class EntriesRepository extends BaseRepository {
       const result = await collection
         .find({
           userId: user.id,
-          ...(options && {
+          ...(filters && {
             preachingDate: {
-              $gte: options.startOfMonth,
-              $lte: options.endOfMonth,
+              $gte: filters.startDate,
+              $lte: filters.endDate,
             },
           }),
         })
