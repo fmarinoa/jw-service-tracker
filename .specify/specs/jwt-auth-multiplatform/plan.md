@@ -10,7 +10,7 @@ Move authentication ownership into the NestJS API and expose one JWT-based contr
 
 ## Technical Context
 
-**Language/Version**: TypeScript 6 in the monorepo, NestJS in `apps/api`, Next.js 16 web client, future Expo/React Native mobile client
+**Language/Version**: TypeScript 6 in the monorepo, NestJS in `apps/api`, and a single Expo client in `apps/mobile` for Web, iOS, and Android
 
 **Primary Dependencies**: NestJS, MongoDB, bcrypt, JWT, Zod for validation, NextAuth only as a temporary web adapter if needed during migration
 
@@ -59,16 +59,13 @@ apps/
 │       ├── domain/
 │       ├── repositories/
 │       └── services/
-└── mobile/                 # planned Expo client for iOS and Android
+└── mobile/                 # Unified Expo client for Web, iOS, and Android
 
-app/                        # current Next.js web client
-components/
-lib/
 packages/
-└── shared/                 # planned shared auth contracts and DTOs
+└── shared/                 # Shared auth contracts and DTOs
 ```
 
-**Structure Decision**: Keep the existing Next.js web client in `app/` while moving authentication ownership into `apps/api`. Add a future `apps/mobile` Expo client and shared auth contracts under `packages/shared` so web, iOS, and Android consume the same API surface.
+**Structure Decision**: Unify the client codebase entirely inside `apps/mobile` using Expo. The Next.js web client in `app/` is deprecated. All client platforms (Web, iOS, and Android) will run the same Expo application, consuming the NestJS API at `apps/api` and sharing auth contracts under `packages/shared`.
 
 ## Research Output
 
