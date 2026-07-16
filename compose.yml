@@ -1,0 +1,38 @@
+services:
+  # Backend (NestJS API)
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: jw-tracker-api
+    ports:
+      - "3000:3000"
+    environment:
+      # Obtiene la cadena de conexión de tu base de datos cloud (Atlas) desde el archivo .env de la raíz
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-900}
+      - REFRESH_TOKEN_EXPIRES_IN=${REFRESH_TOKEN_EXPIRES_IN:-604800}
+      - PORT=3000
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - jw-tracker-network
+
+  # Frontend (Expo Web served by Nginx)
+  client:
+    build:
+      context: .
+      dockerfile: apps/client/Dockerfile
+    container_name: jw-tracker-client
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - jw-tracker-network
+
+networks:
+  jw-tracker-network:
+    driver: bridge
