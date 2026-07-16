@@ -3,14 +3,7 @@ import { DateTime } from 'luxon';
 import z from 'zod';
 
 import { User } from './User';
-
-export const SessionType = {
-  house_to_house: 'house_to_house',
-  revisits: 'revisits',
-  bible_study: 'bible_study',
-  other: 'other',
-} as const;
-export type SessionType = (typeof SessionType)[keyof typeof SessionType];
+import { MonthlyStats, SessionType } from '@jw-tracker/shared';
 
 export const baseSchema = z.object({
   preachingDate: z.number().int().min(1, 'Fecha de predicación inválida'),
@@ -34,16 +27,6 @@ export const baseSchema = z.object({
 export const updateSchema = baseSchema.extend({
   id: z.string().min(1, 'ID de entrada inválido'),
 });
-
-export interface MonthlyStats {
-  totalMinutes: number;
-  byType: {
-    house_to_house: number;
-    revisits: number;
-    bible_study: number;
-    other: number;
-  };
-}
 
 export class Entry {
   id: string;

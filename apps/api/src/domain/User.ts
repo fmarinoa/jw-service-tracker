@@ -1,12 +1,6 @@
+import { PreacherType } from '@jw-tracker/shared';
 import { BadRequestException } from '@nestjs/common';
 import { z } from 'zod';
-
-export const PreacherType = {
-  regular_pioneer: 'regular_pioneer',
-  auxiliary_pioneer: 'auxiliary_pioneer',
-  publisher: 'publisher',
-} as const;
-export type PreacherType = (typeof PreacherType)[keyof typeof PreacherType];
 
 // Peruvian mobile: starts with 9, exactly 9 digits
 const phoneRegex = /^9\d{8}$/;
@@ -33,18 +27,6 @@ const updateSettingsSchema = z.object({
     .int()
     .min(0, 'La meta debe ser un número entero no negativo'),
 });
-
-export const DEFAULT_GOALS: Record<PreacherType, number | null> = {
-  regular_pioneer: 50,
-  auxiliary_pioneer: 30,
-  publisher: null, // Opcional
-};
-
-export const PREACHER_TYPE_LABELS: Record<PreacherType, string> = {
-  regular_pioneer: 'Precursor Regular',
-  auxiliary_pioneer: 'Precursor Auxiliar',
-  publisher: 'Publicador',
-};
 
 export class User {
   id: string;

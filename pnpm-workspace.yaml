@@ -5,3 +5,9 @@ allowBuilds:
   bcrypt: true
   sharp: true
   unrs-resolver: true
+overrides:
+  metro-cache: 0.81.5
+  react: 18.3.1
+  react-dom: 18.3.1
+  "@types/react": 18.3.12
+  "@types/react-dom": 18.3.1

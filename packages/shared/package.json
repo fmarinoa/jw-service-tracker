@@ -8,6 +8,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "zod": "4.4.3"
+    "zod": "4.4.3",
+    "luxon": "3.7.2"
   }
 }
