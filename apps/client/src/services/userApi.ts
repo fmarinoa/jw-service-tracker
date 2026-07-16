@@ -1,12 +1,12 @@
+import { PathcResponse, User } from '@jw-tracker/shared';
 
-import { PathcResponse, User } from "@jw-tracker/shared";
-import { BaseService } from "./baseApi"; 
+import { BaseService } from './baseApi';
 
 export class UserApi extends BaseService {
   static async getProfile(): Promise<User> {
     return this.handleRequest<User>({
-      path: "/user"
-    })
+      path: '/user',
+    });
   }
 
   static async updateSettings(data: {
@@ -14,9 +14,9 @@ export class UserApi extends BaseService {
     monthlyGoal: number;
   }): Promise<PathcResponse> {
     return this.handleRequest<PathcResponse>({
-      path: "/user",
-      method: "PATCH",
-      body: data
+      path: '/user',
+      method: 'PATCH',
+      body: data,
     });
   }
 }

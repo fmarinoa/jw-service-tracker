@@ -1,12 +1,12 @@
-import "../src/global.css";
+import '../src/global.css';
 
-import { Slot } from "expo-router";
-import React from "react";
-import { LogBox, Platform } from "react-native";
+import { Slot } from 'expo-router';
+import React from 'react';
+import { LogBox, Platform } from 'react-native';
 
-import { AuthProvider } from "../src/features/auth/AuthProvider";
+import { AuthProvider } from '../src/features/auth/AuthProvider';
 
-if (Platform.OS === "web") {
+if (Platform.OS === 'web') {
   LogBox.ignoreAllLogs();
 }
 

@@ -1,14 +1,15 @@
-import React from "react";
-import { View, Text, Pressable, ActivityIndicator } from "react-native";
-import { DateTime } from "luxon";
-import { useDashboard } from "../DashboardProvider";
-import { SessionType } from "@jw-tracker/shared";
+import { SessionType } from '@jw-tracker/shared';
+import { DateTime } from 'luxon';
+import React from 'react';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+
+import { useDashboard } from '../DashboardProvider';
 
 const TYPE_LABELS: Record<SessionType, string> = {
-  house_to_house: "Casa en casa",
-  revisits: "Revisitas",
-  bible_study: "Estudio Bíblico",
-  other: "Otro",
+  house_to_house: 'Casa en casa',
+  revisits: 'Revisitas',
+  bible_study: 'Estudio Bíblico',
+  other: 'Otro',
 };
 
 export default function RecentActivityCard() {
@@ -23,19 +24,23 @@ export default function RecentActivityCard() {
   } = useDashboard();
 
   const formatLongDate = (millis: number) => {
-    const dt = DateTime.fromMillis(millis).setLocale("es");
+    const dt = DateTime.fromMillis(millis).setLocale('es');
     const formatted = dt.toFormat("EEEE d 'de' MMMM 'del' yyyy");
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   };
 
   return (
     <View className="bg-card border border-border rounded-2xl p-6 shadow-sm">
-      <Text className="text-base font-bold text-foreground mb-4">Actividad Reciente</Text>
-      
+      <Text className="text-base font-bold text-foreground mb-4">
+        Actividad Reciente
+      </Text>
+
       {isEntriesLoading ? (
         <View className="py-10 items-center justify-center">
           <ActivityIndicator color="#b86a3d" />
-          <Text className="text-muted-foreground text-xs mt-2">Cargando registros...</Text>
+          <Text className="text-muted-foreground text-xs mt-2">
+            Cargando registros...
+          </Text>
         </View>
       ) : entries.length === 0 ? (
         <View className="py-10 items-center justify-center">
@@ -46,7 +51,10 @@ export default function RecentActivityCard() {
       ) : (
         <View className="divide-y divide-border">
           {entries.map((entry) => (
-            <View key={entry.id} className="py-4 flex-row justify-between items-center">
+            <View
+              key={entry.id}
+              className="py-4 flex-row justify-between items-center"
+            >
               <View className="flex-1 pr-4">
                 <Text className="font-semibold text-foreground text-sm sm:text-base">
                   {formatLongDate(entry.preachingDate)}
@@ -84,10 +92,12 @@ export default function RecentActivityCard() {
                 onPress={() => fetchDashboardData(page - 1)}
                 disabled={page === 1}
                 className={`px-3 py-1.5 bg-muted border border-border rounded-lg active:bg-muted/80 ${
-                  page === 1 ? "opacity-50" : ""
+                  page === 1 ? 'opacity-50' : ''
                 }`}
               >
-                <Text className="text-foreground text-xs font-bold">◀ Anterior</Text>
+                <Text className="text-foreground text-xs font-bold">
+                  ◀ Anterior
+                </Text>
               </Pressable>
               <Text className="text-xs text-muted-foreground font-semibold">
                 Página {page} de {totalPages}
@@ -96,10 +106,12 @@ export default function RecentActivityCard() {
                 onPress={() => fetchDashboardData(page + 1)}
                 disabled={page === totalPages}
                 className={`px-3 py-1.5 bg-muted border border-border rounded-lg active:bg-muted/80 ${
-                  page === totalPages ? "opacity-50" : ""
+                  page === totalPages ? 'opacity-50' : ''
                 }`}
               >
-                <Text className="text-foreground text-xs font-bold">Siguiente ▶</Text>
+                <Text className="text-foreground text-xs font-bold">
+                  Siguiente ▶
+                </Text>
               </Pressable>
             </View>
           ) : null}

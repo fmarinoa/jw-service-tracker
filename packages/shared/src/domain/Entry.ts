@@ -1,10 +1,10 @@
-import { User } from "./User";
+import { User } from './User';
 
 export const SessionType = {
-  house_to_house: "house_to_house",
-  revisits: "revisits",
-  bible_study: "bible_study",
-  other: "other",
+  house_to_house: 'house_to_house',
+  revisits: 'revisits',
+  bible_study: 'bible_study',
+  other: 'other',
 } as const;
 export type SessionType = (typeof SessionType)[keyof typeof SessionType];
 

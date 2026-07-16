@@ -30,7 +30,7 @@ Move authentication ownership into the NestJS API and expose one JWT-based contr
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 The repository constitution is a placeholder, so no formal blocking principles are defined yet. This plan follows the current repo direction by keeping shared business logic out of the clients and concentrating auth in the API.
 

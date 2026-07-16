@@ -20,9 +20,9 @@
 
 **Purpose**: Project initialization and basic structure for the unified client.
 
-- [X] T001 Configure support for web inside `apps/client/package.json` by adding web and runtime dependencies
-- [X] T002 Configure **NativeWind** (Tailwind CSS) inside `apps/client/tailwind.config.js` and `apps/client/metro.config.js`
-- [X] T003 Initialize **Expo Router** configuration inside `apps/client/app.json`
+- [x] T001 Configure support for web inside `apps/client/package.json` by adding web and runtime dependencies
+- [x] T002 Configure **NativeWind** (Tailwind CSS) inside `apps/client/tailwind.config.js` and `apps/client/metro.config.js`
+- [x] T003 Initialize **Expo Router** configuration inside `apps/client/app.json`
 
 ---
 
@@ -32,9 +32,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [X] T004 Create folder structure for Expo Router under `apps/client/app/`
-- [X] T005 [P] Create layout and root provider configuration in `apps/client/app/_layout.tsx`
-- [X] T006 [P] Implement platform-agnostic token storage adapter inside `apps/client/src/storage/authTokens.ts` to switch between `SecureStore` (mobile) and `localStorage`/cookies (web)
+- [x] T004 Create folder structure for Expo Router under `apps/client/app/`
+- [x] T005 [P] Create layout and root provider configuration in `apps/client/app/_layout.tsx`
+- [x] T006 [P] Implement platform-agnostic token storage adapter inside `apps/client/src/storage/authTokens.ts` to switch between `SecureStore` (mobile) and `localStorage`/cookies (web)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin.
 
@@ -48,11 +48,11 @@
 
 ### Implementation for User Story 1
 
-- [X] T007 [US1] Create the login page in `apps/client/app/(auth)/login.tsx` using universal React Native inputs and NativeWind classes
-- [X] T008 [P] [US1] Create the registration page in `apps/client/app/(auth)/register.tsx` using universal React Native inputs and NativeWind classes
-- [X] T009 [P] [US1] Create the authentication layout wrapper in `apps/client/app/(auth)/_layout.tsx` to manage login/register screens
-- [X] T010 [US1] Create the protected navigation layout in `apps/client/app/(app)/_layout.tsx` to redirect unauthenticated users to `/login`
-- [X] T011 [US1] Implement login, token bootstrap, and logout endpoints invocation in `apps/client/src/features/auth/useAuth.ts` pointing to NestJS API
+- [x] T007 [US1] Create the login page in `apps/client/app/(auth)/login.tsx` using universal React Native inputs and NativeWind classes
+- [x] T008 [P] [US1] Create the registration page in `apps/client/app/(auth)/register.tsx` using universal React Native inputs and NativeWind classes
+- [x] T009 [P] [US1] Create the authentication layout wrapper in `apps/client/app/(auth)/_layout.tsx` to manage login/register screens
+- [x] T010 [US1] Create the protected navigation layout in `apps/client/app/(app)/_layout.tsx` to redirect unauthenticated users to `/login`
+- [x] T011 [US1] Implement login, token bootstrap, and logout endpoints invocation in `apps/client/src/features/auth/useAuth.ts` pointing to NestJS API
 
 **Checkpoint**: At this point, User Story 1 is fully functional and testable independently.
 
@@ -66,10 +66,10 @@
 
 ### Implementation for User Story 2
 
-- [X] T012 [US2] Create the dashboard layout page in `apps/client/app/(app)/index.tsx`
-- [X] T013 [P] [US2] Create the circular progress graphic component in `apps/client/src/features/dashboard/components/ProgressCircle.tsx` using universal SVGs
-- [X] T014 [P] [US2] Create summary cards components (Hours, Goal, Remaining) in `apps/client/src/features/dashboard/components/SummaryCard.tsx`
-- [X] T015 [US2] Create the `DashboardProvider` context state in `apps/client/src/features/dashboard/DashboardProvider.tsx` to fetch stats and entries from NestJS API
+- [x] T012 [US2] Create the dashboard layout page in `apps/client/app/(app)/index.tsx`
+- [x] T013 [P] [US2] Create the circular progress graphic component in `apps/client/src/features/dashboard/components/ProgressCircle.tsx` using universal SVGs
+- [x] T014 [P] [US2] Create summary cards components (Hours, Goal, Remaining) in `apps/client/src/features/dashboard/components/SummaryCard.tsx`
+- [x] T015 [US2] Create the `DashboardProvider` context state in `apps/client/src/features/dashboard/DashboardProvider.tsx` to fetch stats and entries from NestJS API
 
 **Checkpoint**: At this point, User Stories 1 and 2 are functional and work together.
 
@@ -83,11 +83,11 @@
 
 ### Implementation for User Story 3
 
-- [X] T016 [US3] Create the entry form dialog component in `apps/client/src/features/dashboard/components/EntryDialog.tsx`
-- [X] T017 [P] [US3] Create the delete confirmation modal in `apps/client/src/features/dashboard/components/ConfirmDeleteDialog.tsx`
-- [X] T018 [P] [US3] Create the activities list card in `apps/client/src/features/dashboard/components/RecentActivityCard.tsx`
-- [X] T019 [US3] Implement entry API handlers in `apps/client/src/services/entriesApi.ts` for POST/PUT/DELETE calls to `/auth/entries`
-- [X] T020 [US3] Wire entry creation, update, and deletion actions in `apps/client/src/features/dashboard/DashboardProvider.tsx`
+- [x] T016 [US3] Create the entry form dialog component in `apps/client/src/features/dashboard/components/EntryDialog.tsx`
+- [x] T017 [P] [US3] Create the delete confirmation modal in `apps/client/src/features/dashboard/components/ConfirmDeleteDialog.tsx`
+- [x] T018 [P] [US3] Create the activities list card in `apps/client/src/features/dashboard/components/RecentActivityCard.tsx`
+- [x] T019 [US3] Implement entry API handlers in `apps/client/src/services/entriesApi.ts` for POST/PUT/DELETE calls to `/auth/entries`
+- [x] T020 [US3] Wire entry creation, update, and deletion actions in `apps/client/src/features/dashboard/DashboardProvider.tsx`
 
 **Checkpoint**: All user stories are independently functional.
 
@@ -97,9 +97,9 @@
 
 **Purpose**: Code cleanup and deprecation of legacy Next.js web folders.
 
-- [X] T021 Clean up and delete Next.js folders `app/`, `components/`, and related configurations in the workspace root
-- [X] T022 [P] Configure environment files (`.env`, `compose.yml`) to point mobile clients to the local host or local API container
-- [X] T023 Run `quickstart.md` validation on all targets (Web, iOS, Android) to ensure consistency
+- [x] T021 Clean up and delete Next.js folders `app/`, `components/`, and related configurations in the workspace root
+- [x] T022 [P] Configure environment files (`.env`, `compose.yml`) to point mobile clients to the local host or local API container
+- [x] T023 Run `quickstart.md` validation on all targets (Web, iOS, Android) to ensure consistency
 
 ---
 

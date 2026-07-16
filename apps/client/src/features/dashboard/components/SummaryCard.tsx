@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, Pressable } from "react-native";
+import React from 'react';
+import { Pressable, Text, View } from 'react-native';
 
 interface SummaryCardProps {
   label: string;
@@ -18,10 +18,10 @@ export default function SummaryCard({
   subtitle,
   onPress,
   actionLabel,
-  className = "",
+  className = '',
 }: SummaryCardProps) {
   return (
-    <View 
+    <View
       className={`bg-card border border-border rounded-2xl p-5 shadow-sm flex-1 ${className}`}
     >
       <View className="flex-row justify-between items-start">
@@ -34,7 +34,7 @@ export default function SummaryCard({
             <Text className="text-xl">{icon}</Text>
           </View>
         </View>
-        
+
         {onPress && actionLabel && (
           <Pressable
             onPress={onPress}

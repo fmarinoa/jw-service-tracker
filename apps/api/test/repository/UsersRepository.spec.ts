@@ -46,7 +46,9 @@ describe('UsersRepository', () => {
       const result = await repository.findByPhone('+51932337417');
 
       expect(mockDb.collection).toHaveBeenCalledWith('users');
-      expect(mockCollection.findOne).toHaveBeenCalledWith({ phone: '+51932337417' });
+      expect(mockCollection.findOne).toHaveBeenCalledWith({
+        phone: '+51932337417',
+      });
       expect(result).toBeInstanceOf(User);
       expect(result?.id).toBe('6a2a3169441e2b16bc9d1867');
       expect(result?.name).toBe('FRANCO MARIÑO');
@@ -74,7 +76,9 @@ describe('UsersRepository', () => {
 
       const result = await repository.findById(mockId);
 
-      expect(mockCollection.findOne).toHaveBeenCalledWith({ _id: new ObjectId(mockId) });
+      expect(mockCollection.findOne).toHaveBeenCalledWith({
+        _id: new ObjectId(mockId),
+      });
       expect(result?.id).toBe(mockId);
     });
   });
@@ -88,8 +92,12 @@ describe('UsersRepository', () => {
       });
 
       const mockInsertedId = new ObjectId('6a2a3169441e2b16bc9d1867');
-      mockCollection.insertOne.mockResolvedValue({ insertedId: mockInsertedId });
-      jest.spyOn(bcrypt, 'hash').mockImplementation(() => Promise.resolve('hashed-password'));
+      mockCollection.insertOne.mockResolvedValue({
+        insertedId: mockInsertedId,
+      });
+      jest
+        .spyOn(bcrypt, 'hash')
+        .mockImplementation(() => Promise.resolve('hashed-password'));
 
       const result = await repository.create(inputUser);
 

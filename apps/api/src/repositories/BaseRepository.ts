@@ -27,6 +27,7 @@ export abstract class BaseRepository {
           collectionName +
           '] ' +
           (error instanceof Error ? error.message : String(error)),
+        { cause: error },
       );
     }
   }

@@ -29,16 +29,19 @@ This guide details how to run, validate, and test the unified client on Web, iOS
 ## Validating on Different Targets
 
 ### Web Target
+
 1. After starting Expo, press **w** in the console.
 2. The app will open in your default browser at `http://localhost:8081`.
 3. Try logging in, viewing the dashboard, and logging out.
 
 ### iOS Simulator
+
 1. Ensure Xcode and simulator are installed.
 2. In the Expo console, press **i**.
 3. The simulator will boot and launch the Expo Go container app to render the interface.
 
 ### Android Emulator
+
 1. Ensure Android Studio and an AVD (Android Virtual Device) are running.
 2. In the Expo console, press **a**.
 3. The emulator will launch and run the app.

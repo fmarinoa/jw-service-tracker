@@ -1,37 +1,37 @@
-import { Link, useRouter } from "expo-router";
-import React, { useState, useEffect } from "react";
+import { Link, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
   Text,
   TextInput,
   View,
-} from "react-native";
+} from 'react-native';
 
-import { useAuth } from "../../src/features/auth/useAuth";
+import { useAuth } from '../../src/features/auth/useAuth';
 
 export default function LoginPage() {
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [localError, setLocalError] = useState("");
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [localError, setLocalError] = useState('');
   const { login, isLoading, error, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (user) {
-      router.replace("/");
+      router.replace('/');
     }
   }, [user, router]);
 
   const handleLogin = async () => {
-    setLocalError("");
+    setLocalError('');
     if (!phone || !password) {
-      setLocalError("Por favor ingresa tus credenciales");
+      setLocalError('Por favor ingresa tus credenciales');
       return;
     }
     try {
       await login(phone, password);
-      router.replace("/");
+      router.replace('/');
     } catch {
       // Catch error to prevent unhandled promise rejection
     }
@@ -88,20 +88,22 @@ export default function LoginPage() {
             onPress={handleLogin}
             disabled={isLoading}
             className={`w-full h-12 bg-primary rounded-lg justify-center items-center mt-6 active:bg-primary/95 ${
-              isLoading ? "opacity-50" : ""
+              isLoading ? 'opacity-50' : ''
             }`}
           >
             {isLoading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text className="text-primary-foreground font-bold text-base">Entrar</Text>
+              <Text className="text-primary-foreground font-bold text-base">
+                Entrar
+              </Text>
             )}
           </Pressable>
         </View>
 
         <View className="mt-6 flex-row justify-center">
           <Text className="text-muted-foreground text-sm text-center">
-            ¿No tienes cuenta?{" "}
+            ¿No tienes cuenta?{' '}
             <Link href="/register">
               <Text className="text-primary font-bold text-sm active:underline">
                 Regístrate aquí

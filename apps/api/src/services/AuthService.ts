@@ -83,6 +83,7 @@ export class AuthService {
       throw new Error('El celular ya está registrado.');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { User } = require('../domain/User');
     const rawPhone = phone.replace(/^\+51/, '');
     const userInstance = User.validateForRegistration({

@@ -82,7 +82,9 @@ export class EntriesController {
 
     const entry = Entry.validateForUpdate({ ...body, id });
 
-    await this.entriesService.update(new User({ ...user, id: userId }), entry);
-    return;
+    return await this.entriesService.update(
+      new User({ ...user, id: userId }),
+      entry,
+    );
   }
 }

@@ -1,25 +1,25 @@
-import * as SecureStore from "expo-secure-store";
-import { Platform } from "react-native";
+import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
-const ACCESS_TOKEN_KEY = "access_token";
-const REFRESH_TOKEN_KEY = "refresh_token";
+const ACCESS_TOKEN_KEY = 'access_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 
-const isWeb = Platform.OS === "web";
+const isWeb = Platform.OS === 'web';
 
 const webStorage = {
   getItem: (key: string): string | null => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       return localStorage.getItem(key);
     }
     return null;
   },
   setItem: (key: string, value: string): void => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       localStorage.setItem(key, value);
     }
   },
   removeItem: (key: string): void => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       localStorage.removeItem(key);
     }
   },
@@ -45,7 +45,7 @@ export class AuthTokenStorage {
       }
       await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, token);
     } catch (e) {
-      console.error("Failed to save access token", e);
+      console.error('Failed to save access token', e);
     }
   }
 
@@ -68,7 +68,7 @@ export class AuthTokenStorage {
       }
       await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token);
     } catch (e) {
-      console.error("Failed to save refresh token", e);
+      console.error('Failed to save refresh token', e);
     }
   }
 
@@ -82,7 +82,7 @@ export class AuthTokenStorage {
       await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
       await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
     } catch (e) {
-      console.error("Failed to clear tokens", e);
+      console.error('Failed to clear tokens', e);
     }
   }
 }

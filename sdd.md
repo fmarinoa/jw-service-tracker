@@ -44,7 +44,7 @@ interface PreachingEntry {
   preachingDate: number; // Fecha de predicación enviada por el cliente como timestamp UTC en milisegundos (reemplaza a effectiveDate)
   hours: number; // Horas predicadas (entero >= 0)
   minutes: number; // Minutos predicados (entero entre 0 y 59)
-  type: "house_to_house" | "revisits" | "bible_study" | "other"; // Tipo de sesión de predicación
+  type: 'house_to_house' | 'revisits' | 'bible_study' | 'other'; // Tipo de sesión de predicación
   notes?: string; // Notas/observaciones opcionales
   createdAt: number; // Milisegundos UTC autogenerados por el backend (capa Repository al crear)
   updatedAt?: number; // Milisegundos UTC autogenerados por el backend (capa Repository al actualizar)

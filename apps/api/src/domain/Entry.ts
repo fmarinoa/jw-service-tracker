@@ -1,18 +1,18 @@
+import { MonthlyStats, SessionType } from '@jw-tracker/shared';
 import { BadRequestException } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import z from 'zod';
 
 import { User } from './User';
-import { MonthlyStats, SessionType } from '@jw-tracker/shared';
 
 export const baseSchema = z.object({
   preachingDate: z.number().int().min(1, 'Fecha de predicación inválida'),
-  hours: z
+  hours: z.coerce
     .number()
     .int()
     .min(0, 'Horas inválidas')
     .max(24, 'Horas no pueden ser más de 24'),
-  minutes: z
+  minutes: z.coerce
     .number()
     .int()
     .min(0, 'Minutos inválidos')

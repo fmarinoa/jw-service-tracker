@@ -3,9 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import bcrypt from 'bcrypt';
 
 import { User } from '@/domain/User';
-import { AuthService } from '@/services/AuthService';
 import { AuthSessionService } from '@/services/auth/AuthSessionService';
 import { AuthTokenService } from '@/services/auth/AuthTokenService';
+import { AuthService } from '@/services/AuthService';
 
 // Mock the direct repository imports
 jest.mock('@/repositories', () => {
@@ -63,7 +63,9 @@ describe('AuthService', () => {
       });
 
       (usersRepository.findByPhone as jest.Mock).mockResolvedValue(mockUser);
-      jest.spyOn(bcrypt, 'compare').mockImplementation(() => Promise.resolve(true));
+      jest
+        .spyOn(bcrypt, 'compare')
+        .mockImplementation(() => Promise.resolve(true));
 
       (authSessionService.createSession as jest.Mock).mockResolvedValue({
         accessToken: 'access-token',
@@ -75,9 +77,17 @@ describe('AuthService', () => {
       const result = await authService.login('932337417', 'password123', 'web');
 
       expect(usersRepository.findByPhone).toHaveBeenCalledWith('+51932337417');
-      expect(bcrypt.compare).toHaveBeenCalledWith('password123', 'hashed-password');
-      expect(authSessionService.createSession).toHaveBeenCalledWith(mockUser, 'web');
-      expect(authSessionsRepository.create).toHaveBeenCalledWith({ id: 'session-123' });
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        'password123',
+        'hashed-password',
+      );
+      expect(authSessionService.createSession).toHaveBeenCalledWith(
+        mockUser,
+        'web',
+      );
+      expect(authSessionsRepository.create).toHaveBeenCalledWith({
+        id: 'session-123',
+      });
       expect(result).toEqual({
         accessToken: 'access-token',
         refreshToken: 'refresh-token',
@@ -103,7 +113,9 @@ describe('AuthService', () => {
       });
 
       (usersRepository.findByPhone as jest.Mock).mockResolvedValue(mockUser);
-      jest.spyOn(bcrypt, 'compare').mockImplementation(() => Promise.resolve(false));
+      jest
+        .spyOn(bcrypt, 'compare')
+        .mockImplementation(() => Promise.resolve(false));
 
       await expect(
         authService.login('932337417', 'wrong-password', 'web'),
@@ -121,21 +133,34 @@ describe('AuthService', () => {
       };
       const mockUser = new User({ id: 'user-123' });
 
-      (authTokenService.hashRefreshToken as jest.Mock).mockReturnValue('hashed-token');
-      (authSessionsRepository.findByTokenHash as jest.Mock).mockResolvedValue(mockSession);
+      (authTokenService.hashRefreshToken as jest.Mock).mockReturnValue(
+        'hashed-token',
+      );
+      (authSessionsRepository.findByTokenHash as jest.Mock).mockResolvedValue(
+        mockSession,
+      );
       (usersRepository.findById as jest.Mock).mockResolvedValue(mockUser);
       (authSessionService.refreshSession as jest.Mock).mockResolvedValue({
         accessToken: 'new-access-token',
         refreshToken: 'new-refresh-token',
       });
-      (authTokenService.getAccessTokenExpiresIn as jest.Mock).mockReturnValue(900);
+      (authTokenService.getAccessTokenExpiresIn as jest.Mock).mockReturnValue(
+        900,
+      );
 
       const result = await authService.refreshSession('old-refresh-token');
 
-      expect(authTokenService.hashRefreshToken).toHaveBeenCalledWith('old-refresh-token');
-      expect(authSessionsRepository.findByTokenHash).toHaveBeenCalledWith('hashed-token');
+      expect(authTokenService.hashRefreshToken).toHaveBeenCalledWith(
+        'old-refresh-token',
+      );
+      expect(authSessionsRepository.findByTokenHash).toHaveBeenCalledWith(
+        'hashed-token',
+      );
       expect(usersRepository.findById).toHaveBeenCalledWith('user-123');
-      expect(authSessionService.refreshSession).toHaveBeenCalledWith(mockUser, mockSession);
+      expect(authSessionService.refreshSession).toHaveBeenCalledWith(
+        mockUser,
+        mockSession,
+      );
       expect(authSessionsRepository.update).toHaveBeenCalledWith(mockSession);
       expect(result).toEqual({
         accessToken: 'new-access-token',
@@ -150,8 +175,12 @@ describe('AuthService', () => {
         isActive: jest.fn().mockReturnValue(false),
       };
 
-      (authTokenService.hashRefreshToken as jest.Mock).mockReturnValue('hashed-token');
-      (authSessionsRepository.findByTokenHash as jest.Mock).mockResolvedValue(mockSession);
+      (authTokenService.hashRefreshToken as jest.Mock).mockReturnValue(
+        'hashed-token',
+      );
+      (authSessionsRepository.findByTokenHash as jest.Mock).mockResolvedValue(
+        mockSession,
+      );
 
       await expect(
         authService.refreshSession('invalid-refresh-token'),
@@ -166,8 +195,12 @@ describe('AuthService', () => {
         isActive: jest.fn().mockReturnValue(true),
       };
 
-      (authTokenService.hashRefreshToken as jest.Mock).mockReturnValue('hashed-token');
-      (authSessionsRepository.findByTokenHash as jest.Mock).mockResolvedValue(mockSession);
+      (authTokenService.hashRefreshToken as jest.Mock).mockReturnValue(
+        'hashed-token',
+      );
+      (authSessionsRepository.findByTokenHash as jest.Mock).mockResolvedValue(
+        mockSession,
+      );
       (usersRepository.findById as jest.Mock).mockResolvedValue(null);
 
       await expect(
@@ -178,11 +211,15 @@ describe('AuthService', () => {
 
   describe('revokeSession', () => {
     it('should call authSessionsRepository.revokeAllForUser', async () => {
-      (authSessionsRepository.revokeAllForUser as jest.Mock).mockResolvedValue(undefined);
+      (authSessionsRepository.revokeAllForUser as jest.Mock).mockResolvedValue(
+        undefined,
+      );
 
       await authService.revokeSession('user-123');
 
-      expect(authSessionsRepository.revokeAllForUser).toHaveBeenCalledWith('user-123');
+      expect(authSessionsRepository.revokeAllForUser).toHaveBeenCalledWith(
+        'user-123',
+      );
     });
   });
 });

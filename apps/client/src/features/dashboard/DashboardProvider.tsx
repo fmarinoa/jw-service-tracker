@@ -1,25 +1,24 @@
-import { DateTime } from "luxon";
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { Alert, Clipboard, Share } from "react-native";
-
 import {
   DEFAULT_GOALS,
   Entry,
   PreacherType,
   SessionType,
   User,
-} from "@jw-tracker/shared";
-import { EntriesApi } from "../../services/entriesApi";
-import { AuthApi } from "../../services/authApi";
-import { AuthTokenStorage } from "../../storage/authTokens";
-import { useAuth } from "../auth/useAuth";
-import { UserApi } from "../../services/userApi";
+} from '@jw-tracker/shared';
+import { DateTime } from 'luxon';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+import { Alert, Clipboard, Share } from 'react-native';
+
+import { EntriesApi } from '../../services/entriesApi';
+import { UserApi } from '../../services/userApi';
+import { AuthTokenStorage } from '../../storage/authTokens';
+import { useAuth } from '../auth/useAuth';
 
 interface DashboardContextType {
   user: User | null;
@@ -45,8 +44,8 @@ interface DashboardContextType {
   setShowSettingsModal: (val: boolean) => void;
   settingsPreacherType: PreacherType;
   setSettingsPreacherType: (val: PreacherType) => void;
-  settingsMonthlyGoal: number | "";
-  setSettingsMonthlyGoal: (val: number | "") => void;
+  settingsMonthlyGoal: number | '';
+  setSettingsMonthlyGoal: (val: number | '') => void;
   isSavingSettings: boolean;
   settingsError: string;
   setSettingsError: (val: string) => void;
@@ -56,10 +55,10 @@ interface DashboardContextType {
   // Form state
   formDate: string;
   setFormDate: (val: string) => void;
-  formHours: number | "";
-  setFormHours: (val: number | "") => void;
-  formMinutes: number | "";
-  setFormMinutes: (val: number | "") => void;
+  formHours: number | '';
+  setFormHours: (val: number | '') => void;
+  formMinutes: number | '';
+  setFormMinutes: (val: number | '') => void;
   formType: SessionType;
   setFormType: (val: SessionType) => void;
   formNotes: string;
@@ -98,7 +97,7 @@ interface DashboardContextType {
   fetchDashboardData: (
     page?: number,
     offset?: number,
-    forceFetchUser?: boolean
+    forceFetchUser?: boolean,
   ) => Promise<void>;
   openSettingsModal: () => void;
   handleLogout: () => void;
@@ -113,7 +112,7 @@ interface DashboardContextType {
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
@@ -152,7 +151,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     async (
       targetPage: number = 1,
       offset: number = monthOffset,
-      forceFetchUser: boolean = false
+      forceFetchUser: boolean = false,
     ) => {
       try {
         const shouldFetchUser = !user || forceFetchUser;
@@ -164,12 +163,11 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
         const token = await AuthTokenStorage.getAccessToken();
 
-        const fetchPromises: [
-          Promise<any>,
-          Promise<any> | null
-        ] = [
+        const fetchPromises: [Promise<any>, Promise<any> | null] = [
           EntriesApi.getEntries(targetPage, offset),
-          shouldFetchUser && token ? UserApi.getProfile() : Promise.resolve(null),
+          shouldFetchUser && token
+            ? UserApi.getProfile()
+            : Promise.resolve(null),
         ];
 
         const [entriesData, userData] = await Promise.all(fetchPromises);
@@ -186,7 +184,10 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         setTotalPages(newTotalPages);
 
         if (targetPage > newTotalPages && newTotalPages > 0) {
-          const secondEntriesData = await EntriesApi.getEntries(newTotalPages, offset);
+          const secondEntriesData = await EntriesApi.getEntries(
+            newTotalPages,
+            offset,
+          );
           setEntries(secondEntriesData.entries);
           setStats(secondEntriesData.stats);
           setTotalEntries(secondEntriesData.total);
@@ -198,13 +199,13 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         setPage(targetPage);
         setMonthOffset(offset);
       } catch (err) {
-        console.error("Error fetching dashboard data:", err);
+        console.error('Error fetching dashboard data:', err);
       } finally {
         setIsLoading(false);
         setIsEntriesLoading(false);
       }
     },
-    [user, monthOffset]
+    [user, monthOffset],
   );
 
   const handleMonthChange = useCallback(
@@ -212,11 +213,12 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       if (offset < -2 || offset > 0) return;
       await fetchDashboardData(1, offset);
     },
-    [fetchDashboardData]
+    [fetchDashboardData],
   );
 
   useEffect(() => {
     fetchDashboardData(1, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -224,34 +226,34 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
-  const [formError, setFormError] = useState("");
+  const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Settings State
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [settingsPreacherType, setSettingsPreacherType] =
-    useState<PreacherType>("publisher");
-  const [settingsMonthlyGoal, setSettingsMonthlyGoal] = useState<number | "">(
-    0
+    useState<PreacherType>('publisher');
+  const [settingsMonthlyGoal, setSettingsMonthlyGoal] = useState<number | ''>(
+    0,
   );
   const [isSavingSettings, setIsSavingSettings] = useState(false);
-  const [settingsError, setSettingsError] = useState("");
+  const [settingsError, setSettingsError] = useState('');
   const [showExportSuccess, setShowExportSuccess] = useState(false);
   const [disableLogout, setDisableLogout] = useState(false);
 
   // Form State
   const [formDate, setFormDate] = useState(DateTime.now().toISODate()!);
-  const [formHours, setFormHours] = useState<number | "">(1);
-  const [formMinutes, setFormMinutes] = useState<number | "">(0);
-  const [formType, setFormType] = useState<SessionType>("house_to_house");
-  const [formNotes, setFormNotes] = useState("");
+  const [formHours, setFormHours] = useState<number | ''>(1);
+  const [formMinutes, setFormMinutes] = useState<number | ''>(0);
+  const [formType, setFormType] = useState<SessionType>('house_to_house');
+  const [formNotes, setFormNotes] = useState('');
 
   const openSettingsModal = () => {
     if (user) {
-      setSettingsPreacherType(user.preacherType || "publisher");
+      setSettingsPreacherType(user.preacherType || 'publisher');
       setSettingsMonthlyGoal(user.monthlyGoal ?? 0);
     }
-    setSettingsError("");
+    setSettingsError('');
     setShowSettingsModal(true);
   };
 
@@ -268,19 +270,21 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const handleSaveSettings = async () => {
     setIsSavingSettings(true);
-    setSettingsError("");
+    setSettingsError('');
     try {
       const updatedUser = await UserApi.updateSettings({
         preacherType: settingsPreacherType,
         monthlyGoal:
-          settingsMonthlyGoal === "" ? 0 : Number(settingsMonthlyGoal),
+          settingsMonthlyGoal === '' ? 0 : Number(settingsMonthlyGoal),
       });
 
-      setUser(prev => prev ? { ...prev, ...updatedUser } : null);
+      setUser((prev) => (prev ? { ...prev, ...updatedUser } : null));
       setShowSettingsModal(false);
     } catch (err) {
       setSettingsError(
-        err instanceof Error ? err.message : "Error al guardar la configuración"
+        err instanceof Error
+          ? err.message
+          : 'Error al guardar la configuración',
       );
     } finally {
       setIsSavingSettings(false);
@@ -291,10 +295,10 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const hasChanges = editingEntry
     ? formDate !==
         DateTime.fromMillis(editingEntry.preachingDate).toISODate() ||
-      (formHours === "" ? 0 : Number(formHours)) !== editingEntry.hours ||
-      (formMinutes === "" ? 0 : Number(formMinutes)) !== editingEntry.minutes ||
+      (formHours === '' ? 0 : Number(formHours)) !== editingEntry.hours ||
+      (formMinutes === '' ? 0 : Number(formMinutes)) !== editingEntry.minutes ||
       formType !== editingEntry.type ||
-      formNotes.trim() !== (editingEntry.notes || "")
+      formNotes.trim() !== (editingEntry.notes || '')
     : true;
 
   const reportedHours = Math.floor(stats.totalMinutes / 60);
@@ -316,10 +320,10 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     try {
       let targetStats = stats;
       const targetMonth = DateTime.now()
-        .setZone("America/Lima")
+        .setZone('America/Lima')
         .plus({ months: offset });
       const monthName =
-        targetMonth.setLocale("es-ES").monthLong?.toUpperCase() || "";
+        targetMonth.setLocale('es-ES').monthLong?.toUpperCase() || '';
       const year = targetMonth.year;
 
       if (offset !== monthOffset) {
@@ -346,10 +350,12 @@ Generado por *JW Service Tracker*`;
         await Share.share({
           message: text,
         });
-      } catch {}
+      } catch {
+        // Silently ignore share failures on platforms that don't support it (e.g. web browser)
+      }
     } catch (err) {
       console.error(err);
-      Alert.alert("Error", "No se pudo exportar el informe.");
+      Alert.alert('Error', 'No se pudo exportar el informe.');
     } finally {
       setExportingMonthOffset(null);
     }
@@ -359,22 +365,23 @@ Generado por *JW Service Tracker*`;
     setFormDate(DateTime.now().toISODate()!);
     setFormHours(1);
     setFormMinutes(0);
-    setFormType("house_to_house");
-    setFormNotes("");
+    setFormType('house_to_house');
+    setFormNotes('');
     setEditingEntry(null);
-    setFormError("");
+    setFormError('');
   };
 
   const handleSaveEntry = async () => {
     const trimmedNotes = formNotes.trim();
     let validationError: string | null = null;
 
-    const parsedHours = formHours === "" ? 0 : Number(formHours);
-    const parsedMinutes = formMinutes === "" ? 0 : Number(formMinutes);
+    const parsedHours = formHours === '' ? 0 : Number(formHours);
+    const parsedMinutes = formMinutes === '' ? 0 : Number(formMinutes);
 
     const totalMinutes = parsedHours * 60 + parsedMinutes;
     if (totalMinutes > 24 * 60) {
-      validationError = "La duración total no puede exceder las 24 horas en un día.";
+      validationError =
+        'La duración total no puede exceder las 24 horas en un día.';
     }
 
     if (validationError) {
@@ -383,12 +390,12 @@ Generado por *JW Service Tracker*`;
     }
 
     if (parsedHours === 0 && parsedMinutes === 0) {
-      setFormError("El tiempo debe ser mayor a 0");
+      setFormError('El tiempo debe ser mayor a 0');
       return;
     }
 
     setIsSubmitting(true);
-    setFormError("");
+    setFormError('');
     try {
       const payload = {
         preachingDate: DateTime.fromISO(formDate).toMillis(),
@@ -409,7 +416,7 @@ Generado por *JW Service Tracker*`;
       resetForm();
     } catch (err) {
       setFormError(
-        err instanceof Error ? err.message : "Error al guardar la entrada"
+        err instanceof Error ? err.message : 'Error al guardar la entrada',
       );
     } finally {
       setIsSubmitting(false);
@@ -425,8 +432,8 @@ Generado por *JW Service Tracker*`;
       setShowDeleteModal(false);
     } catch (err) {
       Alert.alert(
-        "Error",
-        err instanceof Error ? err.message : "Error al eliminar la entrada"
+        'Error',
+        err instanceof Error ? err.message : 'Error al eliminar la entrada',
       );
     } finally {
       setIsDeleting(false);
@@ -444,7 +451,7 @@ Generado por *JW Service Tracker*`;
     setFormHours(entry.hours);
     setFormMinutes(entry.minutes);
     setFormType(entry.type);
-    setFormNotes(entry.notes || "");
+    setFormNotes(entry.notes || '');
     setShowAddModal(true);
   };
 
@@ -532,7 +539,7 @@ Generado por *JW Service Tracker*`;
 export function useDashboard() {
   const context = useContext(DashboardContext);
   if (!context) {
-    throw new Error("useDashboard must be used within a DashboardProvider");
+    throw new Error('useDashboard must be used within a DashboardProvider');
   }
   return context;
 }

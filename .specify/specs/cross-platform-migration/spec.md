@@ -12,7 +12,7 @@
 
 Evolve the current application from a Next.js-bound structure to a single, unified client codebase using Expo. The application will run natively on iOS and Android, and compile to a client-side Single Page Application (SPA) on the Web. The client will consume the NestJS API at `apps/api` and share schemas/DTOs under `packages/shared`.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Universal Authentication (Priority: P1)
 
@@ -66,7 +66,7 @@ As a user (Web, iOS, or Android), I can view, add, edit, and delete my service e
 - **Offline Behavior**: How does the mobile app behave when internet connectivity is lost? (Gracefully display a connection error banner, use cached data if possible, prevent mutation operations).
 - **Session Expiration**: What happens when the JWT access token expires during active usage? (The app silently refreshes the access token using the refresh token. If the refresh token is also expired or revoked, redirect to Login).
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -84,7 +84,7 @@ As a user (Web, iOS, or Android), I can view, add, edit, and delete my service e
 - **User**: Reuses the user identity from `packages/shared` (id, name, phone, preacherType, monthlyGoal).
 - **Entry**: Reuses the entry model from `packages/shared` (id, userId, date, minutes, type, notes).
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
