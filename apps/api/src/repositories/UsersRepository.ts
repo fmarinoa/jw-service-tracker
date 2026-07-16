@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt';
-import { DateTime } from 'luxon';
 
 import { User } from '@/domain/User';
 
@@ -35,7 +34,7 @@ export class UsersRepository extends BaseRepository {
         ...this.cleanObject(user),
         name: user.name.toUpperCase(),
         password: hashedPassword,
-        createdAt: DateTime.now().toMillis(),
+        createdAt: this.getTimestamp(),
       };
       const result = await collection.insertOne(item);
       return new User({ ...item, id: result.insertedId.toString() });
@@ -49,7 +48,7 @@ export class UsersRepository extends BaseRepository {
         throw new Error('User ID is required for update');
       }
 
-      const updatedAt = DateTime.now().toMillis();
+      const updatedAt = this.getTimestamp();
 
       await collection.updateOne(this.buildIdFilter(id), {
         $set: {

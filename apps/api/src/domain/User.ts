@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { z } from 'zod';
 
 export const PreacherType = {
@@ -25,7 +26,7 @@ export const registerSchema = z.object({
 });
 
 const updateSettingsSchema = z.object({
-  id: z.string().min(1),
+  id: z.string(),
   preacherType: z.enum(PreacherType),
   monthlyGoal: z
     .number()
@@ -75,7 +76,7 @@ export class User {
   static validateForUpdate(data: Partial<User>) {
     const { data: user, error } = updateSettingsSchema.safeParse(data);
     if (error) {
-      throw new Error(error.issues[0]?.message || 'Datos inválidos');
+      throw new BadRequestException(error.issues[0]?.message || 'Datos inválidos');
     }
     return new User(user);
   }
