@@ -2,7 +2,11 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
+  Param,
   Post,
   Query,
   UseGuards,
@@ -48,5 +52,18 @@ export class EntriesController {
       new User({ ...user, id: userId }),
       entry,
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id')
+  async deleteEntry(@CurrentUser() user: User, @Param('id') id: string) {
+    const userId = user?.id;
+    if (!userId) {
+      throw new BadRequestException('User not found in request context');
+    }
+
+    await this.entriesService.delete(new User({ ...user, id: userId }), id);
+    return;
   }
 }
