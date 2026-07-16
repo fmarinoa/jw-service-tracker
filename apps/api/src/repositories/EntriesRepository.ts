@@ -104,12 +104,13 @@ export class EntriesRepository extends BaseRepository {
     });
   }
 
-  async delete(user: User, id: string): Promise<void> {
-    await this.handlerCollection(async (collection) => {
-      await collection.deleteOne({
+  async delete(user: User, id: string): Promise<boolean> {
+    return this.handlerCollection(async (collection) => {
+      const result = await collection.deleteOne({
         ...this.buildIdFilter(id),
         userId: user.id,
       });
+      return result.deletedCount > 0;
     });
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DateTime } from 'luxon';
 
 import { Entry } from '@/domain/Entry';
@@ -43,5 +43,14 @@ export class EntriesService {
     entry.validateHourPlusMinutes();
     entry.preachingDateNotInFuture();
     return await entriesRepository.create(user, entry);
+  }
+
+  async delete(user: User, entryId: string) {
+    const wasDeleted = await entriesRepository.delete(user, entryId);
+    if (!wasDeleted) {
+      throw new NotFoundException(
+        `Entry with ID ${entryId} not found for user ${user.id}`,
+      );
+    }
   }
 }
