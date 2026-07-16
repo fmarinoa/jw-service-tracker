@@ -1,6 +1,6 @@
 # Auth Contract
 
-## POST /auth/login
+## POST /auth
 
 Request:
 
@@ -15,11 +15,6 @@ Response:
 
 ```json
 {
-  "user": {
-    "id": "string",
-    "name": "string",
-    "phone": "string"
-  },
   "accessToken": "string",
   "refreshToken": "string",
   "expiresIn": 900
@@ -61,21 +56,5 @@ Response:
 ```json
 {
   "ok": true
-}
-```
-
-## GET /auth/me
-
-Headers:
-
-- `Authorization: Bearer <accessToken>`
-
-Response:
-
-```json
-{
-  "id": "string",
-  "name": "string",
-  "phone": "string"
 }
 ```

@@ -1,4 +1,5 @@
-import { Collection, Document, MongoClient, ObjectId } from "mongodb";
+import { DateTime } from 'luxon';
+import { Collection, Document, MongoClient, ObjectId } from 'mongodb';
 
 export interface BaseRepositoryProps {
   client: MongoClient;
@@ -22,9 +23,9 @@ export abstract class BaseRepository {
       return await callback(collection);
     } catch (error) {
       throw new Error(
-        "[MongoDB Error: " +
+        '[MongoDB Error: ' +
           collectionName +
-          "] " +
+          '] ' +
           (error instanceof Error ? error.message : String(error)),
       );
     }
@@ -34,12 +35,15 @@ export abstract class BaseRepository {
     return { _id: new ObjectId(id) };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cleanObject<T extends Record<string, any>>(obj: T): Partial<T> {
     return Object.fromEntries(
       Object.entries(obj).filter(
         ([, val]) => val !== undefined && val !== null,
       ),
     ) as Partial<T>;
+  }
+
+  getTimestamp() {
+    return DateTime.now().toMillis();
   }
 }

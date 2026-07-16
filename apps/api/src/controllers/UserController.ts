@@ -1,26 +1,21 @@
-import { BadRequestException, Body, Controller, Post } from "@nestjs/common";
-import { z } from "zod";
+import { Controller, Get, UseGuards } from '@nestjs/common';
 
-import { phoneSchema, User } from "../domain/User";
-import { UserService } from "../services/UserService";
+import { CurrentUser } from '@/auth/current-user.decorator';
+import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
+import { UserService } from '@/services/UserService';
 
-const loginSchema = z.object({
-    phone: phoneSchema,
-    password: z.string().min(1, "La contraseña es obligatoria"),
-});
+import { User } from '../domain/User';
 
-@Controller("user")
+@Controller('user')
 export class UserController {
-    constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
-    @Post("login")
-    async login(@Body() body: unknown): Promise<User> {
-        const result = loginSchema.safeParse(body);
-        if (!result.success) {
-            throw new BadRequestException(result.error.issues[0]?.message || "Datos inválidos");
-        }
-
-        const { phone, password } = result.data;
-        return this.userService.login(phone, password);
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async me(@CurrentUser() user: User) {
+    if (!user || !user.id) {
+      throw new Error('User not found in request context');
     }
+    return await this.userService.getUserById(user.id);
+  }
 }

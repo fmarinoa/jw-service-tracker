@@ -1,9 +1,9 @@
-import { DateTime } from "luxon";
+import { DateTime } from 'luxon';
 
-import { Entry } from "@/domain/Entry";
-import { User } from "@/domain/User";
+import { Entry } from '@/domain/Entry';
+import { User } from '@/domain/User';
 
-import { BaseRepository, BaseRepositoryProps } from "./BaseRepository";
+import { BaseRepository, BaseRepositoryProps } from './BaseRepository';
 
 export class EntriesRepository extends BaseRepository {
   constructor(props: BaseRepositoryProps) {
@@ -12,7 +12,7 @@ export class EntriesRepository extends BaseRepository {
     this.handlerCollection(async (collection) => {
       await collection.createIndex({ userId: 1, preachingDate: -1 });
     }).catch((error) => {
-      console.error("[EntriesRepository] Failed to create index:", error);
+      console.error('[EntriesRepository] Failed to create index:', error);
     });
   }
 
