@@ -20,9 +20,9 @@
 
 **Purpose**: Project initialization and basic structure for the unified client.
 
-- [ ] T001 Configure support for web inside `apps/client/package.json` by adding web and runtime dependencies
-- [ ] T002 Configure **NativeWind** (Tailwind CSS) inside `apps/client/tailwind.config.js` and `apps/client/metro.config.js`
-- [ ] T003 Initialize **Expo Router** configuration inside `apps/client/app.json`
+- [X] T001 Configure support for web inside `apps/client/package.json` by adding web and runtime dependencies
+- [X] T002 Configure **NativeWind** (Tailwind CSS) inside `apps/client/tailwind.config.js` and `apps/client/metro.config.js`
+- [X] T003 Initialize **Expo Router** configuration inside `apps/client/app.json`
 
 ---
 
@@ -32,9 +32,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 Create folder structure for Expo Router under `apps/client/app/`
-- [ ] T005 [P] Create layout and root provider configuration in `apps/client/app/_layout.tsx`
-- [ ] T006 [P] Implement platform-agnostic token storage adapter inside `apps/client/src/storage/authTokens.ts` to switch between `SecureStore` (mobile) and `localStorage`/cookies (web)
+- [X] T004 Create folder structure for Expo Router under `apps/client/app/`
+- [X] T005 [P] Create layout and root provider configuration in `apps/client/app/_layout.tsx`
+- [X] T006 [P] Implement platform-agnostic token storage adapter inside `apps/client/src/storage/authTokens.ts` to switch between `SecureStore` (mobile) and `localStorage`/cookies (web)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin.
 
@@ -48,11 +48,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Create the login page in `apps/client/app/(auth)/login.tsx` using universal React Native inputs and NativeWind classes
-- [ ] T008 [P] [US1] Create the registration page in `apps/client/app/(auth)/register.tsx` using universal React Native inputs and NativeWind classes
-- [ ] T009 [P] [US1] Create the authentication layout wrapper in `apps/client/app/(auth)/_layout.tsx` to manage login/register screens
-- [ ] T010 [US1] Create the protected navigation layout in `apps/client/app/(app)/_layout.tsx` to redirect unauthenticated users to `/login`
-- [ ] T011 [US1] Implement login, token bootstrap, and logout endpoints invocation in `apps/client/src/features/auth/useAuth.ts` pointing to NestJS API
+- [X] T007 [US1] Create the login page in `apps/client/app/(auth)/login.tsx` using universal React Native inputs and NativeWind classes
+- [X] T008 [P] [US1] Create the registration page in `apps/client/app/(auth)/register.tsx` using universal React Native inputs and NativeWind classes
+- [X] T009 [P] [US1] Create the authentication layout wrapper in `apps/client/app/(auth)/_layout.tsx` to manage login/register screens
+- [X] T010 [US1] Create the protected navigation layout in `apps/client/app/(app)/_layout.tsx` to redirect unauthenticated users to `/login`
+- [X] T011 [US1] Implement login, token bootstrap, and logout endpoints invocation in `apps/client/src/features/auth/useAuth.ts` pointing to NestJS API
 
 **Checkpoint**: At this point, User Story 1 is fully functional and testable independently.
 

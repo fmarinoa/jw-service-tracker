@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "JW Service Tracker",
+    "slug": "jw-service-tracker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jwtracker.client"
+    },
+    "android": {
+      "package": "com.jwtracker.client"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ],
+    "scheme": "jw-tracker"
+  }
+}

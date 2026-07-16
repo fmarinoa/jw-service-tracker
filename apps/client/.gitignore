@@ -1,0 +1,8 @@
+# Expo
+.expo/
+dist/
+web-build/
+
+# Native builds (Continuous Native Generation)
+ios/
+android/

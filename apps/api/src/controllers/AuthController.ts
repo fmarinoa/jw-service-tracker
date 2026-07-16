@@ -17,7 +17,7 @@ import { AuthService } from '../services/AuthService';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
+  @Post('login')
   async login(@Body() body: unknown) {
     const result = LoginRequestSchema.safeParse(body);
     if (!result.success) {
@@ -53,5 +53,22 @@ export class AuthController {
 
     await this.authService.revokeSession(user.id);
     return { ok: true };
+  }
+
+  @Post('register')
+  async register(@Body() body: unknown) {
+    const phone = (body as any)?.phone;
+    const name = (body as any)?.name;
+    const password = (body as any)?.password;
+
+    if (!phone || !name || !password) {
+      throw new BadRequestException('Faltan campos requeridos (phone, name, password)');
+    }
+
+    try {
+      return await this.authService.register(phone, name, password);
+    } catch (e: any) {
+      throw new BadRequestException(e.message || 'Error al registrar usuario');
+    }
   }
 }
