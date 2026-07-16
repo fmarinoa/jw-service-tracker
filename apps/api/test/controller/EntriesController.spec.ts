@@ -55,7 +55,9 @@ describe('EntriesController', () => {
         stats: { totalMinutes: 0, byType: {} },
       };
 
-      (entriesService.getByUser as jest.Mock).mockResolvedValue(expectedResponse);
+      (entriesService.getByUser as jest.Mock).mockResolvedValue(
+        expectedResponse,
+      );
 
       const result = await controller.retrieveEntries(mockUser, mockQuery);
 
@@ -67,9 +69,9 @@ describe('EntriesController', () => {
       const mockUser = new User({ name: 'Franco' }); // No ID
       const mockQuery = {};
 
-      await expect(controller.retrieveEntries(mockUser, mockQuery)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        controller.retrieveEntries(mockUser, mockQuery),
+      ).rejects.toThrow(BadRequestException);
       expect(entriesService.getByUser).not.toHaveBeenCalled();
     });
   });
@@ -89,7 +91,9 @@ describe('EntriesController', () => {
         ...mockBody,
       });
 
-      (entriesService.create as jest.Mock).mockResolvedValue(expectedCreatedEntry);
+      (entriesService.create as jest.Mock).mockResolvedValue(
+        expectedCreatedEntry,
+      );
 
       const result = await controller.createEntry(mockUser, mockBody);
 
@@ -126,9 +130,9 @@ describe('EntriesController', () => {
     it('should throw BadRequestException if user id is missing during delete', async () => {
       const mockUser = new User({ name: 'Franco' }); // No ID
 
-      await expect(controller.deleteEntry(mockUser, 'entry-123')).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        controller.deleteEntry(mockUser, 'entry-123'),
+      ).rejects.toThrow(BadRequestException);
       expect(entriesService.delete).not.toHaveBeenCalled();
     });
   });

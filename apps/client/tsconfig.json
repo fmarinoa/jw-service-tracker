@@ -10,12 +10,8 @@
     "skipLibCheck": true,
     "jsx": "react-native",
     "paths": {
-      "@jw-tracker/shared": [
-        "../../packages/shared/src/index.ts"
-      ],
-      "@domain/*": [
-        "../../domain/*"
-      ]
+      "@jw-tracker/shared": ["../../packages/shared/src/index.ts"],
+      "@domain/*": ["../../domain/*"]
     }
   },
   "include": [

@@ -1,40 +1,40 @@
-import { Link, useRouter } from "expo-router";
-import React, { useState } from "react";
+import { Link, useRouter } from 'expo-router';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
   Text,
   TextInput,
   View,
-} from "react-native";
+} from 'react-native';
 
-import { AuthApi } from "../../src/services/authApi";
+import { AuthApi } from '../../src/services/authApi';
 
 export default function RegisterPage() {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleRegister = async () => {
-    setError("");
+    setError('');
     setSuccess(false);
 
     if (!name || !phone || !password) {
-      setError("Por favor completa todos los campos.");
+      setError('Por favor completa todos los campos.');
       return;
     }
 
-    if (phone.length !== 9 || !phone.startsWith("9")) {
-      setError("El celular debe tener 9 dígitos y empezar con 9.");
+    if (phone.length !== 9 || !phone.startsWith('9')) {
+      setError('El celular debe tener 9 dígitos y empezar con 9.');
       return;
     }
 
     if (password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres.");
+      setError('La contraseña debe tener al menos 6 caracteres.');
       return;
     }
 
@@ -43,10 +43,10 @@ export default function RegisterPage() {
       await AuthApi.register({ name, phone, password });
       setSuccess(true);
       setTimeout(() => {
-        router.replace("/login");
+        router.replace('/login');
       }, 1500);
     } catch (err: any) {
-      setError(err.message || "Error al registrarse. Inténtalo de nuevo.");
+      setError(err.message || 'Error al registrarse. Inténtalo de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -115,7 +115,9 @@ export default function RegisterPage() {
 
           {error && (
             <View className="bg-red-50 border border-red-200 p-3 rounded-lg mt-4">
-              <Text className="text-red-600 text-sm text-center font-semibold">{error}</Text>
+              <Text className="text-red-600 text-sm text-center font-semibold">
+                {error}
+              </Text>
             </View>
           )}
 
@@ -123,20 +125,22 @@ export default function RegisterPage() {
             onPress={handleRegister}
             disabled={isLoading || success}
             className={`w-full h-12 bg-primary rounded-lg justify-center items-center mt-6 active:bg-primary/95 ${
-              isLoading || success ? "opacity-50" : ""
+              isLoading || success ? 'opacity-50' : ''
             }`}
           >
             {isLoading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text className="text-primary-foreground font-bold text-base">Registrarse</Text>
+              <Text className="text-primary-foreground font-bold text-base">
+                Registrarse
+              </Text>
             )}
           </Pressable>
         </View>
 
         <View className="mt-6 flex-row justify-center">
           <Text className="text-muted-foreground text-sm text-center">
-            ¿Ya tienes cuenta?{" "}
+            ¿Ya tienes cuenta?{' '}
             <Link href="/login">
               <Text className="text-primary font-bold text-sm active:underline">
                 Inicia Sesión

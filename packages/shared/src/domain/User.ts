@@ -1,7 +1,7 @@
 export const PreacherType = {
-  regular_pioneer: "regular_pioneer",
-  auxiliary_pioneer: "auxiliary_pioneer",
-  publisher: "publisher",
+  regular_pioneer: 'regular_pioneer',
+  auxiliary_pioneer: 'auxiliary_pioneer',
+  publisher: 'publisher',
 } as const;
 export type PreacherType = (typeof PreacherType)[keyof typeof PreacherType];
 
@@ -12,9 +12,9 @@ export const DEFAULT_GOALS: Record<PreacherType, number | null> = {
 };
 
 export const PREACHER_TYPE_LABELS: Record<PreacherType, string> = {
-  regular_pioneer: "Precursor Regular",
-  auxiliary_pioneer: "Precursor Auxiliar",
-  publisher: "Publicador",
+  regular_pioneer: 'Precursor Regular',
+  auxiliary_pioneer: 'Precursor Auxiliar',
+  publisher: 'Publicador',
 };
 
 export interface User {

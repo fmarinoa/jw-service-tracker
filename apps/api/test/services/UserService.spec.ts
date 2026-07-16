@@ -74,7 +74,9 @@ describe('UserService', () => {
         monthlyGoal: 0,
       });
 
-      (usersRepository.findById as jest.Mock).mockResolvedValue(mockOriginalUser);
+      (usersRepository.findById as jest.Mock).mockResolvedValue(
+        mockOriginalUser,
+      );
       (usersRepository.update as jest.Mock).mockResolvedValue({
         ...mockOriginalUser,
         preacherType: 'regular_pioneer',

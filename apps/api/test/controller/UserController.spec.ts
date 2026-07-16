@@ -81,7 +81,9 @@ describe('UserController', () => {
         monthlyGoal: 50,
       });
 
-      (userService.updateUser as jest.Mock).mockResolvedValue(expectedUpdatedUser);
+      (userService.updateUser as jest.Mock).mockResolvedValue(
+        expectedUpdatedUser,
+      );
 
       const result = await controller.update(mockCurrentUser, mockBody);
 
@@ -96,7 +98,9 @@ describe('UserController', () => {
         monthlyGoal: -10, // Invalid range
       };
 
-      await expect(controller.update(mockCurrentUser, mockBody)).rejects.toThrow();
+      await expect(
+        controller.update(mockCurrentUser, mockBody),
+      ).rejects.toThrow();
       expect(userService.updateUser).not.toHaveBeenCalled();
     });
   });

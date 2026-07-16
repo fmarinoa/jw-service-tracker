@@ -93,7 +93,9 @@ describe('EntriesRepository', () => {
       };
 
       const mockInsertedId = new ObjectId('6a2a3169441e2b16bc9d1867');
-      mockCollection.insertOne.mockResolvedValue({ insertedId: mockInsertedId });
+      mockCollection.insertOne.mockResolvedValue({
+        insertedId: mockInsertedId,
+      });
 
       const result = await repository.create(user, data);
 

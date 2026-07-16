@@ -1,15 +1,16 @@
-import { AuthTokenStorage } from "../storage/authTokens";
-import { Platform } from "react-native";
+import { Platform } from 'react-native';
+
+import { AuthTokenStorage } from '../storage/authTokens';
 
 export const API_URL = Platform.select({
-  ios: "http://localhost:3000",
-  android: "http://10.0.2.2:3000",
-  default: "http://localhost:3000",
+  ios: 'http://localhost:3000',
+  android: 'http://10.0.2.2:3000',
+  default: 'http://localhost:3000',
 });
 
 export interface RequestOptions {
   path: string;
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
   body?: object;
   headers?: HeadersInit;
   queryParams?: Record<string, string | number | boolean>;
@@ -19,7 +20,7 @@ export abstract class BaseService {
   protected static async getHeaders(): Promise<HeadersInit> {
     const token = await AuthTokenStorage.getAccessToken();
     return {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
   }
@@ -33,15 +34,20 @@ export abstract class BaseService {
     }
 
     const response = await fetch(url.toString(), {
-      method: request.method || "GET",
-      headers: { ... (await this.getHeaders()), ...request.headers },
+      method: request.method || 'GET',
+      headers: { ...(await this.getHeaders()), ...request.headers },
       body: request.body ? JSON.stringify(request.body) : undefined,
     });
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.message || "Request failed");
+      throw new Error(err.message || 'Request failed');
     }
+
+    if (response.status === 204) {
+      return undefined as unknown as T;
+    }
+
     return response.json();
   }
 }

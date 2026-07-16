@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text } from "react-native";
-import Svg, { Circle } from "react-native-svg";
+import React from 'react';
+import { Text, View } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 
 interface ProgressCircleProps {
   progressPercentage: number;
@@ -17,10 +17,11 @@ export default function ProgressCircle({
   const strokeWidth = 10;
   const size = (radius + strokeWidth) * 2;
   const circumference = 2 * Math.PI * radius;
-  
+
   // Guard progress percentage between 0 and 100
   const cleanPercentage = Math.min(100, Math.max(0, progressPercentage));
-  const strokeDashoffset = circumference - (cleanPercentage / 100) * circumference;
+  const strokeDashoffset =
+    circumference - (cleanPercentage / 100) * circumference;
 
   return (
     <View className="items-center justify-center relative my-4">

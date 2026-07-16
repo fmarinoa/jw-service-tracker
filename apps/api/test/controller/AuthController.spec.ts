@@ -55,7 +55,11 @@ describe('AuthController', () => {
 
       const result = await controller.login(mockBody);
 
-      expect(authService.login).toHaveBeenCalledWith('932337417', 'password123', 'web');
+      expect(authService.login).toHaveBeenCalledWith(
+        '932337417',
+        'password123',
+        'web',
+      );
       expect(result).toEqual({
         accessToken: 'access-token',
         refreshToken: 'refresh-token',
@@ -68,7 +72,9 @@ describe('AuthController', () => {
         password: 'password123',
       };
 
-      await expect(controller.login(mockBody)).rejects.toThrow(BadRequestException);
+      await expect(controller.login(mockBody)).rejects.toThrow(
+        BadRequestException,
+      );
       expect(authService.login).not.toHaveBeenCalled();
     });
 
@@ -78,7 +84,9 @@ describe('AuthController', () => {
         password: '',
       };
 
-      await expect(controller.login(mockBody)).rejects.toThrow(BadRequestException);
+      await expect(controller.login(mockBody)).rejects.toThrow(
+        BadRequestException,
+      );
       expect(authService.login).not.toHaveBeenCalled();
     });
   });
@@ -97,7 +105,9 @@ describe('AuthController', () => {
 
       const result = await controller.refresh(mockBody);
 
-      expect(authService.refreshSession).toHaveBeenCalledWith('valid-refresh-token');
+      expect(authService.refreshSession).toHaveBeenCalledWith(
+        'valid-refresh-token',
+      );
       expect(result).toEqual({
         accessToken: 'new-access-token',
         refreshToken: 'new-refresh-token',
@@ -108,7 +118,9 @@ describe('AuthController', () => {
     it('should throw BadRequestException if refreshToken is missing', async () => {
       const mockBody = {};
 
-      await expect(controller.refresh(mockBody)).rejects.toThrow(BadRequestException);
+      await expect(controller.refresh(mockBody)).rejects.toThrow(
+        BadRequestException,
+      );
       expect(authService.refreshSession).not.toHaveBeenCalled();
     });
   });

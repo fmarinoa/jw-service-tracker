@@ -4,7 +4,9 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "expo start -c"
+    "start": "expo start -c",
+    "lint": "eslint . --fix",
+    "prettier": "prettier --write ."
   },
   "dependencies": {
     "@expo/metro-runtime": "4.0.1",
@@ -23,12 +25,12 @@
     "react-native-css-interop": "0.2.6",
     "react-native-safe-area-context": "4.12.0",
     "react-native-screens": "4.4.0",
-    "react-native-svg": "^15.15.5",
+    "react-native-svg": "15.15.5",
     "react-native-web": "0.19.13",
     "tailwindcss": "3.4.19"
   },
   "devDependencies": {
     "@babel/runtime": "8.0.0",
-    "pretty-format": "^30.4.1"
+    "pretty-format": "30.4.1"
   }
 }

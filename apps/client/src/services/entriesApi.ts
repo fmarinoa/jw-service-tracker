@@ -1,12 +1,16 @@
-import { EntriesResponse, Entry, User } from "@jw-tracker/shared";
-import { BaseService } from "./baseApi";
+import { EntriesResponse, Entry } from '@jw-tracker/shared';
+
+import { BaseService } from './baseApi';
 
 export class EntriesApi extends BaseService {
-  static async getEntries(page: number, monthOffset: number): Promise<EntriesResponse> {
+  static async getEntries(
+    page: number,
+    monthOffset: number,
+  ): Promise<EntriesResponse> {
     return this.handleRequest<EntriesResponse>({
       path: `/entries`,
       queryParams: { page, limit: 10, monthOffset },
-    })
+    });
   }
 
   static async createEntry(data: {
@@ -18,7 +22,7 @@ export class EntriesApi extends BaseService {
   }): Promise<Entry> {
     return this.handleRequest<Entry>({
       path: `/entries`,
-      method: "POST",
+      method: 'POST',
       body: data,
     });
   }
@@ -31,19 +35,19 @@ export class EntriesApi extends BaseService {
       minutes: number;
       type: string;
       notes?: string;
-    }
-  ): Promise<void> {
-    return this.handleRequest<void>({
+    },
+  ): Promise<Entry> {
+    return this.handleRequest<Entry>({
       path: `/entries/${id}`,
-      method: "PATCH",
+      method: 'PATCH',
       body: data,
     });
   }
 
   static async deleteEntry(id: string): Promise<void> {
-    return this.handleRequest<void>({
+    await this.handleRequest<void>({
       path: `/entries/${id}`,
-      method: "DELETE",
+      method: 'DELETE',
     });
   }
 }

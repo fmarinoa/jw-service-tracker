@@ -1,7 +1,7 @@
+import { EntriesResponse } from '@jw-tracker/shared';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DateTime } from 'luxon';
 
-import { EntriesResponse } from "@jw-tracker/shared";
 import { Entry } from '@/domain/Entry';
 import { FilterEntries } from '@/domain/FilterEntries';
 import { User } from '@/domain/User';
@@ -9,7 +9,10 @@ import { entriesRepository } from '@/repositories';
 
 @Injectable()
 export class EntriesService {
-  async getByUser(user: User, filters: FilterEntries): Promise<EntriesResponse> {
+  async getByUser(
+    user: User,
+    filters: FilterEntries,
+  ): Promise<EntriesResponse> {
     const now = DateTime.now().setZone('America/Lima');
     const targetMonth = now.plus({ months: filters.monthOffset });
     const startDate = targetMonth.startOf('month').toMillis();

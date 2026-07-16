@@ -1,15 +1,15 @@
-import type { UserDto } from "@jw-tracker/shared";
+import type { UserDto } from '@jw-tracker/shared';
 import React, {
   createContext,
   useCallback,
   useContext,
   useEffect,
   useState,
-} from "react";
+} from 'react';
 
-import { AuthApi } from "../../services/authApi";
-import { AuthTokenStorage } from "../../storage/authTokens";
-import { UserApi } from "../../services/userApi";
+import { AuthApi } from '../../services/authApi';
+import { UserApi } from '../../services/userApi';
+import { AuthTokenStorage } from '../../storage/authTokens';
 
 interface AuthContextType {
   user: UserDto | null;
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userProfile = await UserApi.getProfile();
       setUser(userProfile);
     } catch (e) {
-      console.warn("Failed to resume session", e);
+      console.warn('Failed to resume session', e);
       await AuthTokenStorage.clearTokens();
       setUser(null);
     } finally {
@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return userProfile;
     } catch (e) {
       const msg =
-        e instanceof Error ? e.message : "Error durante el inicio de sesión";
+        e instanceof Error ? e.message : 'Error durante el inicio de sesión';
       setError(msg);
       throw e;
     } finally {
@@ -102,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }

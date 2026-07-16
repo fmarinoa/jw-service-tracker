@@ -1,38 +1,38 @@
-import { loadEnvFile } from "node:process";
+import { loadEnvFile } from 'node:process';
 loadEnvFile();
 
-import fs from "node:fs";
-import path from "node:path";
+import fs from 'node:fs';
+import path from 'node:path';
 
-import { DateTime } from "luxon";
-import { MongoClient, ObjectId, ServerApiVersion } from "mongodb";
+import { DateTime } from 'luxon';
+import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
 
 export type SessionType =
-  | "house_to_house"
-  | "revisits"
-  | "bible_study"
-  | "other";
+  | 'house_to_house'
+  | 'revisits'
+  | 'bible_study'
+  | 'other';
 
 function parseCsvLine(line: string, delimiter: string): string[] {
   const result: string[] = [];
-  let current = "";
+  let current = '';
   let inQuotes = false;
-  let quoteChar = "";
+  let quoteChar = '';
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
-    if ((char === '"' || char === "'") && (i === 0 || line[i - 1] !== "\\")) {
+    if ((char === '"' || char === "'") && (i === 0 || line[i - 1] !== '\\')) {
       if (!inQuotes) {
         inQuotes = true;
         quoteChar = char;
       } else if (char === quoteChar) {
         inQuotes = false;
-        quoteChar = "";
+        quoteChar = '';
       } else {
         current += char;
       }
     } else if (char === delimiter && !inQuotes) {
       result.push(current.trim());
-      current = "";
+      current = '';
     } else {
       current += char;
     }
@@ -45,41 +45,41 @@ function mapSessionType(input: string): SessionType {
   const normalized = input
     .trim()
     .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, ""); // remove accents
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, ''); // remove accents
 
   if (
-    normalized.includes("casa") ||
-    normalized.includes("house") ||
-    normalized.includes("publica")
+    normalized.includes('casa') ||
+    normalized.includes('house') ||
+    normalized.includes('publica')
   ) {
-    return "house_to_house";
+    return 'house_to_house';
   }
-  if (normalized.includes("revisita") || normalized.includes("revisit")) {
-    return "revisits";
+  if (normalized.includes('revisita') || normalized.includes('revisit')) {
+    return 'revisits';
   }
   if (
-    normalized.includes("estudio") ||
-    normalized.includes("study") ||
-    normalized.includes("biblico") ||
-    normalized.includes("bible")
+    normalized.includes('estudio') ||
+    normalized.includes('study') ||
+    normalized.includes('biblico') ||
+    normalized.includes('bible')
   ) {
-    return "bible_study";
+    return 'bible_study';
   }
-  if (normalized.includes("otro") || normalized.includes("other")) {
-    return "other";
+  if (normalized.includes('otro') || normalized.includes('other')) {
+    return 'other';
   }
 
   if (
-    ["house_to_house", "revisits", "bible_study", "other"].includes(normalized)
+    ['house_to_house', 'revisits', 'bible_study', 'other'].includes(normalized)
   ) {
     return normalized as SessionType;
   }
 
-  return "other";
+  return 'other';
 }
 
-const TIMEZONE = process.env.TIMEZONE || "America/Lima";
+const TIMEZONE = process.env.TIMEZONE || 'America/Lima';
 
 function parsePreachingDate(input: string): number {
   const dateStr = input.trim();
@@ -124,13 +124,13 @@ function parsePreachingDate(input: string): number {
 
   const dtIso = DateTime.fromISO(dateStr, { zone: TIMEZONE });
   if (dtIso.isValid) {
-    return dtIso.startOf("day").toMillis();
+    return dtIso.startOf('day').toMillis();
   }
 
   const parsed = Date.parse(dateStr);
   if (!isNaN(parsed)) {
     return DateTime.fromMillis(parsed, { zone: TIMEZONE })
-      .startOf("day")
+      .startOf('day')
       .toMillis();
   }
 
@@ -141,9 +141,9 @@ async function main() {
   const args = process.argv.slice(2);
   if (args.length === 0) {
     console.error(
-      "\x1b[31mError: Debes proporcionar la ruta al archivo CSV.\x1b[0m",
+      '\x1b[31mError: Debes proporcionar la ruta al archivo CSV.\x1b[0m',
     );
-    console.log("Uso: npx tsx scripts/massiveEntries.ts <ruta_al_archivo.csv>");
+    console.log('Uso: npx tsx scripts/massiveEntries.ts <ruta_al_archivo.csv>');
     process.exit(1);
   }
 
@@ -172,11 +172,11 @@ async function main() {
 
   await client.connect();
   const db = client.db();
-  const usersCollection = db.collection("users");
-  const entriesCollection = db.collection("entries");
+  const usersCollection = db.collection('users');
+  const entriesCollection = db.collection('entries');
 
   console.log(`Leyendo archivo CSV: ${csvPath}...`);
-  const fileContent = fs.readFileSync(csvPath, "utf-8");
+  const fileContent = fs.readFileSync(csvPath, 'utf-8');
   const lines = fileContent
     .split(/\r?\n/)
     .map((l) => l.trim())
@@ -184,7 +184,7 @@ async function main() {
 
   if (lines.length === 0) {
     console.error(
-      "\x1b[31mError: El archivo CSV está vacío o solo contiene líneas vacías.\x1b[0m",
+      '\x1b[31mError: El archivo CSV está vacío o solo contiene líneas vacías.\x1b[0m',
     );
     await client.close();
     process.exit(1);
@@ -192,7 +192,7 @@ async function main() {
 
   // Detect delimiter
   const headerLine = lines[0];
-  const delimiter = headerLine.includes(";") ? ";" : ",";
+  const delimiter = headerLine.includes(';') ? ';' : ',';
 
   const userCache = new Map<string, any>();
   let successCount = 0;
@@ -203,18 +203,18 @@ async function main() {
     if (!line) continue;
 
     const row = parseCsvLine(line, delimiter);
-    if (row.length === 0 || (row.length === 1 && row[0] === "")) continue;
+    if (row.length === 0 || (row.length === 1 && row[0] === '')) continue;
 
     const userId = row[0];
     const rawFecha = row[1];
     const rawTipo = row[2];
     const rawHoras = row[3];
     const rawMinutos = row[4];
-    const rawNotas = row[5] || "";
+    const rawNotas = row[5] || '';
 
     try {
       if (!userId) {
-        throw new Error("El campo customerId es obligatorio");
+        throw new Error('El campo customerId es obligatorio');
       }
       if (!ObjectId.isValid(userId)) {
         throw new Error(
@@ -239,7 +239,7 @@ async function main() {
       }
 
       // Parse and validate date
-      if (!rawFecha) throw new Error("La fecha de predicación es obligatoria");
+      if (!rawFecha) throw new Error('La fecha de predicación es obligatoria');
       const preachingDate = parsePreachingDate(rawFecha);
       if (preachingDate > DateTime.now().toMillis()) {
         throw new Error(
@@ -248,8 +248,8 @@ async function main() {
       }
 
       // Parse hours & minutes
-      const hours = parseInt(rawHoras || "0", 10);
-      const minutes = parseInt(rawMinutos || "0", 10);
+      const hours = parseInt(rawHoras || '0', 10);
+      const minutes = parseInt(rawMinutos || '0', 10);
       if (isNaN(hours) || hours < 0)
         throw new Error(`Horas inválidas: "${rawHoras}"`);
       if (isNaN(minutes) || minutes < 0 || minutes > 59)
@@ -258,22 +258,22 @@ async function main() {
       const totalMinutes = hours * 60 + minutes;
       if (totalMinutes === 0) {
         throw new Error(
-          "El tiempo total de la sesión debe ser mayor a 0 (0 horas y 0 minutos no permitido)",
+          'El tiempo total de la sesión debe ser mayor a 0 (0 horas y 0 minutos no permitido)',
         );
       }
       if (totalMinutes > 24 * 60) {
         throw new Error(
-          "La duración total no puede exceder las 24 horas en un día.",
+          'La duración total no puede exceder las 24 horas en un día.',
         );
       }
 
       // Type
-      if (!rawTipo) throw new Error("El tipo de predicación es obligatorio");
+      if (!rawTipo) throw new Error('El tipo de predicación es obligatorio');
       const type = mapSessionType(rawTipo);
 
       // Notes (optional)
-      let notes = rawNotas?.trim() || "";
-      const tag = " (cargado masivamente)";
+      let notes = rawNotas?.trim() || '';
+      const tag = ' (cargado masivamente)';
       const lengthTag = tag.length;
       const maxLength = 50 - lengthTag;
       if (notes && notes.length > maxLength) {
@@ -307,18 +307,18 @@ async function main() {
     }
   }
 
-  console.log("\n=================================");
-  console.log("       RESUMEN DE IMPORTACIÓN     ");
-  console.log("=================================");
+  console.log('\n=================================');
+  console.log('       RESUMEN DE IMPORTACIÓN     ');
+  console.log('=================================');
   console.log(`Procesados:   ${successCount + failCount}`);
   console.log(`Exitosos:     \x1b[32m${successCount}\x1b[0m`);
   console.log(`Fallidos:     \x1b[31m${failCount}\x1b[0m`);
-  console.log("=================================\n");
+  console.log('=================================\n');
 
   await client.close();
 }
 
 main().catch(async (err) => {
-  console.error("Error fatal durante la ejecución:", err);
+  console.error('Error fatal durante la ejecución:', err);
   process.exit(1);
 });

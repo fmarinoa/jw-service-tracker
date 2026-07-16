@@ -28,7 +28,7 @@ Migrate the Next.js web application to a unified Expo codebase in `apps/client` 
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 No formal blocking principles defined in `.specify/memory/constitution.md` yet. This plan ensures maximum simplicity by eliminating the Next.js client codebase entirely, reducing overall project complexity.
 

@@ -62,7 +62,9 @@ export class AuthController {
     const password = (body as any)?.password;
 
     if (!phone || !name || !password) {
-      throw new BadRequestException('Faltan campos requeridos (phone, name, password)');
+      throw new BadRequestException(
+        'Faltan campos requeridos (phone, name, password)',
+      );
     }
 
     try {
