@@ -6,7 +6,8 @@ export const filterSchema = z.object({
   limit: z.coerce.number().min(0, 'El límite es inválido').default(10),
   monthOffset: z.coerce
     .number()
-    .min(0, 'El offset del mes es inválido')
+    .max(1, 'El offset del mes es inválido')
+    .min(-3, 'El offset del mes es inválido')
     .default(0),
 });
 

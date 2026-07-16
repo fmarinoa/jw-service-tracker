@@ -9,6 +9,7 @@ import React, {
 
 import { AuthApi } from "../../services/authApi";
 import { AuthTokenStorage } from "../../storage/authTokens";
+import { UserApi } from "../../services/userApi";
 
 interface AuthContextType {
   user: UserDto | null;
@@ -42,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await AuthTokenStorage.setRefreshToken(refreshRes.refreshToken);
 
       // Fetch user identity
-      const userProfile = await AuthApi.me(refreshRes.accessToken);
+      const userProfile = await UserApi.getProfile();
       setUser(userProfile);
     } catch (e) {
       console.warn("Failed to resume session", e);
@@ -60,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await AuthApi.login({ phone, password });
       await AuthTokenStorage.setAccessToken(res.accessToken);
       await AuthTokenStorage.setRefreshToken(res.refreshToken);
-      const userProfile = await AuthApi.me(res.accessToken);
+      const userProfile = await UserApi.getProfile();
       setUser(userProfile);
       return userProfile;
     } catch (e) {

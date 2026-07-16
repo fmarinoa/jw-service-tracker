@@ -66,10 +66,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T012 [US2] Create the dashboard layout page in `apps/client/app/(app)/index.tsx`
-- [ ] T013 [P] [US2] Create the circular progress graphic component in `apps/client/src/features/dashboard/components/ProgressCircle.tsx` using universal SVGs
-- [ ] T014 [P] [US2] Create summary cards components (Hours, Goal, Remaining) in `apps/client/src/features/dashboard/components/SummaryCard.tsx`
-- [ ] T015 [US2] Create the `DashboardProvider` context state in `apps/client/src/features/dashboard/DashboardProvider.tsx` to fetch stats and entries from NestJS API
+- [X] T012 [US2] Create the dashboard layout page in `apps/client/app/(app)/index.tsx`
+- [X] T013 [P] [US2] Create the circular progress graphic component in `apps/client/src/features/dashboard/components/ProgressCircle.tsx` using universal SVGs
+- [X] T014 [P] [US2] Create summary cards components (Hours, Goal, Remaining) in `apps/client/src/features/dashboard/components/SummaryCard.tsx`
+- [X] T015 [US2] Create the `DashboardProvider` context state in `apps/client/src/features/dashboard/DashboardProvider.tsx` to fetch stats and entries from NestJS API
 
 **Checkpoint**: At this point, User Stories 1 and 2 are functional and work together.
 
@@ -83,11 +83,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T016 [US3] Create the entry form dialog component in `apps/client/src/features/dashboard/components/EntryDialog.tsx`
-- [ ] T017 [P] [US3] Create the delete confirmation modal in `apps/client/src/features/dashboard/components/ConfirmDeleteDialog.tsx`
-- [ ] T018 [P] [US3] Create the activities list card in `apps/client/src/features/dashboard/components/RecentActivityCard.tsx`
-- [ ] T019 [US3] Implement entry API handlers in `apps/client/src/services/entriesApi.ts` for POST/PUT/DELETE calls to `/auth/entries`
-- [ ] T020 [US3] Wire entry creation, update, and deletion actions in `apps/client/src/features/dashboard/DashboardProvider.tsx`
+- [X] T016 [US3] Create the entry form dialog component in `apps/client/src/features/dashboard/components/EntryDialog.tsx`
+- [X] T017 [P] [US3] Create the delete confirmation modal in `apps/client/src/features/dashboard/components/ConfirmDeleteDialog.tsx`
+- [X] T018 [P] [US3] Create the activities list card in `apps/client/src/features/dashboard/components/RecentActivityCard.tsx`
+- [X] T019 [US3] Implement entry API handlers in `apps/client/src/services/entriesApi.ts` for POST/PUT/DELETE calls to `/auth/entries`
+- [X] T020 [US3] Wire entry creation, update, and deletion actions in `apps/client/src/features/dashboard/DashboardProvider.tsx`
 
 **Checkpoint**: All user stories are independently functional.
 
@@ -97,9 +97,9 @@
 
 **Purpose**: Code cleanup and deprecation of legacy Next.js web folders.
 
-- [ ] T021 Clean up and delete Next.js folders `app/`, `components/`, and related configurations in the workspace root
-- [ ] T022 [P] Configure environment files (`.env`, `compose.yml`) to point mobile clients to the local host or local API container
-- [ ] T023 Run `quickstart.md` validation on all targets (Web, iOS, Android) to ensure consistency
+- [X] T021 Clean up and delete Next.js folders `app/`, `components/`, and related configurations in the workspace root
+- [X] T022 [P] Configure environment files (`.env`, `compose.yml`) to point mobile clients to the local host or local API container
+- [X] T023 Run `quickstart.md` validation on all targets (Web, iOS, Android) to ensure consistency
 
 ---
 

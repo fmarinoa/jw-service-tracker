@@ -4,9 +4,6 @@
   "private": true,
   "description": "Monorepo for JW Service Tracker",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
     "lint": "eslint --fix .",
     "prettier": "prettier --write ."
   },
@@ -22,8 +19,6 @@
     "lucide-react": "1.17.0",
     "luxon": "3.7.2",
     "mongodb": "7.3.0",
-    "next": "16.2.9",
-    "next-auth": "4.24.14",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "tailwind-merge": "3.6.0",
@@ -35,7 +30,6 @@
     "@types/react": "19",
     "@types/react-dom": "19",
     "eslint": "9.39.4",
-    "eslint-config-next": "16.2.9",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-simple-import-sort": "13.0.0",
     "eslint-plugin-unused-imports": "4.4.1",

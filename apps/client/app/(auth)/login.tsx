@@ -1,5 +1,5 @@
-import { Link } from "expo-router";
-import React, { useState } from "react";
+import { Link, useRouter } from "expo-router";
+import React, { useState, useEffect } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -14,7 +14,14 @@ export default function LoginPage() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState("");
-  const { login, isLoading, error } = useAuth();
+  const { login, isLoading, error, user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user) {
+      router.replace("/");
+    }
+  }, [user, router]);
 
   const handleLogin = async () => {
     setLocalError("");
@@ -24,6 +31,7 @@ export default function LoginPage() {
     }
     try {
       await login(phone, password);
+      router.replace("/");
     } catch {
       // Catch error to prevent unhandled promise rejection
     }

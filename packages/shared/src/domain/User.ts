@@ -27,3 +27,10 @@ export interface User {
   createdAt: number;
   updatedAt?: number;
 }
+
+export interface PathcResponse {
+  id: string;
+  preacherType: PreacherType;
+  monthlyGoal: number;
+  updatedAt?: number;
+}

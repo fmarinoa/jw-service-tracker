@@ -11,7 +11,7 @@ import { entriesRepository } from '@/repositories';
 export class EntriesService {
   async getByUser(user: User, filters: FilterEntries): Promise<EntriesResponse> {
     const now = DateTime.now().setZone('America/Lima');
-    const targetMonth = now.minus({ months: filters.monthOffset });
+    const targetMonth = now.plus({ months: filters.monthOffset });
     const startDate = targetMonth.startOf('month').toMillis();
     const endDate = targetMonth.endOf('month').toMillis();
 
