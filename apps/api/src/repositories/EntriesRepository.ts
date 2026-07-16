@@ -1,10 +1,8 @@
-import { DateTime } from 'luxon';
-
 import { Entry } from '@/domain/Entry';
+import { FilterEntries } from '@/domain/FilterEntries';
 import { User } from '@/domain/User';
 
 import { BaseRepository, BaseRepositoryProps } from './BaseRepository';
-import { FilterEntries } from '@/domain/FilterEntries';
 
 export class EntriesRepository extends BaseRepository {
   constructor(props: BaseRepositoryProps) {
@@ -58,7 +56,7 @@ export class EntriesRepository extends BaseRepository {
 
   async create(user: User, data: Partial<Entry>): Promise<Entry> {
     return this.handlerCollection(async (collection) => {
-      const createdAt = DateTime.now().toMillis();
+      const createdAt = this.getTimestamp();
       const insertData = this.cleanObject({
         preachingDate: data.preachingDate,
         hours: data.hours,
@@ -81,7 +79,7 @@ export class EntriesRepository extends BaseRepository {
 
   async update(user: User, entry: Entry): Promise<Entry> {
     return this.handlerCollection(async (collection) => {
-      const updatedAt = DateTime.now().toMillis();
+      const updatedAt = this.getTimestamp();
       const updateData = this.cleanObject({
         preachingDate: entry.preachingDate,
         hours: entry.hours,

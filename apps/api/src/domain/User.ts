@@ -76,7 +76,9 @@ export class User {
   static validateForUpdate(data: Partial<User>) {
     const { data: user, error } = updateSettingsSchema.safeParse(data);
     if (error) {
-      throw new BadRequestException(error.issues[0]?.message || 'Datos inválidos');
+      throw new BadRequestException(
+        error.issues[0]?.message || 'Datos inválidos',
+      );
     }
     return new User(user);
   }
