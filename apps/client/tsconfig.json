@@ -11,13 +11,9 @@
     "skipLibCheck": true,
     "jsx": "react-native",
     "paths": {
-      "@jw-tracker/shared": ["../../packages/shared/src/index.ts"],
+      "@jw-tracker/shared": ["../../packages/shared/src/index.ts"]
     }
   },
-  "include": [
-    "src/**/*",
-    "app/**/*",
-    "nativewind-env.d.ts",
-  ],
+  "include": ["src/**/*", "app/**/*", "nativewind-env.d.ts"],
   "extends": "expo/tsconfig.base"
 }
