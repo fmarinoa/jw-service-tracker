@@ -2,7 +2,7 @@
   "services": {
     "frontend": {
       "root": "apps/client/",
-      "buildCommand": "pnpm build && cp vercel.json dist/",
+      "buildCommand": "pnpm build",
       "outputDirectory": "dist"
     },
     "backend": {
@@ -15,6 +15,13 @@
       "source": "/api/:path*",
       "destination": {
         "service": "backend"
+      }
+    },
+    {
+      "source": "/((?!api|assets|_expo).*)*",
+      "destination": {
+        "service": "frontend",
+        "path": "/index.html"
       }
     },
     {
