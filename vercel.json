@@ -21,7 +21,7 @@
       "source": "/:path([^.]*)",
       "destination": {
         "service": "frontend",
-        "path": "/"
+        "path": "/index.html"
       }
     },
     {
