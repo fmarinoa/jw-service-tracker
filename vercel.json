@@ -1,0 +1,12 @@
+{
+  "services": {
+    "frontend": {
+      "root": "apps/client/",
+      "entrypoint": "Dockerfile"
+    },
+    "backend": {
+      "root": "apps/api/",
+      "entrypoint": "Dockerfile"
+    }
+  }
+}
