@@ -3,6 +3,12 @@ import { NextFunction, Request, Response } from 'express';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
+  private readonly sensitiveAttributes = [
+    'password',
+    'refreshTokenHash',
+    'refreshToken',
+  ];
+
   use(req: Request, _res: Response, next: NextFunction) {
     const time = new Date().toISOString();
     const { method, originalUrl, body } = req;
@@ -17,11 +23,25 @@ export class LoggerMiddleware implements NestMiddleware {
     }
 
     if (body) {
-      logMessage.push(` - Body: ${JSON.stringify(body)}`);
+      logMessage.push(` - Body: ${JSON.stringify(this.sanitizedBody(body))}`);
     }
 
     console.log(logMessage.join(''));
 
     next();
+  }
+
+  private sanitizedBody(body: Record<string, any>): Record<string, any> {
+    const sanitized: Record<string, any> = {};
+
+    for (const key in body) {
+      if (this.sensitiveAttributes.includes(key)) {
+        sanitized[key] = '***';
+      } else {
+        sanitized[key] = body[key];
+      }
+    }
+
+    return sanitized;
   }
 }
