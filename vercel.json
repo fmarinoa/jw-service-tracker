@@ -19,10 +19,7 @@
     },
     {
       "source": "/((?!api|assets|_expo).*)*",
-      "destination": {
-        "service": "frontend",
-        "path": "/index.html"
-      }
+      "destination": "/index.html"
     },
     {
       "source": "/:path*",
