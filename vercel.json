@@ -1,12 +1,13 @@
 {
   "services": {
     "frontend": {
-      "root": ".",
-      "entrypoint": "Dockerfile.vercel"
+      "root": "apps/client/",
+      "buildCommand": "pnpm build",
+      "outputDirectory": "dist"
     },
     "backend": {
       "root": ".",
-      "entrypoint": "Containerfile.vercel"
+      "entrypoint": "Dockerfile.vercel"
     }
   },
   "rewrites": [

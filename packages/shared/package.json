@@ -10,5 +10,9 @@
   "dependencies": {
     "zod": "4.4.3",
     "luxon": "3.7.2"
+  },
+  "devDependencies": {
+    "@types/luxon": "3.7.1",
+    "typescript": "6"
   }
 }
