@@ -27,26 +27,17 @@ RUN pnpm --filter api build
 # Stage 2: Production runtime stage
 FROM node:24-alpine AS runner
 
-# Install pnpm globally
-RUN npm install -g pnpm
-
 WORKDIR /app
 
-# Copy pnpm and workspace configs
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc ./
-COPY packages/shared/package.json ./packages/shared/
-COPY apps/api/package.json ./apps/api/
-
-# Install production dependencies only
-RUN pnpm install --filter api... --prod --frozen-lockfile
-
-# Copy built code from the builder stage
-COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+# Copy built code from the builder stage (webpack bundle)
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
+
+# Install only bcrypt for runtime (pre-compiled binary for alpine)
+RUN npm install bcrypt@6.0.0 --omit=dev
 
 EXPOSE 3000
 
 ENV NODE_ENV=production
 ENV PORT=3000
 
-CMD ["pnpm", "--filter", "api", "start:prod"]
+CMD ["node", "apps/api/dist/main.js"]

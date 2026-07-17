@@ -1,3 +1,5 @@
+import { Collection, Document } from 'mongodb';
+
 import { Entry } from '@/domain/Entry';
 import { FilterEntries } from '@/domain/FilterEntries';
 import { User } from '@/domain/User';
@@ -5,14 +7,26 @@ import { User } from '@/domain/User';
 import { BaseRepository, BaseRepositoryProps } from './BaseRepository';
 
 export class EntriesRepository extends BaseRepository {
+  private indexCreated = false;
+
   constructor(props: BaseRepositoryProps) {
     super(props);
-    // Ensure compound index for fast queries by user and date range
-    this.handlerCollection(async (collection) => {
-      await collection.createIndex({ userId: 1, preachingDate: -1 });
-    }).catch((error) => {
-      console.error('[EntriesRepository] Failed to create index:', error);
-    });
+  }
+
+  override async handlerCollection<T>(
+    callback: (collection: Collection<Document>) => Promise<T>,
+  ): Promise<T> {
+    if (!this.indexCreated) {
+      this.indexCreated = true;
+      try {
+        await super.handlerCollection(async (collection) => {
+          await collection.createIndex({ userId: 1, preachingDate: -1 });
+        });
+      } catch (error) {
+        console.error('[EntriesRepository] Failed to create index:', error);
+      }
+    }
+    return super.handlerCollection(callback);
   }
 
   async getByUser(
