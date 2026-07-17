@@ -34,7 +34,6 @@ export class AuthController {
     return this.authService.login(phone, password, platform);
   }
 
-  @HttpCode(HttpStatus.NO_CONTENT)
   @Post('refresh')
   async refresh(@Body() body: unknown) {
     const result = RefreshRequestSchema.safeParse(body);
@@ -47,6 +46,7 @@ export class AuthController {
     return this.authService.refreshSession(refreshToken);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(@CurrentUser() user: User) {
