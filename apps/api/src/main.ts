@@ -1,4 +1,8 @@
-import 'dotenv/config';
+import { loadEnvFile } from 'node:process';
+
+if (process.env.NODE_ENV !== 'production') {
+  loadEnvFile();
+}
 
 import { NestFactory } from '@nestjs/core';
 
@@ -9,6 +13,6 @@ async function bootstrap() {
   app.enableCors();
   app.setGlobalPrefix('api');
   const server = await app.listen(process.env.PORT ?? 3000);
-  console.log('Server listening on:', server.address().port);
+  console.log('Server listening:', server.address());
 }
 bootstrap();

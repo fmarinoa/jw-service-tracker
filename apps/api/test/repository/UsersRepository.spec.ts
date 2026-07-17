@@ -26,7 +26,7 @@ describe('UsersRepository', () => {
     };
 
     repository = new UsersRepository({
-      client: mockClient as any,
+      client: mockClient,
       config: { collectionName: 'users' },
     });
 

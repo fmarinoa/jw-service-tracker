@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 
 import { AuthController } from './controllers/AuthController';
 import { EntriesController } from './controllers/EntriesController';
+import { HealthController } from './controllers/HealthController';
 import { UserController } from './controllers/UserController';
 import { LoggerMiddleware } from './middleware/LoggerMiddleware';
 import { AuthSessionService } from './services/auth/AuthSessionService';
@@ -12,7 +13,12 @@ import { UserService } from './services/UserService';
 
 @Module({
   imports: [],
-  controllers: [UserController, AuthController, EntriesController],
+  controllers: [
+    UserController,
+    AuthController,
+    EntriesController,
+    HealthController,
+  ],
   providers: [
     AuthService,
     UserService,

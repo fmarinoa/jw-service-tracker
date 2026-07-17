@@ -25,7 +25,6 @@
     "@nestjs/core": "11.1.28",
     "@nestjs/platform-express": "11.1.28",
     "bcrypt": "6.0.0",
-    "dotenv": "17.4.2",
     "jsonwebtoken": "9.0.2",
     "luxon": "3.7.2",
     "mongodb": "7.3.0",

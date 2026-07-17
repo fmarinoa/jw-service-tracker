@@ -1,17 +1,6 @@
-import { Platform } from 'react-native';
-
 import { AuthTokenStorage } from '../storage/authTokens';
 
-export const API_URL = Platform.select({
-  ios: 'http://localhost:3000/api',
-  android: 'http://10.0.2.2:3000/api',
-  default:
-    typeof window !== 'undefined' && window.location
-      ? process.env.NODE_ENV === 'production'
-        ? `${window.location.origin}/api`
-        : 'http://localhost:3000/api'
-      : 'http://localhost:3000/api',
-});
+export const API_URL = process.env.EXPO_PUBLIC_API_URL!
 
 export interface RequestOptions {
   path: string;
