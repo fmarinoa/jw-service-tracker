@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es2022",
     "module": "commonjs",
+    "types": ["node"],
     "moduleResolution": "node",
     "ignoreDeprecations": "6.0",
     "strict": true,
@@ -11,14 +12,12 @@
     "jsx": "react-native",
     "paths": {
       "@jw-tracker/shared": ["../../packages/shared/src/index.ts"],
-      "@domain/*": ["../../domain/*"]
     }
   },
   "include": [
     "src/**/*",
     "app/**/*",
     "nativewind-env.d.ts",
-    "../../domain/**/*"
   ],
   "extends": "expo/tsconfig.base"
 }
