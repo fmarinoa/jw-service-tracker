@@ -12,13 +12,17 @@ import {
 import { CurrentUser } from '@/auth/current-user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import { User } from '@/domain/User';
-
-import { AuthService } from '../services/AuthService';
+import { AuthService } from '@/services/AuthService';
+import { UserService } from '@/services/UserService';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
+  ) {}
 
+  @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(@Body() body: unknown) {
     const result = LoginRequestSchema.safeParse(body);
@@ -59,19 +63,15 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() body: unknown) {
-    const phone = (body as any)?.phone;
-    const name = (body as any)?.name;
-    const password = (body as any)?.password;
-
-    if (!phone || !name || !password) {
-      throw new BadRequestException(
-        'Faltan campos requeridos (phone, name, password)',
-      );
-    }
+  async register(@Body() body: any) {
+    const userInstance = User.validateForRegistration({
+      phone: body.phone,
+      name: body.name,
+      password: body.password,
+    });
 
     try {
-      return await this.authService.register(phone, name, password);
+      return await this.userService.register(userInstance);
     } catch (e: any) {
       throw new BadRequestException(e.message || 'Error al registrar usuario');
     }

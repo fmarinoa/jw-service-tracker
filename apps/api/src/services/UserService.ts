@@ -26,4 +26,18 @@ export class UserService {
 
     return usersRepository.update(originalUser);
   }
+
+  async register(user: User): Promise<{ user: any; success: boolean }> {
+    const normalizedPhone = user.phone.startsWith('+51')
+      ? user.phone
+      : `+51${user.phone}`;
+    const existingUser = await usersRepository.findByPhone(normalizedPhone);
+    if (existingUser) {
+      throw new BadRequestException('El celular ya está registrado.');
+    }
+
+    const createdUser = await usersRepository.create(user);
+    const { password: _, ...safeUser } = createdUser;
+    return { user: safeUser, success: true };
+  }
 }

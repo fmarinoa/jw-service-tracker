@@ -2,9 +2,9 @@ import { Platform } from '@jw-tracker/shared';
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 
+import { AuthSession } from '@/domain/AuthSession';
 import { User } from '@/domain/User';
 
-import { AuthSession } from '../../domain/AuthSession';
 import { AuthTokenService } from './AuthTokenService';
 
 @Injectable()

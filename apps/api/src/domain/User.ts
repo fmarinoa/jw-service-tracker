@@ -45,7 +45,9 @@ export class User {
   static validateForRegistration(data: Partial<User>) {
     const { data: validated, error } = registerSchema.safeParse(data);
     if (error) {
-      throw new Error(error.issues[0]?.message || 'Datos inválidos');
+      throw new BadRequestException(
+        error.issues[0]?.message || 'Datos inválidos',
+      );
     }
     return new User({
       ...validated,

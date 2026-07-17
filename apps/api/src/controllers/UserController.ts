@@ -10,9 +10,8 @@ import {
 
 import { CurrentUser } from '@/auth/current-user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
+import { User } from '@/domain/User';
 import { UserService } from '@/services/UserService';
-
-import { User } from '../domain/User';
 
 @Controller('user')
 export class UserController {

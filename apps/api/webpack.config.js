@@ -26,7 +26,7 @@ module.exports = function (options) {
     ...options,
     externals: {
       // Treat bcrypt as a commonjs external so it compiles to require('bcrypt')
-      'bcrypt': 'commonjs bcrypt',
+      bcrypt: 'commonjs bcrypt',
     },
     optimization: {
       ...options.optimization,
@@ -36,7 +36,7 @@ module.exports = function (options) {
       ...options.plugins,
       new webpack.IgnorePlugin({
         checkResource(resource) {
-          if (lazyImports.some(item => resource.startsWith(item))) {
+          if (lazyImports.some((item) => resource.startsWith(item))) {
             try {
               require.resolve(resource);
               return false;
