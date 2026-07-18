@@ -1,4 +1,5 @@
 import { Db, ObjectId } from 'mongodb';
+
 import { DbConnection } from '../db/connection';
 
 export interface UserDoc {
@@ -40,18 +41,15 @@ export class UsersService {
       const phoneRegex = /^9\d{8}$/;
       if (phoneRegex.test(cleanPhone)) {
         userQuery = {
-          $or: [
-            { phone: cleanPhone },
-            { phone: `+51${cleanPhone}` }
-          ]
+          $or: [{ phone: cleanPhone }, { phone: `+51${cleanPhone}` }],
         };
       } else {
         userQuery = {
           $or: [
             { phone: customerQuery },
             { phone: `+${cleanPhone}` },
-            { phone: cleanPhone }
-          ]
+            { phone: cleanPhone },
+          ],
         };
       }
     } else {
@@ -59,7 +57,19 @@ export class UsersService {
     }
 
     const docs = await usersCollection.find(userQuery).toArray();
-    return docs.map(doc => ({
+    return docs.map((doc) => ({
+      id: doc._id.toString(),
+      name: doc.name,
+      phone: doc.phone,
+      preacherType: doc.preacherType,
+      monthlyGoal: doc.monthlyGoal,
+    }));
+  }
+
+  async getAllUsers(): Promise<UserDoc[]> {
+    const usersCollection = this.db.collection('users');
+    const docs = await usersCollection.find({}).toArray();
+    return docs.map((doc) => ({
       id: doc._id.toString(),
       name: doc.name,
       phone: doc.phone,

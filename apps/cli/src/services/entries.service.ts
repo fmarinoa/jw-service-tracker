@@ -1,4 +1,5 @@
 import { Db } from 'mongodb';
+
 import { DbConnection } from '../db/connection';
 
 export interface EntryDoc {
@@ -32,8 +33,8 @@ export class EntriesService {
    * Retrieves preaching entries for a specific user ID, with optional date and limit filters.
    */
   async getEntries(
-    userId: string, 
-    filters: { month?: string; limit?: number }
+    userId: string,
+    filters: { month?: string; limit?: number },
   ): Promise<EntryDoc[]> {
     const entriesCollection = this.db.collection('entries');
     const query: any = { userId };
@@ -41,9 +42,24 @@ export class EntriesService {
     if (filters.month) {
       const { DateTime } = await import('luxon');
       const [year, monthStr] = filters.month.split('-');
-      if (year && monthStr && !isNaN(Number(year)) && !isNaN(Number(monthStr))) {
-        const startOfMonth = DateTime.fromObject({ year: Number(year), month: Number(monthStr) }).startOf('month').toMillis();
-        const endOfMonth = DateTime.fromObject({ year: Number(year), month: Number(monthStr) }).endOf('month').toMillis();
+      if (
+        year &&
+        monthStr &&
+        !isNaN(Number(year)) &&
+        !isNaN(Number(monthStr))
+      ) {
+        const startOfMonth = DateTime.fromObject({
+          year: Number(year),
+          month: Number(monthStr),
+        })
+          .startOf('month')
+          .toMillis();
+        const endOfMonth = DateTime.fromObject({
+          year: Number(year),
+          month: Number(monthStr),
+        })
+          .endOf('month')
+          .toMillis();
         query.preachingDate = {
           $gte: startOfMonth,
           $lte: endOfMonth,
@@ -58,7 +74,7 @@ export class EntriesService {
       .limit(limit)
       .toArray();
 
-    return docs.map(doc => ({
+    return docs.map((doc) => ({
       id: doc._id.toString(),
       userId: doc.userId,
       preachingDate: doc.preachingDate,
@@ -69,5 +85,33 @@ export class EntriesService {
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     }));
+  }
+
+  /**
+   * Registers a new preaching entry.
+   */
+  async createEntry(entry: {
+    userId: string;
+    preachingDate: number;
+    hours: number;
+    minutes: number;
+    type: string;
+    notes?: string;
+  }): Promise<EntryDoc> {
+    const entriesCollection = this.db.collection('entries');
+    const newDoc = {
+      userId: entry.userId,
+      preachingDate: entry.preachingDate,
+      hours: entry.hours,
+      minutes: entry.minutes,
+      type: entry.type,
+      notes: entry.notes,
+      createdAt: Date.now(),
+    };
+    const result = await entriesCollection.insertOne(newDoc);
+    return {
+      id: result.insertedId.toString(),
+      ...newDoc,
+    };
   }
 }
