@@ -1,4 +1,4 @@
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -101,15 +101,25 @@ export default function LoginPage() {
           </Pressable>
         </View>
 
-        <View className="mt-6 flex-row justify-center">
-          <Text className="text-muted-foreground text-sm text-center">
+        <View className="mt-6 flex-row justify-center items-center flex-wrap">
+          <Text
+            className="text-muted-foreground text-sm select-none"
+            selectable={false}
+          >
             ¿No tienes cuenta?{' '}
-            <Link href="/register">
-              <Text className="text-primary font-bold text-sm active:underline">
-                Regístrate aquí
-              </Text>
-            </Link>
           </Text>
+          <Pressable
+            onPress={() => router.push('/register')}
+            hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+          >
+            <Text
+              pointerEvents="none"
+              className="text-primary font-bold text-sm select-none active:underline"
+              selectable={false}
+            >
+              Regístrate aquí
+            </Text>
+          </Pressable>
         </View>
       </View>
     </View>
