@@ -7,7 +7,10 @@
     "start": "expo start -c",
     "build": "expo export --platform web",
     "lint": "eslint . --fix",
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "android": "expo run:android",
+    "ios": "expo run:ios --device",
+    "xcode": "expo prebuild && open ios/JWServiceTracker.xcworkspace"
   },
   "dependencies": {
     "@expo/metro-runtime": "6.1.2",
@@ -34,7 +37,8 @@
     "tailwindcss": "3.4.19"
   },
   "devDependencies": {
-    "@babel/runtime": "8.0.0",
+    "@babel/plugin-transform-react-jsx": "^7.22.15",
+    "@babel/runtime": "^7.25.0",
     "@types/react": "19.1.17",
     "@types/react-dom": "19.1.11",
     "babel-preset-expo": "54.0.12",

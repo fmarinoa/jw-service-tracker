@@ -8,7 +8,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.jwtracker.client"
+      "bundleIdentifier": "com.jwtracker.client",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.jwtracker.client"
@@ -16,7 +19,18 @@
     "web": {
       "bundler": "metro"
     },
-    "plugins": ["expo-router", "expo-secure-store", "expo-asset"],
-    "scheme": "jw-tracker"
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-asset"
+    ],
+    "scheme": "jw-tracker",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b973e2d2-bf75-49ea-8dc0-aee3b17dca7c"
+      }
+    },
+    "owner": "fmarinoa"
   }
 }
