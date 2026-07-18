@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "6.1.2",
+    "@jw-tracker/shared": "workspace:*",
     "expo": "54.0.36",
     "expo-asset": "12.0.13",
     "expo-constants": "18.0.13",
@@ -37,8 +38,8 @@
     "tailwindcss": "3.4.19"
   },
   "devDependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.22.15",
-    "@babel/runtime": "^7.25.0",
+    "@babel/plugin-transform-react-jsx": "7.22.15",
+    "@babel/runtime": "7.25.0",
     "@types/react": "19.1.17",
     "@types/react-dom": "19.1.11",
     "babel-preset-expo": "54.0.12",
