@@ -1,8 +1,16 @@
-import { SessionType } from '@jw-tracker/shared';
-import React from 'react';
-import { Modal, Pressable, Text, TextInput, View } from 'react-native';
+import { formatIsoToShortDate, SessionType } from '@jw-tracker/shared';
+import React, { useState } from 'react';
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
 import { useDashboard } from '../DashboardProvider';
+import CalendarPicker from './CalendarPicker';
 
 const TYPE_LABELS: Record<SessionType, string> = {
   house_to_house: 'Casa en casa',
@@ -39,6 +47,8 @@ export default function EntryDialog() {
     hasChanges,
   } = useDashboard();
 
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   return (
     <Modal
       animationType="fade"
@@ -47,101 +57,110 @@ export default function EntryDialog() {
       onRequestClose={() => setShowAddModal(false)}
     >
       <View className="flex-1 justify-center items-center bg-black/60 p-4">
-        <View className="bg-card border border-border rounded-2xl p-6 w-full max-w-md space-y-4">
+        <View className="bg-card border border-border rounded-2xl p-6 w-full max-w-md space-y-4 max-h-[90%]">
           <Text className="text-xl font-bold text-foreground">
             {editingEntry ? 'Editar Registro' : 'Nuevo Registro'}
           </Text>
 
-          <View className="space-y-3.5">
-            <View className="flex-row space-x-3">
-              <View className="flex-1">
+          <ScrollView
+            className="max-h-[60vh]"
+            showsVerticalScrollIndicator={false}
+          >
+            <View className="space-y-3.5 pb-2">
+              <View className="flex-row space-x-3">
+                <View className="flex-1">
+                  <Text className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                    Fecha
+                  </Text>
+                  <Pressable
+                    onPress={() => setShowDatePicker(!showDatePicker)}
+                    className="w-full p-2.5 bg-background border border-border rounded-xl flex-row justify-between items-center active:bg-muted"
+                  >
+                    <Text className="text-foreground text-sm font-medium">
+                      {formDate
+                        ? formatIsoToShortDate(formDate)
+                        : 'Seleccionar...'}
+                    </Text>
+                    <Text className="text-sm">📅</Text>
+                  </Pressable>
+                </View>
+                <View className="w-20">
+                  <Text className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                    Horas
+                  </Text>
+                  <TextInput
+                    keyboardType="numeric"
+                    value={formHours.toString()}
+                    onChangeText={(val) => {
+                      setFormHours(val === '' ? '' : parseInt(val) || 0);
+                    }}
+                    className="w-full p-2.5 bg-background border border-border rounded-xl text-foreground text-sm text-center"
+                  />
+                </View>
+                <View className="w-20">
+                  <Text className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                    Mins
+                  </Text>
+                  <TextInput
+                    keyboardType="numeric"
+                    value={formMinutes.toString()}
+                    onChangeText={(val) => {
+                      setFormMinutes(val === '' ? '' : parseInt(val) || 0);
+                    }}
+                    className="w-full p-2.5 bg-background border border-border rounded-xl text-foreground text-sm text-center"
+                  />
+                </View>
+              </View>
+
+              <View>
                 <Text className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">
-                  Fecha (YYYY-MM-DD)
+                  Tipo
                 </Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {(Object.keys(TYPE_LABELS) as SessionType[]).map((type) => {
+                    const isSelected = formType === type;
+                    return (
+                      <Pressable
+                        key={type}
+                        onPress={() => setFormType(type)}
+                        className={`px-3 py-2 border rounded-lg ${
+                          isSelected
+                            ? 'bg-primary border-primary'
+                            : 'bg-background border-border'
+                        }`}
+                      >
+                        <Text
+                          className={`text-xs font-bold ${isSelected ? 'text-primary-foreground' : 'text-foreground'}`}
+                        >
+                          {TYPE_EMOJIS[type]} {TYPE_LABELS[type]}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+
+              <View>
+                <View className="flex-row justify-between items-center mb-1">
+                  <Text className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                    Notas
+                  </Text>
+                  <Text className="text-[10px] text-muted-foreground">
+                    {formNotes.length}/50
+                  </Text>
+                </View>
                 <TextInput
-                  value={formDate}
-                  onChangeText={setFormDate}
-                  placeholder="YYYY-MM-DD"
+                  value={formNotes}
+                  onChangeText={(val) => setFormNotes(val.slice(0, 50))}
+                  placeholder="Notas opcionales..."
                   placeholderTextColor="#7b726c"
+                  multiline
+                  numberOfLines={2}
                   className="w-full p-2.5 bg-background border border-border rounded-xl text-foreground text-sm"
                 />
               </View>
-              <View className="w-20">
-                <Text className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">
-                  Horas
-                </Text>
-                <TextInput
-                  keyboardType="numeric"
-                  value={formHours.toString()}
-                  onChangeText={(val) => {
-                    setFormHours(val === '' ? '' : parseInt(val) || 0);
-                  }}
-                  className="w-full p-2.5 bg-background border border-border rounded-xl text-foreground text-sm text-center"
-                />
-              </View>
-              <View className="w-20">
-                <Text className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">
-                  Mins
-                </Text>
-                <TextInput
-                  keyboardType="numeric"
-                  value={formMinutes.toString()}
-                  onChangeText={(val) => {
-                    setFormMinutes(val === '' ? '' : parseInt(val) || 0);
-                  }}
-                  className="w-full p-2.5 bg-background border border-border rounded-xl text-foreground text-sm text-center"
-                />
-              </View>
             </View>
-
-            <View>
-              <Text className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">
-                Tipo
-              </Text>
-              <View className="flex-row flex-wrap gap-2">
-                {(Object.keys(TYPE_LABELS) as SessionType[]).map((type) => {
-                  const isSelected = formType === type;
-                  return (
-                    <Pressable
-                      key={type}
-                      onPress={() => setFormType(type)}
-                      className={`px-3 py-2 border rounded-lg ${
-                        isSelected
-                          ? 'bg-primary border-primary'
-                          : 'bg-background border-border'
-                      }`}
-                    >
-                      <Text
-                        className={`text-xs font-bold ${isSelected ? 'text-primary-foreground' : 'text-foreground'}`}
-                      >
-                        {TYPE_EMOJIS[type]} {TYPE_LABELS[type]}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </View>
-
-            <View>
-              <View className="flex-row justify-between items-center mb-1">
-                <Text className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                  Notas
-                </Text>
-                <Text className="text-[10px] text-muted-foreground">
-                  {formNotes.length}/50
-                </Text>
-              </View>
-              <TextInput
-                value={formNotes}
-                onChangeText={(val) => setFormNotes(val.slice(0, 50))}
-                placeholder="Notas opcionales..."
-                placeholderTextColor="#7b726c"
-                multiline
-                numberOfLines={2}
-                className="w-full p-2.5 bg-background border border-border rounded-xl text-foreground text-sm"
-              />
-            </View>
-          </View>
+          </ScrollView>
 
           {formError ? (
             <Text className="text-red-600 text-xs font-semibold">
@@ -173,6 +192,14 @@ export default function EntryDialog() {
             </Pressable>
           </View>
         </View>
+
+        {showDatePicker && (
+          <CalendarPicker
+            selectedDate={formDate}
+            onSelectDate={setFormDate}
+            onClose={() => setShowDatePicker(false)}
+          />
+        )}
       </View>
     </Modal>
   );

@@ -1,6 +1,9 @@
 import {
   DEFAULT_GOALS,
   Entry,
+  getCurrentIsoDate,
+  isoDateToMillis,
+  millisToIsoDate,
   PreacherType,
   SessionType,
   User,
@@ -242,7 +245,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [disableLogout, setDisableLogout] = useState(false);
 
   // Form State
-  const [formDate, setFormDate] = useState(DateTime.now().toISODate()!);
+  const [formDate, setFormDate] = useState(getCurrentIsoDate());
   const [formHours, setFormHours] = useState<number | ''>(1);
   const [formMinutes, setFormMinutes] = useState<number | ''>(0);
   const [formType, setFormType] = useState<SessionType>('house_to_house');
@@ -293,8 +296,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   // Check if form has changes when editing
   const hasChanges = editingEntry
-    ? formDate !==
-        DateTime.fromMillis(editingEntry.preachingDate).toISODate() ||
+    ? formDate !== millisToIsoDate(editingEntry.preachingDate) ||
       (formHours === '' ? 0 : Number(formHours)) !== editingEntry.hours ||
       (formMinutes === '' ? 0 : Number(formMinutes)) !== editingEntry.minutes ||
       formType !== editingEntry.type ||
@@ -362,7 +364,7 @@ Generado por *JW Service Tracker*`;
   };
 
   const resetForm = () => {
-    setFormDate(DateTime.now().toISODate()!);
+    setFormDate(getCurrentIsoDate());
     setFormHours(1);
     setFormMinutes(0);
     setFormType('house_to_house');
@@ -398,7 +400,7 @@ Generado por *JW Service Tracker*`;
     setFormError('');
     try {
       const payload = {
-        preachingDate: DateTime.fromISO(formDate).toMillis(),
+        preachingDate: isoDateToMillis(formDate),
         hours: parsedHours,
         minutes: parsedMinutes,
         type: formType,
@@ -447,7 +449,7 @@ Generado por *JW Service Tracker*`;
 
   const handleEdit = (entry: Entry) => {
     setEditingEntry(entry);
-    setFormDate(DateTime.fromMillis(entry.preachingDate).toISODate()!);
+    setFormDate(millisToIsoDate(entry.preachingDate));
     setFormHours(entry.hours);
     setFormMinutes(entry.minutes);
     setFormType(entry.type);

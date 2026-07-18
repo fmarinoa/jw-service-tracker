@@ -1,6 +1,6 @@
 import {
   DEFAULT_GOALS,
-  formatMonthYear,
+  formatMonthYearHeader,
   PREACHER_TYPE_LABELS,
   PreacherType,
   SessionType,
@@ -87,11 +87,9 @@ export default function DashboardPage() {
     );
   }
 
-  const currentMonthLabel = formatMonthYear(
+  const capitalizedMonthLabel = formatMonthYearHeader(
     DateTime.now().setZone('America/Lima').plus({ months: monthOffset }),
   );
-  const capitalizedMonthLabel =
-    currentMonthLabel.charAt(0).toUpperCase() + currentMonthLabel.slice(1);
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
@@ -260,9 +258,8 @@ export default function DashboardPage() {
                         const targetDate = DateTime.now()
                           .setZone('America/Lima')
                           .plus({ months: offset });
-                        const label = formatMonthYear(targetDate);
                         const capitalizedLabel =
-                          label.charAt(0).toUpperCase() + label.slice(1);
+                          formatMonthYearHeader(targetDate);
                         return (
                           <Pressable
                             key={offset}
