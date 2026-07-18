@@ -101,6 +101,9 @@ export default function DashboardPage() {
           {/* HEADER */}
           <View className="flex-row justify-between items-center pb-4 border-b border-border">
             <View>
+              <Text className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-0.5">
+                {user.name || user.phone}
+              </Text>
               <Text className="text-3xl font-black tracking-tight text-primary">
                 JW Tracker
               </Text>
@@ -120,9 +123,6 @@ export default function DashboardPage() {
                   ⚙️ Configurar
                 </Text>
               </Pressable>
-              <Text className="text-sm font-semibold text-foreground hidden sm:inline px-2">
-                {user.name || user.phone}
-              </Text>
               <Pressable
                 disabled={disableLogout}
                 onPress={handleLogout}
