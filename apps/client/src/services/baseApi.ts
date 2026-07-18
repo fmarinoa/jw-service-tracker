@@ -2,6 +2,13 @@ import { AuthTokenStorage } from '../storage/authTokens';
 
 export const API_URL = process.env.EXPO_PUBLIC_API_URL!;
 
+export class NetworkError extends Error {
+  constructor(message = 'Network request failed') {
+    super(message);
+    this.name = 'NetworkError';
+  }
+}
+
 export interface RequestOptions {
   path: string;
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
@@ -31,11 +38,17 @@ export abstract class BaseService {
       });
     }
 
-    const response = await fetch(url.toString(), {
-      method: request.method || 'GET',
-      headers: { ...(await this.getHeaders()), ...request.headers },
-      body: request.body ? JSON.stringify(request.body) : undefined,
-    });
+    let response: Response;
+    try {
+      response = await fetch(url.toString(), {
+        method: request.method || 'GET',
+        headers: { ...(await this.getHeaders()), ...request.headers },
+        body: request.body ? JSON.stringify(request.body) : undefined,
+      });
+    } catch (e) {
+      console.warn('Network request failed in baseApi:', e);
+      throw new NetworkError();
+    }
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));

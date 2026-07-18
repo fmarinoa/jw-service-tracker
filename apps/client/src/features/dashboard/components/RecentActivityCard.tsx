@@ -56,9 +56,18 @@ export default function RecentActivityCard() {
               className="py-4 flex-row justify-between items-center"
             >
               <View className="flex-1 pr-4">
-                <Text className="font-semibold text-foreground text-sm sm:text-base">
-                  {formatLongDateLabel(entry.preachingDate)}
-                </Text>
+                <View className="flex-row items-center space-x-2">
+                  <Text className="font-semibold text-foreground text-sm sm:text-base">
+                    {formatLongDateLabel(entry.preachingDate)}
+                  </Text>
+                  {entry.isOffline && (
+                    <View className="px-1.5 py-0.5 bg-amber-50 border border-amber-200 rounded">
+                      <Text className="text-[10px] text-amber-800 font-bold uppercase tracking-wider">
+                        Pendiente
+                      </Text>
+                    </View>
+                  )}
+                </View>
                 <Text className="text-xs sm:text-sm text-muted-foreground mt-0.5">
                   {entry.hours}h {entry.minutes}m • {TYPE_LABELS[entry.type]}
                 </Text>

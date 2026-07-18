@@ -28,6 +28,7 @@ export interface Entry {
   notes?: string;
   createdAt: number;
   updatedAt?: number;
+  isOffline?: boolean;
 }
 
 export interface EntriesResponse {

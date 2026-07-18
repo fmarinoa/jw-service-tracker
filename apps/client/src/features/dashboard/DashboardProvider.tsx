@@ -8,6 +8,7 @@ import {
   SessionType,
   User,
 } from '@jw-tracker/shared';
+import NetInfo from '@react-native-community/netinfo';
 import { DateTime } from 'luxon';
 import React, {
   createContext,
@@ -18,9 +19,12 @@ import React, {
 } from 'react';
 import { Alert, Clipboard, Share } from 'react-native';
 
+import { NetworkError } from '../../services/baseApi';
 import { EntriesApi } from '../../services/entriesApi';
+import { OfflineSyncService } from '../../services/offlineSync';
 import { UserApi } from '../../services/userApi';
 import { AuthTokenStorage } from '../../storage/authTokens';
+import { OfflineStorage } from '../../storage/offlineStorage';
 import { useAuth } from '../auth/useAuth';
 
 interface DashboardContextType {
@@ -164,6 +168,40 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
           setIsEntriesLoading(true);
         }
 
+        const isOffline = await OfflineSyncService.isOffline();
+        if (isOffline) {
+          const cachedUser = await OfflineStorage.getCachedUser();
+          if (cachedUser) {
+            setUser(cachedUser);
+          }
+          const cachedData = await OfflineStorage.getCachedDashboardData(
+            offset,
+            targetPage,
+          );
+          if (cachedData) {
+            setEntries(cachedData.entries);
+            setStats(cachedData.stats);
+            setTotalEntries(cachedData.total);
+            setTotalPages(Math.ceil(cachedData.total / 10) || 1);
+            setPage(targetPage);
+            setMonthOffset(offset);
+          }
+          setIsLoading(false);
+          setIsEntriesLoading(false);
+          return;
+        }
+
+        // If online, process any pending offline requests first before fetching latest entries
+        // This ensures latest state is loaded under the dashboard loading spinner
+        try {
+          await OfflineSyncService.syncOfflineRequests();
+        } catch (syncErr) {
+          console.error(
+            'Failed to sync offline requests during fetch',
+            syncErr,
+          );
+        }
+
         const token = await AuthTokenStorage.getAccessToken();
 
         const fetchPromises: [Promise<any>, Promise<any> | null] = [
@@ -177,11 +215,18 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
         if (userData) {
           setUser(userData);
+          await OfflineStorage.setCachedUser(userData);
         }
 
         setEntries(entriesData.entries);
         setStats(entriesData.stats);
         setTotalEntries(entriesData.total);
+
+        await OfflineStorage.setCachedDashboardData(
+          offset,
+          targetPage,
+          entriesData,
+        );
 
         const newTotalPages = Math.ceil(entriesData.total / 10) || 1;
         setTotalPages(newTotalPages);
@@ -194,6 +239,13 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
           setEntries(secondEntriesData.entries);
           setStats(secondEntriesData.stats);
           setTotalEntries(secondEntriesData.total);
+
+          await OfflineStorage.setCachedDashboardData(
+            offset,
+            newTotalPages,
+            secondEntriesData,
+          );
+
           setPage(newTotalPages);
           setMonthOffset(offset);
           return;
@@ -202,7 +254,39 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         setPage(targetPage);
         setMonthOffset(offset);
       } catch (err) {
-        console.error('Error fetching dashboard data:', err);
+        const isNetworkErr =
+          err instanceof NetworkError ||
+          (err instanceof Error &&
+            (err.name === 'NetworkError' ||
+              err.message.includes('Network request failed') ||
+              err.message.includes('Failed to fetch') ||
+              err.message.includes('offline') ||
+              err.message.includes('Internet connection')));
+
+        if (isNetworkErr) {
+          console.warn(
+            'DashboardProvider: Fetch failed due to network. Loading cached data.',
+          );
+        } else {
+          console.error('Error fetching dashboard data:', err);
+        }
+        const cachedUser = await OfflineStorage.getCachedUser();
+        if (cachedUser) {
+          setUser(cachedUser);
+        }
+        // Fallback to cache on sudden fetch failure
+        const cachedData = await OfflineStorage.getCachedDashboardData(
+          offset,
+          targetPage,
+        );
+        if (cachedData) {
+          setEntries(cachedData.entries);
+          setStats(cachedData.stats);
+          setTotalEntries(cachedData.total);
+          setTotalPages(Math.ceil(cachedData.total / 10) || 1);
+          setPage(targetPage);
+          setMonthOffset(offset);
+        }
       } finally {
         setIsLoading(false);
         setIsEntriesLoading(false);
@@ -219,10 +303,45 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     [fetchDashboardData],
   );
 
+  const pageRef = React.useRef(page);
+  const monthOffsetRef = React.useRef(monthOffset);
+
+  useEffect(() => {
+    pageRef.current = page;
+    monthOffsetRef.current = monthOffset;
+  }, [page, monthOffset]);
+
   useEffect(() => {
     fetchDashboardData(1, 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    let wasConnected: boolean | null = null;
+
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      const isConnected = state.isConnected ?? false;
+
+      if (wasConnected === null) {
+        wasConnected = isConnected;
+        return;
+      }
+
+      if (isConnected && !wasConnected) {
+        OfflineSyncService.syncOfflineRequests()
+          .then(() => {
+            fetchDashboardData(pageRef.current, monthOffsetRef.current, true);
+          })
+          .catch((err) => {
+            console.error('Network listener sync error:', err);
+          });
+      }
+
+      wasConnected = isConnected;
+    });
+
+    return () => unsubscribe();
+  }, [fetchDashboardData]);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -274,16 +393,38 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const handleSaveSettings = async () => {
     setIsSavingSettings(true);
     setSettingsError('');
+    const payload = {
+      preacherType: settingsPreacherType,
+      monthlyGoal: settingsMonthlyGoal === '' ? 0 : Number(settingsMonthlyGoal),
+    };
     try {
-      const updatedUser = await UserApi.updateSettings({
-        preacherType: settingsPreacherType,
-        monthlyGoal:
-          settingsMonthlyGoal === '' ? 0 : Number(settingsMonthlyGoal),
-      });
+      const isOffline = await OfflineSyncService.isOffline();
+      if (isOffline) {
+        throw new NetworkError();
+      }
 
-      setUser((prev) => (prev ? { ...prev, ...updatedUser } : null));
+      const updatedUser = await UserApi.updateSettings(payload);
+      const newUser = (
+        user ? { ...user, ...updatedUser } : updatedUser
+      ) as User;
+      setUser(newUser);
+      await OfflineStorage.setCachedUser(newUser);
       setShowSettingsModal(false);
     } catch (err) {
+      if (err instanceof NetworkError) {
+        const updatedUser = {
+          ...(user || {}),
+          ...payload,
+        } as User;
+        setUser(updatedUser);
+        await OfflineStorage.setCachedUser(updatedUser);
+        await OfflineSyncService.queueMutation({
+          type: 'UPDATE_SETTINGS',
+          payload,
+        });
+        setShowSettingsModal(false);
+        return;
+      }
       setSettingsError(
         err instanceof Error
           ? err.message
@@ -398,14 +539,20 @@ Generado por *JW Service Tracker*`;
 
     setIsSubmitting(true);
     setFormError('');
+
+    const payload = {
+      preachingDate: isoDateToMillis(formDate),
+      hours: parsedHours,
+      minutes: parsedMinutes,
+      type: formType,
+      notes: trimmedNotes,
+    };
+
     try {
-      const payload = {
-        preachingDate: isoDateToMillis(formDate),
-        hours: parsedHours,
-        minutes: parsedMinutes,
-        type: formType,
-        notes: trimmedNotes,
-      };
+      const isOffline = await OfflineSyncService.isOffline();
+      if (isOffline) {
+        throw new NetworkError();
+      }
 
       if (editingEntry) {
         await EntriesApi.updateEntry(editingEntry.id, payload);
@@ -417,6 +564,80 @@ Generado por *JW Service Tracker*`;
       setShowAddModal(false);
       resetForm();
     } catch (err) {
+      if (err instanceof NetworkError) {
+        const oldMins = editingEntry
+          ? editingEntry.hours * 60 + editingEntry.minutes
+          : 0;
+        const newMins = parsedHours * 60 + parsedMinutes;
+        const diffMins = newMins - oldMins;
+
+        const updatedStats = {
+          totalMinutes: Math.max(0, stats.totalMinutes + diffMins),
+          byType: { ...stats.byType },
+        };
+
+        if (editingEntry) {
+          updatedStats.byType[editingEntry.type] = Math.max(
+            0,
+            (updatedStats.byType[editingEntry.type as SessionType] || 0) -
+              oldMins,
+          );
+        }
+        updatedStats.byType[formType] =
+          (updatedStats.byType[formType] || 0) + newMins;
+
+        let updatedEntries: Entry[];
+        let newTotal = totalEntries;
+
+        if (editingEntry) {
+          const updatedEntry = {
+            ...editingEntry,
+            ...payload,
+            isOffline: true,
+          } as Entry;
+          updatedEntries = entries.map((e) =>
+            e.id === editingEntry.id ? updatedEntry : e,
+          );
+
+          await OfflineSyncService.queueMutation({
+            type: 'UPDATE_ENTRY',
+            entryId: editingEntry.id,
+            payload,
+          });
+        } else {
+          const tempId = `temp_${Date.now()}`;
+          const newEntry = {
+            id: tempId,
+            userId: user?.id || '',
+            ...payload,
+            createdAt: Date.now(),
+            isOffline: true,
+          } as Entry;
+          updatedEntries = [newEntry, ...entries];
+          newTotal = totalEntries + 1;
+
+          await OfflineSyncService.queueMutation({
+            type: 'CREATE_ENTRY',
+            tempId,
+            payload,
+          });
+        }
+
+        setEntries(updatedEntries);
+        setStats(updatedStats);
+        setTotalEntries(newTotal);
+        setTotalPages(Math.ceil(newTotal / 10) || 1);
+
+        await OfflineStorage.setCachedDashboardData(monthOffset, page, {
+          entries: updatedEntries,
+          stats: updatedStats,
+          total: newTotal,
+        });
+
+        setShowAddModal(false);
+        resetForm();
+        return;
+      }
       setFormError(
         err instanceof Error ? err.message : 'Error al guardar la entrada',
       );
@@ -429,10 +650,54 @@ Generado por *JW Service Tracker*`;
     if (!entryToDelete) return;
     setIsDeleting(true);
     try {
+      const isOffline = await OfflineSyncService.isOffline();
+      if (isOffline) {
+        throw new NetworkError();
+      }
+
       await EntriesApi.deleteEntry(entryToDelete);
       await fetchDashboardData(page, monthOffset);
       setShowDeleteModal(false);
     } catch (err) {
+      if (err instanceof NetworkError) {
+        const entryObj = entries.find((e) => e.id === entryToDelete);
+        if (entryObj) {
+          const updatedEntries = entries.filter((e) => e.id !== entryToDelete);
+          const newTotal = Math.max(0, totalEntries - 1);
+
+          const entryMins = entryObj.hours * 60 + entryObj.minutes;
+          const updatedStats = {
+            totalMinutes: Math.max(0, stats.totalMinutes - entryMins),
+            byType: {
+              ...stats.byType,
+              [entryObj.type]: Math.max(
+                0,
+                (stats.byType[entryObj.type as SessionType] || 0) - entryMins,
+              ),
+            },
+          };
+
+          setEntries(updatedEntries);
+          setStats(updatedStats);
+          setTotalEntries(newTotal);
+          setTotalPages(Math.ceil(newTotal / 10) || 1);
+
+          await OfflineStorage.setCachedDashboardData(monthOffset, page, {
+            entries: updatedEntries,
+            stats: updatedStats,
+            total: newTotal,
+          });
+        }
+
+        await OfflineSyncService.queueMutation({
+          type: 'DELETE_ENTRY',
+          entryId: entryToDelete,
+          payload: null,
+        });
+
+        setShowDeleteModal(false);
+        return;
+      }
       Alert.alert(
         'Error',
         err instanceof Error ? err.message : 'Error al eliminar la entrada',

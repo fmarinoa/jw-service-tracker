@@ -8,8 +8,11 @@ import React, {
 } from 'react';
 
 import { AuthApi } from '../../services/authApi';
+import { NetworkError } from '../../services/baseApi';
+import { OfflineSyncService } from '../../services/offlineSync';
 import { UserApi } from '../../services/userApi';
 import { AuthTokenStorage } from '../../storage/authTokens';
+import { OfflineStorage } from '../../storage/offlineStorage';
 
 interface AuthContextType {
   user: UserDto | null;
@@ -30,6 +33,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
+      const isOffline = await OfflineSyncService.isOffline();
+      if (isOffline) {
+        const cachedUser = await OfflineStorage.getCachedUser();
+        if (cachedUser) {
+          setUser(cachedUser);
+          setIsLoading(false);
+          return;
+        }
+      }
+
       const refreshToken = await AuthTokenStorage.getRefreshToken();
       if (!refreshToken) {
         setUser(null);
@@ -45,8 +58,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Fetch user identity
       const userProfile = await UserApi.getProfile();
       setUser(userProfile);
+      await OfflineStorage.setCachedUser(userProfile);
     } catch (e) {
       console.warn('Failed to resume session', e);
+      const isNetworkErr =
+        e instanceof NetworkError ||
+        (e instanceof Error &&
+          (e.name === 'NetworkError' ||
+            e.message.includes('Network request failed') ||
+            e.message.includes('Failed to fetch') ||
+            e.message.includes('offline') ||
+            e.message.includes('Internet connection'))) ||
+        (await OfflineSyncService.isOffline());
+
+      if (isNetworkErr) {
+        const cachedUser = await OfflineStorage.getCachedUser();
+        if (cachedUser) {
+          setUser(cachedUser);
+          setIsLoading(false);
+          return;
+        }
+      }
+      await OfflineStorage.clearCache();
+      await OfflineSyncService.clearQueue();
       await AuthTokenStorage.clearTokens();
       setUser(null);
     } finally {
@@ -58,15 +92,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
+      const isOffline = await OfflineSyncService.isOffline();
+      if (isOffline) {
+        const cachedUser = await OfflineStorage.getCachedUser();
+        if (cachedUser) {
+          setUser(cachedUser);
+          return cachedUser;
+        }
+        throw new NetworkError(
+          'No hay conexión a internet para iniciar sesión.',
+        );
+      }
       const res = await AuthApi.login({ phone, password });
       await AuthTokenStorage.setAccessToken(res.accessToken);
       await AuthTokenStorage.setRefreshToken(res.refreshToken);
       const userProfile = await UserApi.getProfile();
       setUser(userProfile);
+      await OfflineStorage.setCachedUser(userProfile);
       return userProfile;
     } catch (e) {
-      const msg =
-        e instanceof Error ? e.message : 'Error durante el inicio de sesión';
+      console.warn('Failed to login', e);
+      const isNetworkErr =
+        e instanceof NetworkError ||
+        (e instanceof Error &&
+          (e.name === 'NetworkError' ||
+            e.message.includes('Network request failed') ||
+            e.message.includes('Failed to fetch') ||
+            e.message.includes('offline') ||
+            e.message.includes('Internet connection'))) ||
+        (await OfflineSyncService.isOffline());
+
+      if (isNetworkErr) {
+        const cachedUser = await OfflineStorage.getCachedUser();
+        if (cachedUser) {
+          setUser(cachedUser);
+          return cachedUser;
+        }
+      }
+
+      const msg = isNetworkErr
+        ? 'No hay conexión a internet. No se puede iniciar sesión.'
+        : e instanceof Error
+          ? e.message
+          : 'Error durante el inicio de sesión';
       setError(msg);
       throw e;
     } finally {
@@ -82,6 +150,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await AuthApi.logout(refreshToken).catch(() => {});
       }
     } finally {
+      await OfflineStorage.clearCache();
+      await OfflineSyncService.clearQueue();
       await AuthTokenStorage.clearTokens();
       setUser(null);
       setIsLoading(false);
