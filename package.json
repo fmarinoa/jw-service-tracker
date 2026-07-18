@@ -5,7 +5,8 @@
   "description": "Monorepo for JW Service Tracker",
   "scripts": {
     "lint": "eslint --fix .",
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "cli": "pnpm --filter jw-cli start"
   },
   "engines": {
     "node": "24"
