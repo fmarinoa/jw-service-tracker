@@ -57,6 +57,10 @@ export default function EntryDialog() {
       onRequestClose={() => setShowAddModal(false)}
     >
       <View className="flex-1 justify-center items-center bg-black/60 p-4">
+        <Pressable
+          className="absolute inset-0"
+          onPress={() => setShowAddModal(false)}
+        />
         <View className="bg-card border border-border rounded-2xl p-6 w-full max-w-md space-y-4 max-h-[90%]">
           <Text className="text-xl font-bold text-foreground">
             {editingEntry ? 'Editar Registro' : 'Nuevo Registro'}

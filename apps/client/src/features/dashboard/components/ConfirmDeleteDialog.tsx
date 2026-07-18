@@ -15,6 +15,10 @@ export default function ConfirmDeleteDialog() {
       onRequestClose={() => setShowDeleteModal(false)}
     >
       <View className="flex-1 justify-center items-center bg-black/60 p-4">
+        <Pressable
+          className="absolute inset-0"
+          onPress={() => setShowDeleteModal(false)}
+        />
         <View className="bg-card border border-border rounded-2xl p-6 w-full max-w-sm space-y-4">
           <Text className="text-lg font-bold text-foreground">
             ¿Eliminar registro?

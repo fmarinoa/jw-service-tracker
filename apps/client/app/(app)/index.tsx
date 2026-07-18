@@ -322,6 +322,10 @@ export default function DashboardPage() {
           onRequestClose={() => setShowSettingsModal(false)}
         >
           <View className="flex-1 justify-center items-center bg-black/60 p-4">
+            <Pressable
+              className="absolute inset-0"
+              onPress={() => setShowSettingsModal(false)}
+            />
             <View className="bg-card border border-border rounded-2xl p-6 w-full max-w-md space-y-4">
               <Text className="text-xl font-bold text-foreground">
                 Configuración de Predicador

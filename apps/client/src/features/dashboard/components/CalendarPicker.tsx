@@ -97,6 +97,7 @@ export default function CalendarPicker({
 
   return (
     <View className="absolute inset-0 bg-black/60 justify-center items-center p-4 z-50">
+      <Pressable className="absolute inset-0" onPress={onClose} />
       <View className="bg-card border border-border rounded-2xl p-5 w-full max-w-sm space-y-4 shadow-2xl">
         {/* HEADER */}
         <View className="flex-row justify-between items-center pb-2">
