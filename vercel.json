@@ -2,7 +2,7 @@
   "services": {
     "frontend": {
       "root": "apps/client/",
-      "buildCommand": "pnpm build",
+      "buildCommand": "pnpm --filter @jw-tracker/shared build && pnpm build",
       "outputDirectory": "dist"
     },
     "backend": {
