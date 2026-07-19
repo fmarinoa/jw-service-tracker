@@ -26,6 +26,7 @@ export interface Entry {
   minutes: number;
   type: SessionType;
   notes?: string;
+  tempId?: string;
   createdAt: number;
   updatedAt?: number;
   isOffline?: boolean;
@@ -35,4 +36,12 @@ export interface EntriesResponse {
   entries: Entry[];
   stats: MonthlyStats;
   total: number;
+}
+
+export interface SyncEntriesResponse {
+  successful: { entry: Entry; tempId: string }[];
+  failed: {
+    entry: Entry;
+    error: string;
+  }[];
 }

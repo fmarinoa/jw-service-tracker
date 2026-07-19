@@ -7,7 +7,7 @@
     "strict": true,
     "strictPropertyInitialization": false,
     "esModuleInterop": true,
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*", "app/**/*", "nativewind-env.d.ts"],
   "extends": "expo/tsconfig.base"

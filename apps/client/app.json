@@ -19,11 +19,7 @@
     "web": {
       "bundler": "metro"
     },
-    "plugins": [
-      "expo-router",
-      "expo-secure-store",
-      "expo-asset"
-    ],
+    "plugins": ["expo-router", "expo-secure-store", "expo-asset"],
     "scheme": "jw-tracker",
     "extra": {
       "router": {},

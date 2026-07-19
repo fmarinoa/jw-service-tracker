@@ -5,7 +5,7 @@
   "description": "Monorepo for JW Service Tracker",
   "scripts": {
     "build": "pnpm --filter @jw-tracker/shared build && pnpm --filter @jw-tracker/client build",
-    "lint": "eslint --fix .",
+    "lint": "eslint --fix --ext .ts,.tsx,.js,.jsx .",
     "prettier": "prettier --write .",
     "cli": "pnpm --filter jw-cli start"
   },

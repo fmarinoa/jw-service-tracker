@@ -1,4 +1,4 @@
-import { EntriesResponse } from '@jw-tracker/shared';
+import { EntriesResponse, SyncEntriesResponse } from '@jw-tracker/shared';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DateTime } from 'luxon';
 
@@ -47,6 +47,37 @@ export class EntriesService {
     entry.validateHourPlusMinutes();
     entry.preachingDateNotInFuture();
     return await entriesRepository.create(user, entry);
+  }
+
+  async createMany(user: User, entries: Entry[]): Promise<SyncEntriesResponse> {
+    const createdEntries: { entry: Entry; tempId: string }[] = [];
+    const failedEntries: { entry: Entry; error: string }[] = [];
+    let errorCount = 0;
+    await Promise.all(
+      entries.map(async (entry) => {
+        try {
+          if (!entry.tempId) {
+            throw new Error('tempId is required for syncing entries');
+          }
+          const createdEntry = await this.create(user, entry);
+          createdEntries.push({ entry: createdEntry, tempId: entry.tempId! });
+        } catch (error: any) {
+          console.error(
+            `[EntriesService.createMany] Error creating entry for user ${user.id}:`,
+            error,
+          );
+          failedEntries.push({ entry, error: error.message });
+          errorCount++;
+        }
+      }),
+    );
+    console.log(
+      `[EntriesService.createMany] Created ${createdEntries.length} entries with ${errorCount} errors for user ${user.id}`,
+    );
+    return {
+      successful: createdEntries,
+      failed: failedEntries,
+    };
   }
 
   async delete(user: User, entryId: string) {

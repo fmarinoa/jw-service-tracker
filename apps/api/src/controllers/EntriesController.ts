@@ -51,7 +51,22 @@ export class EntriesController {
 
     return await this.entriesService.create(
       new User({ ...user, id: userId }),
-      entry,
+      entry as Entry,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/sync')
+  async syncEntries(@CurrentUser() user: User, @Body() body: any) {
+    const userId = user?.id;
+    if (!userId) {
+      throw new BadRequestException('User not found in request context');
+    }
+
+    const entries = Entry.validateForCreate(body, true);
+    return await this.entriesService.createMany(
+      new User({ ...user, id: userId }),
+      entries as Entry[],
     );
   }
 

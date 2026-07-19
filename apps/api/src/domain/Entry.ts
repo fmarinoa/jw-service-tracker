@@ -22,7 +22,14 @@ export const baseSchema = z.object({
     .string()
     .max(50, 'Las notas no pueden tener más de 50 caracteres')
     .optional(),
+  tempId: z.string().optional(),
 });
+
+export const syncSchema = z.array(
+  baseSchema.extend({
+    tempId: z.string().min(1, 'tempId es requerido para sincronización'),
+  }),
+);
 
 export const updateSchema = baseSchema.extend({
   id: z.string().min(1, 'ID de entrada inválido'),
@@ -36,6 +43,7 @@ export class Entry {
   minutes: number;
   type: SessionType;
   notes?: string;
+  tempId?: string;
   createdAt: number;
   updatedAt?: number;
 
@@ -43,12 +51,19 @@ export class Entry {
     Object.assign(this, data);
   }
 
-  static validateForCreate(data: Partial<Entry>): Entry {
-    const result = baseSchema.safeParse(data);
+  static validateForCreate(
+    data: Partial<Entry>,
+    isSync: boolean = false,
+  ): Entry | Entry[] {
+    const result = isSync
+      ? syncSchema.safeParse(data)
+      : baseSchema.safeParse(data);
     if (!result.success) {
       throw new BadRequestException(result.error.issues[0].message);
     }
-    return new Entry(result.data);
+    return Array.isArray(result.data)
+      ? result.data.map((d) => new Entry(d))
+      : new Entry(result.data);
   }
 
   static validateForUpdate(data: Partial<Entry>): Entry {

@@ -13,13 +13,14 @@ Por defecto, la CLI se ejecuta en el ambiente `test`. Puedes alternar entre ento
 La base de datos y la cadena de conexión se determinan dinámicamente según el valor de `--env` y las siguientes reglas en el archivo `.env`:
 
 1. **Mismo Clúster, Diferente Base de Datos (Por defecto):**
-   * Si solo está definido `MONGODB_URI`, se usará esa misma conexión pero se apuntará a la base de datos llamada `"test"` o `"prod"`.
-   * Si deseas personalizar los nombres de las bases de datos en el mismo clúster, puedes definir `MONGODB_DB_TEST` y `MONGODB_DB_PROD` en el `.env`.
+   - Si solo está definido `MONGODB_URI`, se usará esa misma conexión pero se apuntará a la base de datos llamada `"test"` o `"prod"`.
+   - Si deseas personalizar los nombres de las bases de datos en el mismo clúster, puedes definir `MONGODB_DB_TEST` y `MONGODB_DB_PROD` en el `.env`.
 
 2. **Clústeres / Cadenas de Conexión Independientes:**
-   * Si necesitas conectarte a servidores físicamente distintos, puedes configurar `MONGODB_URI_TEST` y `MONGODB_URI_PROD` en el `.env`. El CLI priorizará estas URIs específicas sobre la genérica `MONGODB_URI`.
+   - Si necesitas conectarte a servidores físicamente distintos, puedes configurar `MONGODB_URI_TEST` y `MONGODB_URI_PROD` en el `.env`. El CLI priorizará estas URIs específicas sobre la genérica `MONGODB_URI`.
 
 Para cargar las variables de entorno correctamente, el CLI buscará el archivo `.env` en:
+
 1. El directorio de ejecución actual.
 2. El directorio de la aplicación (`apps/cli/.env`).
 3. El directorio raíz del monorepo (`.env`).
@@ -41,15 +42,17 @@ pnpm cli entries <customer> [opciones]
 ```
 
 #### Argumentos:
-* `<customer>`: Identificador del publicador. Puede ser:
-  * **Nombre**: Realiza una búsqueda parcial insensible a mayúsculas (ej: `franco`).
-  * **Teléfono**: Número de teléfono con o sin código de país (ej: `932337417` o `+51932337417`).
-  * **ID de usuario**: El ID de MongoDB (ej: `6a2a3169441e2b16bc9d1867`).
+
+- `<customer>`: Identificador del publicador. Puede ser:
+  - **Nombre**: Realiza una búsqueda parcial insensible a mayúsculas (ej: `franco`).
+  - **Teléfono**: Número de teléfono con o sin código de país (ej: `932337417` o `+51932337417`).
+  - **ID de usuario**: El ID de MongoDB (ej: `6a2a3169441e2b16bc9d1867`).
 
 #### Opciones:
-* `-l, --limit <number>`: Límite de registros a mostrar (por defecto `50`).
-* `-f, --format <format>`: Formato de salida (`table` o `json`, por defecto `table`).
-* `-m, --month <month>`: Filtrar por mes específico en formato `YYYY-MM` (ej: `2026-05`).
+
+- `-l, --limit <number>`: Límite de registros a mostrar (por defecto `50`).
+- `-f, --format <format>`: Formato de salida (`table` o `json`, por defecto `table`).
+- `-m, --month <month>`: Filtrar por mes específico en formato `YYYY-MM` (ej: `2026-05`).
 
 #### Ejemplos:
 

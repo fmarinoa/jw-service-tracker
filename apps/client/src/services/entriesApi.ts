@@ -1,4 +1,8 @@
-import { EntriesResponse, Entry } from '@jw-tracker/shared';
+import {
+  EntriesResponse,
+  Entry,
+  SyncEntriesResponse,
+} from '@jw-tracker/shared';
 
 import { BaseService } from './baseApi';
 
@@ -22,6 +26,23 @@ export class EntriesApi extends BaseService {
   }): Promise<Entry> {
     return this.handleRequest<Entry>({
       path: `/entries`,
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  static async createMany(
+    data: {
+      preachingDate: number;
+      hours: number;
+      minutes: number;
+      type: string;
+      notes?: string;
+      tempId?: string;
+    }[],
+  ): Promise<SyncEntriesResponse> {
+    return this.handleRequest<SyncEntriesResponse>({
+      path: `/entries/sync`,
       method: 'POST',
       body: data,
     });

@@ -18,10 +18,12 @@ jest.mock('@/auth/jwt-auth.guard', () => ({
 import { AuthController } from '@/controllers/AuthController';
 import { User } from '@/domain/User';
 import { AuthService } from '@/services/AuthService';
+import { UserService } from '@/services/UserService';
 
 describe('AuthController', () => {
   let controller: AuthController;
   let authService: AuthService;
+  let userService: UserService;
 
   beforeEach(async () => {
     const mockAuthService = {
@@ -30,13 +32,21 @@ describe('AuthController', () => {
       revokeSession: jest.fn(),
     };
 
+    const mockUserService = {
+      register: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [{ provide: AuthService, useValue: mockAuthService }],
+      providers: [
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: UserService, useValue: mockUserService },
+      ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
     authService = module.get<AuthService>(AuthService);
+    userService = module.get<UserService>(UserService);
   });
 
   describe('login', () => {
@@ -142,6 +152,41 @@ describe('AuthController', () => {
       await expect(controller.logout(mockCurrentUser)).rejects.toThrow(
         'User not found in request context',
       );
+    });
+  });
+
+  describe('register', () => {
+    it('should successfully register a user and return the user details', async () => {
+      const mockBody = {
+        phone: '932337417',
+        name: 'Franco',
+        password: 'password123',
+      };
+
+      const mockCreatedUser = {
+        id: 'user-123',
+        phone: '932337417',
+        name: 'Franco',
+      };
+
+      (userService.register as jest.Mock).mockResolvedValue(mockCreatedUser);
+
+      const result = await controller.register(mockBody);
+
+      expect(userService.register).toHaveBeenCalled();
+      expect(result).toEqual(mockCreatedUser);
+    });
+
+    it('should throw BadRequestException if registration service throws', async () => {
+      const mockBody = {
+        phone: '932337417',
+        name: 'Franco',
+        password: 'password123',
+      };
+
+      (userService.register as jest.Mock).mockRejectedValue(new Error('User already exists'));
+
+      await expect(controller.register(mockBody)).rejects.toThrow(BadRequestException);
     });
   });
 });

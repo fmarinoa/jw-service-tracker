@@ -1,4 +1,7 @@
-import { OfflineMutation } from '@jw-tracker/shared';
+import {
+  OfflineMutation,
+  SyncEntriesResponse,
+} from '@jw-tracker/shared';
 import NetInfo from '@react-native-community/netinfo';
 import { Platform } from 'react-native';
 
@@ -141,10 +144,79 @@ export class OfflineSyncService {
 
     const remainingQueue = [...queue];
 
+    const entriesToCreate: OfflineMutation[] = remainingQueue.filter(
+      (mut) => mut.type === 'CREATE_ENTRY',
+    );
+
+    let syncResponse: SyncEntriesResponse | null = null;
+    if (entriesToCreate.length > 0) {
+      try {
+        syncResponse = await EntriesApi.createMany(
+          entriesToCreate.map((mut) => ({
+            ...mut.payload,
+            tempId: mut.tempId,
+          })),
+        );
+
+        // Replace tempId with realId in remaining mutations and cache
+        if (syncResponse && syncResponse.successful) {
+          for (const success of syncResponse.successful) {
+            const tempId = success.tempId;
+            const realEntry = success.entry;
+            const realId = realEntry.id;
+
+            for (const remainingMut of remainingQueue) {
+              if (remainingMut.entryId === tempId) {
+                remainingMut.entryId = realId;
+              }
+            }
+
+            await OfflineStorage.replaceTempIdInCache(tempId, realEntry);
+          }
+        }
+      } catch (e) {
+        console.error(
+          'OfflineSyncService: Failed to createMany during sync',
+          e,
+        );
+        if (e instanceof Error && e.name === 'NetworkError') {
+          // Network error: abort sync and try again later
+          return;
+        }
+        // For other errors (validation, etc.), we fall back to individual processing in the loop below
+      }
+    }
+
     while (remainingQueue.length > 0) {
       const mut = remainingQueue[0];
       try {
         if (mut.type === 'CREATE_ENTRY') {
+          // Check if this tempId was already successfully created in the batch createMany
+          const alreadyCreated = syncResponse?.successful.find(
+            (c) => c.tempId === mut.tempId,
+          );
+          if (alreadyCreated) {
+            // Already created in batch, just remove from queue
+            remainingQueue.shift();
+            await this.saveQueue(remainingQueue);
+            continue;
+          }
+
+          // Check if this tempId failed to be created in the batch createMany
+          const alreadyFailed = syncResponse?.failed.find(
+            (f) => f.entry.tempId === mut.tempId,
+          );
+          if (alreadyFailed) {
+            // Already failed in batch, remove from queue and proceed to next (to avoid blocking queue)
+            console.warn(
+              `Mutation CREATE_ENTRY with tempId ${mut.tempId} failed in batch sync: ${alreadyFailed.error}`,
+            );
+            remainingQueue.shift();
+            await this.saveQueue(remainingQueue);
+            continue;
+          }
+
+          // If not created in batch, try individual creation
           const realEntry = await EntriesApi.createEntry(mut.payload);
           const realId = realEntry.id;
           const tempId = mut.tempId!;

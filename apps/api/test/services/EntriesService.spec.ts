@@ -158,6 +158,43 @@ describe('EntriesService', () => {
     });
   });
 
+  describe('createMany', () => {
+    it('should create multiple entries and handle errors gracefully', async () => {
+      const user = new User({ id: 'user-123' });
+      const validEntry = new Entry({
+        tempId: 'temp-1',
+        hours: 1,
+        minutes: 30,
+        preachingDate: DateTime.now().minus({ days: 1 }).toMillis(),
+        type: 'house_to_house',
+      });
+      const invalidEntry = new Entry({
+        tempId: 'temp-2',
+        hours: 25, // Invalid duration
+        minutes: 0,
+        preachingDate: DateTime.now().minus({ days: 1 }).toMillis(),
+        type: 'house_to_house',
+      });
+
+      (entriesRepository.create as jest.Mock).mockResolvedValue(validEntry);
+
+      const result = await entriesService.createMany(user, [
+        validEntry,
+        invalidEntry,
+      ]);
+
+      expect(entriesRepository.create).toHaveBeenCalledTimes(1);
+      expect(result.successful.length).toBe(1);
+      expect(result.successful[0].tempId).toBe('temp-1');
+      expect(result.successful[0].entry).toEqual(validEntry);
+      expect(result.failed.length).toBe(1);
+      expect(result.failed[0].entry.tempId).toBe('temp-2');
+      expect(result.failed[0].error).toContain(
+        'La duración total no puede exceder las 24 horas',
+      );
+    });
+  });
+
   describe('delete', () => {
     it('should call repository delete and return successfully if entry was deleted', async () => {
       const user = new User({ id: 'user-123' });
