@@ -1,0 +1,95 @@
+name: Build & Release Android APK
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/client/package.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-version:
+    name: Check Version Change
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.version_check.outputs.changed }}
+      version: ${{ steps.version_check.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check package.json version
+        id: version_check
+        run: |
+          VERSION=$(jq -r .version apps/client/package.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          PREV_VERSION=$(git show HEAD~1:apps/client/package.json 2>/dev/null | jq -r .version || echo "")
+          echo "Current version: $VERSION | Previous version: $PREV_VERSION"
+          
+          if [ "$VERSION" != "$PREV_VERSION" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "Version changed or manual run. Proceeding with build."
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "Version has not changed. Skipping build job."
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+  build-and-release:
+    name: Build & Release APK
+    needs: check-version
+    if: needs.check-version.outputs.should_build == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Release APK
+        run: pnpm --filter @jw-tracker/client apk
+
+      - name: Rename APK
+        run: |
+          mkdir -p build-artifacts
+          cp apps/client/android/app/build/outputs/apk/release/app-release.apk build-artifacts/jw-service-tracker-v${{ needs.check-version.outputs.version }}.apk
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="v${{ needs.check-version.outputs.version }}"
+          RELEASE_TITLE="Release v${{ needs.check-version.outputs.version }}"
+          
+          gh release create "$TAG_NAME" build-artifacts/jw-service-tracker-v${{ needs.check-version.outputs.version }}.apk \
+            --title "$RELEASE_TITLE" \
+            --notes "APK generado automáticamente para la versión ${TAG_NAME} de @jw-tracker/client." \
+            --generate-notes || \
+          gh release upload "$TAG_NAME" build-artifacts/jw-service-tracker-v${{ needs.check-version.outputs.version }}.apk --clobber

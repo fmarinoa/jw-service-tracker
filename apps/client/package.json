@@ -1,6 +1,6 @@
 {
   "name": "@jw-tracker/client",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,10 @@
     "prettier": "prettier --write .",
     "android": "expo run:android",
     "ios": "expo run:ios --device",
-    "xcode": "expo prebuild && open ios/JWServiceTracker.xcworkspace"
+    "apk": "expo prebuild --platform android && cd android && ./gradlew assembleRelease",
+    "android:release": "expo run:android --device --variant release --no-bundler",
+    "ios:release": "expo run:ios --device --configuration Release --no-bundler",
+    "xcode": "expo prebuild --platform ios && open ios/JWServiceTracker.xcworkspace"
   },
   "dependencies": {
     "@expo/metro-runtime": "6.1.2",
