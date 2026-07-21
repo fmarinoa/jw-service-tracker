@@ -10,7 +10,7 @@
     "prettier": "prettier --write .",
     "android": "expo run:android",
     "ios": "expo run:ios --device",
-    "apk": "pnpm --filter @jw-tracker/shared build && expo prebuild --platform android && cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a --parallel --build-cache",
+    "apk": "pnpm --filter @jw-tracker/shared build && expo prebuild --platform android && cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a --parallel --build-cache",
     "android:release": "expo run:android --device --variant release --no-bundler",
     "ios:release": "expo run:ios --device --configuration Release --no-bundler",
     "xcode": "expo prebuild --platform ios && open ios/JWServiceTracker.xcworkspace"
