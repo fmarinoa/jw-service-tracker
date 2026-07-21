@@ -1,7 +1,4 @@
-import {
-  OfflineMutation,
-  SyncEntriesResponse,
-} from '@jw-tracker/shared';
+import { OfflineMutation, SyncEntriesResponse } from '@jw-tracker/shared';
 import NetInfo from '@react-native-community/netinfo';
 import { Platform } from 'react-native';
 

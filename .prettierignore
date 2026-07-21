@@ -9,3 +9,5 @@ pnpm-lock.yaml
 .next/
 .vscode/
 .idea/
+*ios
+*android
