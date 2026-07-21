@@ -52,6 +52,7 @@ jobs:
 
       - name: Build Release APK
         env:
+          EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL }}
           GRADLE_OPTS: "-Xmx4096m -XX:+UseG1GC -Dorg.gradle.daemon=false"
         run: pnpm --filter @jw-tracker/client apk
 
