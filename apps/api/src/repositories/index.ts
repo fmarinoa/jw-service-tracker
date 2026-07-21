@@ -3,6 +3,7 @@ import { MongoClient, MongoClientOptions, ServerApiVersion } from 'mongodb';
 import { AuthSessionsRepository } from './AuthSessionsRepository';
 import { EntriesRepository } from './EntriesRepository';
 import { UsersRepository } from './UsersRepository';
+import { GitHubReleasesRepository } from './GitHubReleasesRepository';
 
 const uri = process.env.MONGODB_URI!;
 const options: MongoClientOptions = {
@@ -44,4 +45,8 @@ export const authSessionsRepository = new AuthSessionsRepository({
   config: {
     collectionName: 'auth_sessions',
   },
+});
+
+export const gitHubReleasesRepository = new GitHubReleasesRepository({
+  urlBase: 'https://api.github.com/repos/fmarinoa/jw-service-tracker',
 });

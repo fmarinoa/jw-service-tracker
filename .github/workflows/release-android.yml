@@ -23,7 +23,7 @@ jobs:
       - name: Extract app version
         id: version
         run: |
-          VERSION=$(jq -r .version apps/client/package.json)
+          VERSION=$(jq -r .version apps/client/app.json)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
@@ -59,7 +59,7 @@ jobs:
       - name: Build Release APK
         env:
           EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL || secrets.EXPO_PUBLIC_API_URL }}
-          GRADLE_OPTS: "-Xmx4096m -XX:+UseG1GC -Dorg.gradle.daemon=false"
+          GRADLE_OPTS: '-Xmx4096m -XX:+UseG1GC -Dorg.gradle.daemon=false'
           NDK_CCACHE: ccache
         run: pnpm --filter @jw-tracker/client apk
 

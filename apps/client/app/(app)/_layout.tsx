@@ -4,6 +4,7 @@ import { ActivityIndicator, View } from 'react-native';
 
 import { useAuth } from '../../src/features/auth/useAuth';
 import { DashboardProvider } from '../../src/features/dashboard/DashboardProvider';
+import { AppUpdateNotification } from '../../src/features/updates/AppUpdateNotification';
 
 export default function AppLayout() {
   const { user, isLoading } = useAuth();
@@ -22,6 +23,7 @@ export default function AppLayout() {
 
   return (
     <DashboardProvider>
+      <AppUpdateNotification />
       <Stack screenOptions={{ headerShown: false }} />
     </DashboardProvider>
   );
