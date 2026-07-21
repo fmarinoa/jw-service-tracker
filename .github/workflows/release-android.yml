@@ -27,15 +27,16 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
 
       - name: Setup Java JDK
         uses: actions/setup-java@v4
@@ -50,6 +51,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build Release APK
+        env:
+          GRADLE_OPTS: "-Xmx4096m -XX:+UseG1GC -Dorg.gradle.daemon=false"
         run: pnpm --filter @jw-tracker/client apk
 
       - name: Rename APK
