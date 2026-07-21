@@ -11,3 +11,7 @@ build/
 .agents/
 .vscode/
 .idea/
+.agents
+.claude
+.git
+.github

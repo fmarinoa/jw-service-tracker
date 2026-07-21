@@ -184,9 +184,13 @@ describe('AuthController', () => {
         password: 'password123',
       };
 
-      (userService.register as jest.Mock).mockRejectedValue(new Error('User already exists'));
+      (userService.register as jest.Mock).mockRejectedValue(
+        new Error('User already exists'),
+      );
 
-      await expect(controller.register(mockBody)).rejects.toThrow(BadRequestException);
+      await expect(controller.register(mockBody)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });

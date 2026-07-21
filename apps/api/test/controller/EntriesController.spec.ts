@@ -232,7 +232,11 @@ describe('EntriesController', () => {
         expectedUpdatedEntry,
       );
 
-      const result = await controller.updateEntry(mockUser, 'entry-123', mockBody);
+      const result = await controller.updateEntry(
+        mockUser,
+        'entry-123',
+        mockBody,
+      );
 
       expect(entriesService.update).toHaveBeenCalled();
       expect(result).toEqual(expectedUpdatedEntry);
@@ -247,9 +251,9 @@ describe('EntriesController', () => {
         type: 'invalid_type',
       };
 
-      await expect(controller.updateEntry(mockUser, 'entry-123', mockBody)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        controller.updateEntry(mockUser, 'entry-123', mockBody),
+      ).rejects.toThrow(BadRequestException);
       expect(entriesService.update).not.toHaveBeenCalled();
     });
   });
