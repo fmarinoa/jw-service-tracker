@@ -15,21 +15,15 @@
       }
     },
     {
-      "source": "/_expo/:path*",
-      "destination": "/app/_expo/:path*"
+      "source": "/app",
+      "destination": "/app/index.html"
     },
     {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "app.:domain*"
-        }
-      ],
-      "destination": "/app/:path*"
+      "source": "/app/:path*",
+      "destination": "/app/index.html"
     },
     {
-      "source": "/((?!api|assets|_expo|app).*)*",
+      "source": "/((?!api|app|assets|_expo).*)*",
       "destination": "/index.html"
     }
   ]
