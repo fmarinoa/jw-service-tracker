@@ -1,0 +1,54 @@
+name: VCR Cleanup
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # every Monday 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      keep:
+        description: 'Images to keep per repository'
+        required: false
+        default: '3'
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    name: Prune old VCR images
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Prune backend image history
+        run: |
+          KEEP="${{ github.event.inputs.keep || '3' }}"
+          REPO="backend"
+
+          echo "== $REPO: listing images =="
+          IDS_TO_DELETE=$(vercel vcr image ls "$REPO" --format json \
+            | jq -r --argjson keep "$KEEP" '
+                .images
+                | sort_by(.createdAt)
+                | .[0 : (length - $keep)]
+                | .[].id
+              ')
+
+          if [ -z "$IDS_TO_DELETE" ]; then
+            echo "$REPO: nothing to delete (<= $KEEP images)"
+            exit 0
+          fi
+
+          COUNT=$(echo "$IDS_TO_DELETE" | wc -l | tr -d ' ')
+          echo "$REPO: deleting $COUNT image(s), keeping newest $KEEP"
+
+          echo "$IDS_TO_DELETE" | while read -r ID; do
+            [ -z "$ID" ] && continue
+            echo "  rm $ID"
+            vercel vcr image rm "$REPO" "$ID" --yes
+          done
