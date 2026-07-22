@@ -2,12 +2,12 @@
   "services": {
     "web": {
       "root": "apps/web/",
-      "buildCommand": "pnpm --filter @jw-tracker/shared build && pnpm --filter @jw-tracker/ui build && pnpm --filter @jw-tracker/web build",
+      "buildCommand": "pnpm --filter @jw-tracker/shared build && pnpm --filter @jw-tracker/ui build && pnpm build",
       "outputDirectory": "dist"
     },
     "frontend": {
       "root": "apps/client/",
-      "buildCommand": "pnpm --filter @jw-tracker/shared build && pnpm --filter @jw-tracker/ui build && pnpm --filter @jw-tracker/client build",
+      "buildCommand": "pnpm --filter @jw-tracker/shared build && pnpm --filter @jw-tracker/ui build && pnpm build",
       "outputDirectory": "dist"
     },
     "backend": {
