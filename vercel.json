@@ -1,7 +1,15 @@
 {
-  "buildCommand": "pnpm run -r build && node scripts/prepare-vercel-output.js",
-  "outputDirectory": ".vercel/output/static",
   "services": {
+    "web": {
+      "root": "apps/web/",
+      "buildCommand": "pnpm --filter @jw-tracker/shared build && pnpm --filter @jw-tracker/ui build && pnpm --filter @jw-tracker/web build",
+      "outputDirectory": "dist"
+    },
+    "frontend": {
+      "root": "apps/client/",
+      "buildCommand": "pnpm --filter @jw-tracker/shared build && pnpm --filter @jw-tracker/ui build && pnpm --filter @jw-tracker/client build",
+      "outputDirectory": "dist"
+    },
     "backend": {
       "root": ".",
       "entrypoint": "Dockerfile.vercel"
@@ -16,15 +24,21 @@
     },
     {
       "source": "/app",
-      "destination": "/app/index.html"
+      "destination": {
+        "service": "frontend"
+      }
     },
     {
       "source": "/app/:path*",
-      "destination": "/app/index.html"
+      "destination": {
+        "service": "frontend"
+      }
     },
     {
-      "source": "/((?!api|app|assets|_expo).*)*",
-      "destination": "/index.html"
+      "source": "/:path*",
+      "destination": {
+        "service": "web"
+      }
     }
   ]
 }
