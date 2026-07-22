@@ -3,10 +3,11 @@
   "version": "0.2.0",
   "private": true,
   "description": "Monorepo for JW Service Tracker",
+  "packageManager": "pnpm@11.15.1",
   "scripts": {
-    "build": "pnpm --filter @jw-tracker/shared build && pnpm --filter @jw-tracker/client build",
-    "lint": "eslint --fix --ext .ts,.tsx,.js,.jsx .",
-    "prettier": "prettier --write .",
+    "build": "pnpm run -r build && node scripts/prepare-vercel-output.js",
+    "lint": "pnpm run -r eslint",
+    "prettier": "pnpm run -r prettier",
     "cli": "pnpm --filter jw-cli start"
   },
   "engines": {
@@ -18,18 +19,19 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/node": "26.1.1",
-    "@types/luxon": "3.7.1",
-    "eslint": "9.39.4",
+    "@types/luxon": "3.7.2",
+    "eslint": "10.7.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.6",
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-hooks": "7.1.1",
     "eslint-plugin-react-native": "5.0.0",
-    "eslint-plugin-simple-import-sort": "13.0.0",
+    "eslint-plugin-simple-import-sort": "14.0.0",
     "eslint-plugin-unused-imports": "4.4.1",
     "globals": "17.7.0",
-    "prettier": "3.8.4",
-    "typescript": "6",
-    "typescript-eslint": "8.64.0"
+    "prettier": "3.9.6",
+    "tsconfig-paths": "4.2.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.65.0"
   }
 }

@@ -12,4 +12,5 @@ export interface CheckUpdateResponse {
   title: string;
   notes: string;
   publishedAt: string;
+  size: string;
 }

@@ -146,3 +146,6 @@ vite.config.ts.timestamp-*
 .playwright-cli
 .vercel
 .claude
+
+# Mac
+.DS_Store

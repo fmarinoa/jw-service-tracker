@@ -12,6 +12,8 @@ minimumReleaseAgeExclude:
   - '@expo/eas-json@21.0.2'
   - '@expo/steps@21.0.2'
   - eas-cli@21.0.2
+  - postcss@8.5.21
+  - prettier@3.9.6
 overrides:
   metro-cache: 0.81.5
   react: 19.1.0
