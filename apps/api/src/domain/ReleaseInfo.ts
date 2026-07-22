@@ -3,12 +3,14 @@ import { CheckUpdateResponse, ReleaseAsset } from '@jw-tracker/shared';
 export type { CheckUpdateResponse, ReleaseAsset };
 
 export class ReleaseInfo {
+  id?: string;
   version: string;
   tagName: string;
   title: string;
   publishedAt: string;
   notes: string;
   apkAsset: ReleaseAsset | null;
+  createdAt?: number;
 
   constructor(data: Partial<ReleaseInfo>) {
     Object.assign(this, data);

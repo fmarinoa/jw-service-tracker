@@ -4,6 +4,7 @@ import { AuthSessionsRepository } from './AuthSessionsRepository';
 import { EntriesRepository } from './EntriesRepository';
 import { GitHubReleasesRepository } from './GitHubReleasesRepository';
 import { UsersRepository } from './UsersRepository';
+import { HistoryReleasesRepository } from './HistoryReleasesRepository';
 
 const uri = process.env.MONGODB_URI!;
 const options: MongoClientOptions = {
@@ -44,6 +45,13 @@ export const authSessionsRepository = new AuthSessionsRepository({
   client,
   config: {
     collectionName: 'auth_sessions',
+  },
+});
+
+export const historyReleasesRepository = new HistoryReleasesRepository({
+  client,
+  config: {
+    collectionName: 'history_releases',
   },
 });
 

@@ -9,11 +9,17 @@ export class GitHubReleasesRepository {
 
   async getLatestRelease(): Promise<ReleaseInfo | null> {
     try {
+      const headers: Record<string, string> = {
+        'User-Agent': 'JW-Service-Tracker-API',
+        Accept: 'application/vnd.github.v3+json',
+      };
+
+      if (process.env.GITHUB_TOKEN) {
+        headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+      }
+
       const response = await fetch(`${this.props.urlBase}/releases/latest`, {
-        headers: {
-          'User-Agent': 'JW-Service-Tracker-API',
-          Accept: 'application/vnd.github.v3+json',
-        },
+        headers,
       });
 
       if (!response.ok) {

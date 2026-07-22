@@ -4,6 +4,7 @@ jest.mock('@/repositories', () => ({
   usersRepository: {},
   entriesRepository: {},
   authSessionsRepository: {},
+  historyReleasesRepository: {},
   gitHubReleasesRepository: {},
 }));
 

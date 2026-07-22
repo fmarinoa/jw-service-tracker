@@ -11,7 +11,7 @@ export interface BaseRepositoryProps {
 export abstract class BaseRepository {
   constructor(private props: BaseRepositoryProps) {}
 
-  async handlerCollection<T>(
+  protected async handlerCollection<T>(
     callback: (collection: Collection<Document>) => Promise<T>,
   ) {
     const client = this.props.client;
@@ -41,11 +41,11 @@ export abstract class BaseRepository {
     }
   }
 
-  buildIdFilter(id: string) {
+  protected buildIdFilter(id: string) {
     return { _id: new ObjectId(id) };
   }
 
-  cleanObject<T extends Record<string, any>>(obj: T): Partial<T> {
+  protected cleanObject<T extends Record<string, any>>(obj: T): Partial<T> {
     return Object.fromEntries(
       Object.entries(obj).filter(
         ([, val]) => val !== undefined && val !== null,
@@ -53,7 +53,7 @@ export abstract class BaseRepository {
     ) as Partial<T>;
   }
 
-  getTimestamp() {
+  protected getTimestamp() {
     return DateTime.now().toMillis();
   }
 }
