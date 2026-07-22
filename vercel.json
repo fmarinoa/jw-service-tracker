@@ -9,7 +9,14 @@
     "frontend": {
       "root": "apps/client/",
       "buildCommand": "pnpm --filter @jw-tracker/shared build && pnpm --filter @jw-tracker/ui build && pnpm build",
-      "outputDirectory": "dist"
+      "outputDirectory": "dist",
+      "cleanUrls": true,
+      "rewrites": [
+        {
+          "source": "/app/(.*)",
+          "destination": "/app/index.html"
+        }
+      ]
     },
     "backend": {
       "root": ".",
