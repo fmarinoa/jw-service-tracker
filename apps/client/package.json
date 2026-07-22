@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "expo start -c",
-    "build": "expo export --platform web",
+    "build": "expo export --platform web && mkdir -p dist/app && cp -r dist/_expo dist/assets dist/index.html dist/app/",
     "lint": "eslint . --fix",
     "prettier": "prettier --write .",
     "android": "expo run:android",
