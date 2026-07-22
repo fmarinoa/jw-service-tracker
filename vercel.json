@@ -25,13 +25,15 @@
     {
       "source": "/app",
       "destination": {
-        "service": "frontend"
+        "service": "frontend",
+        "path": "/"
       }
     },
     {
       "source": "/app/:path*",
       "destination": {
-        "service": "frontend"
+        "service": "frontend",
+        "path": "/:path*"
       }
     },
     {

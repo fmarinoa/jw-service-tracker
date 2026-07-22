@@ -3,6 +3,9 @@
     "name": "JW Service Tracker",
     "slug": "jw-service-tracker",
     "version": "0.0.5",
+    "experiments": {
+      "baseUrl": "/app"
+    },
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
