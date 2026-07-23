@@ -36,8 +36,7 @@ describe('ReleasesService', () => {
       tagName: 'v0.0.4',
       title: 'Release v0.0.4',
       publishedAt: '2026-07-21T03:07:15Z',
-      notes:
-        'APK generado automáticamente para v0.0.4 de @jw-tracker/client.',
+      notes: 'APK generado automáticamente para v0.0.4 de @jw-tracker/client.',
       apkAsset: {
         name: 'jw-service-tracker-v0.0.4.apk',
         downloadUrl:
@@ -52,12 +51,8 @@ describe('ReleasesService', () => {
       (
         gitHubReleasesRepository.getLatestRelease as jest.Mock
       ).mockResolvedValue(mockReleaseInfo);
-      (
-        historyReleasesRepository.findLast as jest.Mock
-      ).mockResolvedValue(null);
-      (
-        historyReleasesRepository.create as jest.Mock
-      ).mockResolvedValue({
+      (historyReleasesRepository.findLast as jest.Mock).mockResolvedValue(null);
+      (historyReleasesRepository.create as jest.Mock).mockResolvedValue({
         ...mockReleaseInfo,
         id: 'mock-id',
         createdAt: 1782882000000,
@@ -89,9 +84,9 @@ describe('ReleasesService', () => {
       (
         gitHubReleasesRepository.getLatestRelease as jest.Mock
       ).mockResolvedValue(mockReleaseInfo);
-      (
-        historyReleasesRepository.findLast as jest.Mock
-      ).mockResolvedValue(mockReleaseInfo);
+      (historyReleasesRepository.findLast as jest.Mock).mockResolvedValue(
+        mockReleaseInfo,
+      );
 
       await service.checkUpdate('0.0.3');
 
@@ -109,9 +104,7 @@ describe('ReleasesService', () => {
       (
         gitHubReleasesRepository.getLatestRelease as jest.Mock
       ).mockResolvedValue(mockReleaseWithoutApk);
-      (
-        historyReleasesRepository.findLast as jest.Mock
-      ).mockResolvedValue(null);
+      (historyReleasesRepository.findLast as jest.Mock).mockResolvedValue(null);
 
       const result = await service.checkUpdate('0.0.3');
 
@@ -125,17 +118,19 @@ describe('ReleasesService', () => {
       (
         gitHubReleasesRepository.getLatestRelease as jest.Mock
       ).mockResolvedValue(mockReleaseInfo);
-      (
-        historyReleasesRepository.findLast as jest.Mock
-      ).mockResolvedValue(null);
+      (historyReleasesRepository.findLast as jest.Mock).mockResolvedValue(null);
 
       // First call -> hits GitHub
       await service.checkUpdate('0.0.3');
-      expect(gitHubReleasesRepository.getLatestRelease).toHaveBeenCalledTimes(1);
+      expect(gitHubReleasesRepository.getLatestRelease).toHaveBeenCalledTimes(
+        1,
+      );
 
       // Second call -> uses in-memory cache
       const cachedResult = await service.checkUpdate('0.0.3');
-      expect(gitHubReleasesRepository.getLatestRelease).toHaveBeenCalledTimes(1);
+      expect(gitHubReleasesRepository.getLatestRelease).toHaveBeenCalledTimes(
+        1,
+      );
       expect(cachedResult.latestVersion).toBe('0.0.4');
     });
 
@@ -150,9 +145,9 @@ describe('ReleasesService', () => {
         gitHubReleasesRepository.getLatestRelease as jest.Mock
       ).mockResolvedValue(null);
 
-      (
-        historyReleasesRepository.findLast as jest.Mock
-      ).mockResolvedValue(mockHistoryReleaseInfo);
+      (historyReleasesRepository.findLast as jest.Mock).mockResolvedValue(
+        mockHistoryReleaseInfo,
+      );
 
       const result = await service.checkUpdate('0.0.3');
 
@@ -178,9 +173,7 @@ describe('ReleasesService', () => {
         gitHubReleasesRepository.getLatestRelease as jest.Mock
       ).mockResolvedValue(null);
 
-      (
-        historyReleasesRepository.findLast as jest.Mock
-      ).mockResolvedValue(null);
+      (historyReleasesRepository.findLast as jest.Mock).mockResolvedValue(null);
 
       await expect(service.checkUpdate('0.0.3')).rejects.toThrow(
         NotFoundException,
@@ -195,9 +188,7 @@ describe('ReleasesService', () => {
         gitHubReleasesRepository.getLatestRelease as jest.Mock
       ).mockResolvedValue(mockReleaseInfo);
 
-      (
-        historyReleasesRepository.create as jest.Mock
-      ).mockResolvedValue({
+      (historyReleasesRepository.create as jest.Mock).mockResolvedValue({
         ...mockReleaseInfo,
         id: 'mock-id',
         createdAt: 1782882000000,
@@ -210,5 +201,3 @@ describe('ReleasesService', () => {
     });
   });
 });
-
-

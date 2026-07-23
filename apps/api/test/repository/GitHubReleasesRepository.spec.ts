@@ -7,7 +7,9 @@ describe('GitHubReleasesRepository', () => {
 
   beforeEach(() => {
     repository = new GitHubReleasesRepository({
-      urlBase: 'https://api.github.com/repos/test/repo',
+      config: {
+        urlBase: 'https://api.github.com/repos/test/repo',
+      },
     });
     process.env = { ...originalEnv };
   });

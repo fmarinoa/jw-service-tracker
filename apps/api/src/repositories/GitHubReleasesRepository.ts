@@ -1,12 +1,14 @@
 import { ReleaseInfo } from '@/domain/ReleaseInfo';
+import { BaseRepository, BaseRepositoryProps } from './BaseRepository';
 
-export interface GitHubReleasesRepositoryProps {
-  urlBase: string;
+export interface GitHubReleasesRepositoryProps extends BaseRepositoryProps {
+  githubToken?: string;
 }
 
-export class GitHubReleasesRepository {
-  constructor(private readonly props: GitHubReleasesRepositoryProps) {}
-
+export class GitHubReleasesRepository extends BaseRepository {
+  constructor(private readonly props: GitHubReleasesRepositoryProps) {
+    super(props);
+  }
   async getLatestRelease(): Promise<ReleaseInfo | null> {
     try {
       const headers: Record<string, string> = {
@@ -14,20 +16,12 @@ export class GitHubReleasesRepository {
         Accept: 'application/vnd.github.v3+json',
       };
 
-      if (process.env.GITHUB_TOKEN) {
-        headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+      const token = this.props.githubToken;
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`${this.props.urlBase}/releases/latest`, {
-        headers,
-      });
-
-      if (!response.ok) {
-        if (response.status === 404) return null;
-        throw new Error(`GitHub API error: ${response.statusText}`);
-      }
-
-      const data = (await response.json()) as {
+      const response = await this.handlerHttpRequest<{
         tag_name: string;
         name: string;
         published_at: string;
@@ -37,7 +31,21 @@ export class GitHubReleasesRepository {
           browser_download_url: string;
           size: number;
         }>;
-      };
+      }>(
+        {
+          method: 'GET',
+          url: '/releases/latest',
+          headers,
+        },
+        { functionName: 'getLatestRelease', fastFail: false }
+      );
+
+      if (response instanceof Response) {
+        if (response.status === 404) return null;
+        throw new Error(`GitHub API error: ${response.statusText}`);
+      }
+
+      const data = response;
 
       const apkAsset = data.assets?.find((asset) =>
         asset.name.endsWith('.apk'),

@@ -14,7 +14,7 @@ const options: MongoClientOptions = {
     deprecationErrors: true,
   },
 };
-let client: MongoClient;
+let dbClient: MongoClient;
 
 if (process.env.NODE_ENV === 'development') {
   const globalWithMongo = global as typeof globalThis & {
@@ -22,39 +22,42 @@ if (process.env.NODE_ENV === 'development') {
   };
   if (!globalWithMongo._mongoClient)
     globalWithMongo._mongoClient = new MongoClient(uri, options);
-  client = globalWithMongo._mongoClient;
+  dbClient = globalWithMongo._mongoClient;
 } else {
-  client = new MongoClient(uri, options);
+  dbClient = new MongoClient(uri, options);
 }
 
 export const usersRepository = new UsersRepository({
-  client,
+  dbClient,
   config: {
     collectionName: 'users',
   },
 });
 
 export const entriesRepository = new EntriesRepository({
-  client,
+  dbClient,
   config: {
     collectionName: 'entries',
   },
 });
 
 export const authSessionsRepository = new AuthSessionsRepository({
-  client,
+  dbClient,
   config: {
     collectionName: 'auth_sessions',
   },
 });
 
 export const historyReleasesRepository = new HistoryReleasesRepository({
-  client,
+  dbClient,
   config: {
     collectionName: 'history_releases',
   },
 });
 
 export const gitHubReleasesRepository = new GitHubReleasesRepository({
-  urlBase: 'https://api.github.com/repos/fmarinoa/jw-service-tracker',
+  githubToken: process.env.GITHUB_TOKEN,
+  config: {
+    urlBase: 'https://api.github.com/repos/fmarinoa/jw-service-tracker',
+  },
 });
