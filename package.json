@@ -9,7 +9,7 @@
     "lint": "pnpm run -r lint",
     "prettier": "pnpm run -r prettier",
     "cli": "pnpm --filter jw-cli start",
-    "commit": "sh -c 'git add . && git commit -m \"$(agy --dangerously-skip-permissions -p \"Generate a concise conventional commit message based on this diff: $(git diff --staged)\")\"'"
+    "commit": "sh -c 'git add . && git commit -m \"$(agy -p \"Generate a concise conventional commit message based on this diff, response only in text format, without any extra text or markdown: $(git diff --staged)\")\"'"
   },
   "engines": {
     "node": "24"
