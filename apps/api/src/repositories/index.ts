@@ -3,8 +3,8 @@ import { MongoClient, MongoClientOptions, ServerApiVersion } from 'mongodb';
 import { AuthSessionsRepository } from './AuthSessionsRepository';
 import { EntriesRepository } from './EntriesRepository';
 import { GitHubReleasesRepository } from './GitHubReleasesRepository';
-import { UsersRepository } from './UsersRepository';
 import { HistoryReleasesRepository } from './HistoryReleasesRepository';
+import { UsersRepository } from './UsersRepository';
 
 const uri = process.env.MONGODB_URI!;
 const options: MongoClientOptions = {

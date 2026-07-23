@@ -1,0 +1,7 @@
+{
+  "deep": true,
+  "reject": [
+    "typescript",
+    "tailwindcss"
+  ]
+}

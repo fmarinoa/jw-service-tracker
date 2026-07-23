@@ -1,5 +1,6 @@
-import { BaseRepository, BaseRepositoryProps } from './BaseRepository';
 import { ReleaseInfo } from '@/domain/ReleaseInfo';
+
+import { BaseRepository, BaseRepositoryProps } from './BaseRepository';
 
 export class HistoryReleasesRepository extends BaseRepository {
   constructor(props: BaseRepositoryProps) {

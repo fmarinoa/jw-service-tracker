@@ -1,8 +1,8 @@
 import { Download } from 'lucide-react';
 import React from 'react';
 
-import appScreenshot from '../assets/app-screenshot.webp';
 import type { Platform } from '../hooks/usePlatform';
+import { AppScreenshotMockup } from './AppScreenshotMockup';
 
 interface HeroProps {
   platform: Platform;
@@ -20,12 +20,11 @@ export const Hero: React.FC<HeroProps> = ({
   onPlatformChange,
   downloadUrl,
 }) => {
-  const pwaUrl =
-    import.meta.env.VITE_PWA_URL || 'https://app.jw-service-tracker.com';
+  const pwaUrl = import.meta.env.VITE_PWA_URL;
   const isIOS = platform === 'ios';
 
   return (
-    <section className="max-w-5xl mx-auto px-6 sm:px-12 pt-16 sm:pt-24 pb-12 flex flex-col lg:flex-row gap-16 items-center">
+    <section className="max-w-5xl mx-auto px-6 sm:px-12 pt-12 sm:pt-18 pb-12 flex flex-col lg:flex-row gap-16 items-center">
       <div className="flex-1 w-full">
         <div className="text-xs font-bold tracking-widest uppercase text-muted-foreground mb-4">
           Para publicadores
@@ -108,15 +107,7 @@ export const Hero: React.FC<HeroProps> = ({
         </div>
       </div>
 
-      <div className="shrink-0 flex justify-center">
-        <div className="w-[280px] h-[580px] rounded-[36px] bg-card border border-border shadow-lg p-3.5">
-          <img
-            src={appScreenshot}
-            alt="Captura de la app JW Reporta"
-            className="w-full h-full rounded-[24px] object-cover"
-          />
-        </div>
-      </div>
+      <AppScreenshotMockup className="hidden lg:flex shrink-0 justify-center" />
     </section>
   );
 };

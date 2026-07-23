@@ -3,10 +3,10 @@
   "version": "0.2.0",
   "private": true,
   "description": "Monorepo for JW Service Tracker",
-  "packageManager": "pnpm@11.15.1",
+  "packageManager": "pnpm@11.17.0",
   "scripts": {
     "build": "pnpm run -r build",
-    "lint": "pnpm run -r eslint",
+    "lint": "pnpm run -r lint",
     "prettier": "pnpm run -r prettier",
     "cli": "pnpm --filter jw-cli start"
   },

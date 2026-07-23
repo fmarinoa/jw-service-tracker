@@ -60,7 +60,7 @@ export class EntriesService {
             throw new Error('tempId is required for syncing entries');
           }
           const createdEntry = await this.create(user, entry);
-          createdEntries.push({ entry: createdEntry, tempId: entry.tempId! });
+          createdEntries.push({ entry: createdEntry, tempId: entry.tempId });
         } catch (error: any) {
           console.error(
             `[EntriesService.createMany] Error creating entry for user ${user.id}:`,

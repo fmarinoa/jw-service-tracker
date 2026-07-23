@@ -1,4 +1,5 @@
 import { ReleaseInfo } from '@/domain/ReleaseInfo';
+
 import { BaseRepository, BaseRepositoryProps } from './BaseRepository';
 
 export interface GitHubReleasesRepositoryProps extends BaseRepositoryProps {
@@ -37,7 +38,7 @@ export class GitHubReleasesRepository extends BaseRepository {
           url: '/releases/latest',
           headers,
         },
-        { functionName: 'getLatestRelease', fastFail: false }
+        { functionName: 'getLatestRelease', fastFail: false },
       );
 
       if (response instanceof Response) {

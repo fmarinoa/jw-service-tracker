@@ -30,7 +30,7 @@ export class UsersService {
    */
   async findUsers(customerQuery: string): Promise<UserDoc[]> {
     const usersCollection = this.db.collection('users');
-    let userQuery: any = {};
+    let userQuery: any;
     const isObjectId = /^[a-fA-F0-9]{24}$/.test(customerQuery);
     const isPhone = /^\+?9\d{8,11}$/.test(customerQuery.replace(/\s+/g, ''));
 

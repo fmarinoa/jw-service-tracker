@@ -2,8 +2,7 @@ import { ArrowUpRight } from 'lucide-react';
 import React from 'react';
 
 export const Header: React.FC = () => {
-  const pwaUrl =
-    import.meta.env.VITE_PWA_URL || 'https://app.jw-service-tracker.com';
+  const pwaUrl = import.meta.env.VITE_PWA_URL;
 
   return (
     <header className="w-full border-b border-border/60 bg-background/80 backdrop-blur-md sticky top-0 z-50">

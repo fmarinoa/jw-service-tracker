@@ -33,15 +33,27 @@ jobs:
           key: android-ccache-${{ runner.os }}
           max-size: 2G
 
+      - name: Extract pnpm version
+        id: pnpmVersion
+        run: |
+          PNPM_VERSION=$(jq -r .packageManager package.json | cut -d'@' -f2)
+          echo "version=$PNPM_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Extract node version
+        id: nodeVersion
+        run: |
+          NODE_VERSION=$(jq -r .engines.node package.json | cut -d'@' -f2)
+          echo "version=$NODE_VERSION" >> $GITHUB_OUTPUT
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 11.15.1
+          version: ${{ steps.pnpmVersion.outputs.version }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: ${{ steps.nodeVersion.outputs.version }}
           cache: 'pnpm'
 
       - name: Setup Java JDK

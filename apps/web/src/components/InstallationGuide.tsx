@@ -1,6 +1,7 @@
 import React from 'react';
 
 import type { Platform } from '../hooks/usePlatform';
+import { AppScreenshotMockup } from './AppScreenshotMockup';
 
 interface InstallationGuideProps {
   platform: Platform;
@@ -51,8 +52,10 @@ export const InstallationGuide: React.FC<InstallationGuideProps> = ({
     : 'Cómo instalarla en Android';
 
   return (
-    <section className="max-w-5xl mx-auto px-6 sm:px-12 mb-24">
-      <div className="bg-card border border-border rounded-3xl p-8 sm:p-10">
+    <section className="max-w-5xl mx-auto px-6 sm:px-12 mb-24 flex flex-col md:flex-row gap-8 md:items-center">
+      <AppScreenshotMockup className="hidden md:flex lg:hidden shrink-0 justify-center" />
+
+      <div className="flex-1 w-full bg-card border border-border rounded-3xl p-8 sm:p-10">
         <h2 className="text-2xl font-bold text-foreground mb-8">{title}</h2>
         <div className="flex flex-wrap gap-8">
           {steps.map((step, idx) => (
