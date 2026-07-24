@@ -1,4 +1,4 @@
-import { PreacherType } from '@jw-tracker/shared';
+import { PreacherType, UserStatus } from '@jw-tracker/shared';
 import { BadRequestException } from '@nestjs/common';
 import { z } from 'zod';
 
@@ -35,6 +35,7 @@ export class User {
   password: string;
   preacherType: PreacherType;
   monthlyGoal: number;
+  status: UserStatus;
   createdAt: number;
   updatedAt?: number;
 
@@ -54,6 +55,7 @@ export class User {
       phone: `+51${validated.phone}`,
       preacherType: 'publisher',
       monthlyGoal: 0,
+      status: UserStatus.PENDING,
     });
   }
 

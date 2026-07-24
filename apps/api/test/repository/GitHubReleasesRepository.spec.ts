@@ -67,14 +67,19 @@ describe('GitHubReleasesRepository', () => {
   });
 
   it('should include Authorization header if GITHUB_TOKEN is set in env', async () => {
-    process.env.GITHUB_TOKEN = 'mock-github-token';
+    const tokenRepository = new GitHubReleasesRepository({
+      config: {
+        urlBase: 'https://api.github.com/repos/test/repo',
+      },
+      githubToken: 'mock-github-token',
+    });
 
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: jest.fn().mockResolvedValue({ tag_name: 'v1.0.0' }),
     } as any);
 
-    await repository.getLatestRelease();
+    await tokenRepository.getLatestRelease();
 
     expect(global.fetch).toHaveBeenCalledWith(
       'https://api.github.com/repos/test/repo/releases/latest',
@@ -87,10 +92,9 @@ describe('GitHubReleasesRepository', () => {
   });
 
   it('should return null if GitHub API returns status 404 or error', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: false,
-      status: 404,
-    } as any);
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue(new Response(null, { status: 404 }));
 
     const result = await repository.getLatestRelease();
     expect(result).toBeNull();

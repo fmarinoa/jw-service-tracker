@@ -1,6 +1,7 @@
 # Reglas generales:
 
 - Installa versione exactadas de dependencias (-E)
+- Para tratar fechas, siempre usar luxon
 
 # Manifiesto de Estilos (UI Design System)
 

@@ -173,8 +173,31 @@ describe('AuthController', () => {
 
       const result = await controller.register(mockBody);
 
-      expect(userService.register).toHaveBeenCalled();
+      expect(userService.register).toHaveBeenCalledWith(
+        expect.any(Object),
+        undefined,
+      );
       expect(result).toEqual(mockCreatedUser);
+    });
+
+    it('should pass invitationCode through to userService.register when provided', async () => {
+      const mockBody = {
+        phone: '932337417',
+        name: 'Franco',
+        password: 'password123',
+        invitationCode: 'ABC12345',
+      };
+
+      (userService.register as jest.Mock).mockResolvedValue({
+        id: 'user-123',
+      });
+
+      await controller.register(mockBody);
+
+      expect(userService.register).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.objectContaining({ code: 'ABC12345' }),
+      );
     });
 
     it('should throw BadRequestException if registration service throws', async () => {

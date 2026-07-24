@@ -4,6 +4,7 @@ import { AuthSessionsRepository } from './AuthSessionsRepository';
 import { EntriesRepository } from './EntriesRepository';
 import { GitHubReleasesRepository } from './GitHubReleasesRepository';
 import { HistoryReleasesRepository } from './HistoryReleasesRepository';
+import { InvitationsRepository } from './InvitationsRepository';
 import { UsersRepository } from './UsersRepository';
 
 const uri = process.env.MONGODB_URI!;
@@ -38,6 +39,13 @@ export const entriesRepository = new EntriesRepository({
   dbClient,
   config: {
     collectionName: 'entries',
+  },
+});
+
+export const invitationsRepository = new InvitationsRepository({
+  dbClient,
+  config: {
+    collectionName: 'invitations',
   },
 });
 

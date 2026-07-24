@@ -5,6 +5,7 @@ import path from 'node:path';
 import { Command } from 'commander';
 
 import { EntriesCommand } from './commands/entries.command';
+import { InvitationsCommand } from './commands/invitations.command';
 import { UsersCommand } from './commands/users.command';
 
 const program = new Command();
@@ -25,5 +26,6 @@ program
 // Register all command classes here
 new EntriesCommand().register(program);
 new UsersCommand().register(program);
+new InvitationsCommand().register(program);
 
 program.parse(process.argv);

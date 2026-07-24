@@ -31,7 +31,7 @@ describe('EntriesRepository', () => {
     };
 
     repository = new EntriesRepository({
-      client: mockClient,
+      dbClient: mockClient,
       config: { collectionName: 'entries' },
     });
 

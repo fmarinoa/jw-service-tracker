@@ -8,6 +8,7 @@ export interface UserDoc {
   phone: string;
   preacherType?: string;
   monthlyGoal?: number;
+  status?: string;
 }
 
 export interface UsersServiceProps {
@@ -63,6 +64,7 @@ export class UsersService {
       phone: doc.phone,
       preacherType: doc.preacherType,
       monthlyGoal: doc.monthlyGoal,
+      status: doc.status,
     }));
   }
 
@@ -75,6 +77,34 @@ export class UsersService {
       phone: doc.phone,
       preacherType: doc.preacherType,
       monthlyGoal: doc.monthlyGoal,
+      status: doc.status,
     }));
+  }
+
+  /**
+   * Retrieves all users whose registration is pending manual approval.
+   */
+  async getPendingUsers(): Promise<UserDoc[]> {
+    const usersCollection = this.db.collection('users');
+    const docs = await usersCollection.find({ status: 'PENDING' }).toArray();
+    return docs.map((doc) => ({
+      id: doc._id.toString(),
+      name: doc.name,
+      phone: doc.phone,
+      preacherType: doc.preacherType,
+      monthlyGoal: doc.monthlyGoal,
+      status: doc.status,
+    }));
+  }
+
+  /**
+   * Approves a pending user, unblocking their login.
+   */
+  async approveUser(id: string): Promise<void> {
+    const usersCollection = this.db.collection('users');
+    await usersCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { status: 'APPROVED' } },
+    );
   }
 }

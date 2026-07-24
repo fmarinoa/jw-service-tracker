@@ -17,6 +17,12 @@ export const PREACHER_TYPE_LABELS: Record<PreacherType, string> = {
   publisher: 'Publicador',
 };
 
+export const UserStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+} as const;
+export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus];
+
 export interface User {
   id: string;
   name: string;
@@ -24,6 +30,7 @@ export interface User {
   password: string;
   preacherType: PreacherType;
   monthlyGoal: number;
+  status: UserStatus;
   createdAt: number;
   updatedAt?: number;
 }

@@ -1,4 +1,4 @@
-import { Platform } from '@jw-tracker/shared';
+import { Platform, UserStatus } from '@jw-tracker/shared';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 
@@ -27,6 +27,12 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Contraseña inválida');
+    }
+
+    if (user.status === UserStatus.PENDING) {
+      throw new UnauthorizedException(
+        'Tu cuenta está pendiente de aprobación.',
+      );
     }
 
     const { accessToken, refreshToken, expiresIn, session } =

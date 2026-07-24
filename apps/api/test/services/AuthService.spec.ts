@@ -123,6 +123,29 @@ describe('AuthService', () => {
 
       expect(authSessionsRepository.create).not.toHaveBeenCalled();
     });
+
+    it('should throw UnauthorizedException if user status is pending', async () => {
+      const mockUser = new User({
+        id: 'user-123',
+        phone: '+51932337417',
+        password: 'hashed-password',
+        status: 'PENDING',
+      });
+
+      (usersRepository.findByPhone as jest.Mock).mockResolvedValue(mockUser);
+      jest
+        .spyOn(bcrypt, 'compare')
+        .mockImplementation(() => Promise.resolve(true));
+
+      await expect(
+        authService.login('932337417', 'password123', 'web'),
+      ).rejects.toThrow(
+        new UnauthorizedException('Tu cuenta está pendiente de aprobación.'),
+      );
+
+      expect(authSessionService.createSession).not.toHaveBeenCalled();
+      expect(authSessionsRepository.create).not.toHaveBeenCalled();
+    });
   });
 
   describe('refreshSession', () => {

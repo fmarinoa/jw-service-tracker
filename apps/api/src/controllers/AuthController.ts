@@ -11,6 +11,7 @@ import {
 
 import { CurrentUser } from '@/auth/current-user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
+import { Invitation } from '@/domain/Invitation';
 import { User } from '@/domain/User';
 import { AuthService } from '@/services/AuthService';
 import { UserService } from '@/services/UserService';
@@ -70,8 +71,12 @@ export class AuthController {
       password: body.password,
     });
 
+    const invitation = body.invitationCode
+      ? Invitation.validateForRegistration(body.invitationCode)
+      : undefined;
+
     try {
-      return await this.userService.register(userInstance);
+      return await this.userService.register(userInstance, invitation);
     } catch (e: any) {
       throw new BadRequestException(e.message || 'Error al registrar usuario');
     }

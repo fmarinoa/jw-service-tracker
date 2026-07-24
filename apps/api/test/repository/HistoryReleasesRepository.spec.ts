@@ -31,7 +31,7 @@ describe('HistoryReleasesRepository', () => {
     };
 
     repository = new HistoryReleasesRepository({
-      client: mockClient,
+      dbClient: mockClient,
       config: { collectionName: 'history_releases' },
     });
 
