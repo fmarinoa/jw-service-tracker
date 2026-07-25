@@ -2,6 +2,7 @@
 
 - Installa versione exactadas de dependencias (-E)
 - Para tratar fechas, siempre usar luxon
+- Pagar temas de backend, siempre leer [openapi.json](apps/api/openapi.json)
 
 # Manifiesto de Estilos (UI Design System)
 

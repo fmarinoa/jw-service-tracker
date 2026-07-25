@@ -23,6 +23,10 @@ export class UserService {
       throw new BadRequestException(`User with ID ${user.id} not found`);
     }
 
+    if (user.showTutorial === false) {
+      await usersRepository.confirmTutorial(originalUser);
+    }
+
     originalUser.updateGoals(user.monthlyGoal, user.preacherType);
 
     return usersRepository.update(originalUser);

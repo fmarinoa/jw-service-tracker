@@ -2,8 +2,9 @@ packages:
   - 'apps/*'
   - 'packages/*'
 allowBuilds:
+  '@scarf/scarf': false
   bcrypt: true
-  dtrace-provider: set this to true or false
+  dtrace-provider: false
   esbuild: true
   sharp: true
   unrs-resolver: true

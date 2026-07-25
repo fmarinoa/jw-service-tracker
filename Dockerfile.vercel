@@ -24,6 +24,11 @@ COPY apps/api ./apps/api
 # Build NestJS API (outputs to apps/api/dist)
 RUN pnpm --filter api build
 
+# Produce a self-contained production node_modules for apps/api, resolved from
+# its package.json/lockfile. Single source of truth for runtime deps that webpack.config.js
+# keeps external (e.g. bcrypt, swagger-ui-dist) — no manual version pinning here.
+RUN pnpm --filter api deploy --prod --legacy /app/deploy
+
 # Stage 2: Production runtime stage
 FROM node:24-alpine AS runner
 
@@ -32,8 +37,9 @@ WORKDIR /app
 # Copy built code from the builder stage (webpack bundle)
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 
-# Install only bcrypt for runtime (pre-compiled binary for alpine)
-RUN npm install bcrypt@6.0.0 --omit=dev
+# Copy the deployed production node_modules (built on the same alpine/node image,
+# so native modules like bcrypt already match the runtime arch/ABI)
+COPY --from=builder /app/deploy/node_modules ./node_modules
 
 EXPOSE 3000
 
