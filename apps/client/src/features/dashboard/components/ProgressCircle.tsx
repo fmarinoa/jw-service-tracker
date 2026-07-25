@@ -13,8 +13,8 @@ export default function ProgressCircle({
   reportedHours,
   monthlyGoal,
 }: ProgressCircleProps) {
-  const radius = 52;
-  const strokeWidth = 10;
+  const radius = 58;
+  const strokeWidth = 12;
   const size = (radius + strokeWidth) * 2;
   const circumference = 2 * Math.PI * radius;
 
@@ -22,6 +22,8 @@ export default function ProgressCircle({
   const cleanPercentage = Math.min(100, Math.max(0, progressPercentage));
   const strokeDashoffset =
     circumference - (cleanPercentage / 100) * circumference;
+  const isGoalCompleted = monthlyGoal > 0 && reportedHours >= monthlyGoal;
+  const ringColor = isGoalCompleted ? '#5c7a52' : '#b86a3d';
 
   return (
     <View className="items-center justify-center relative my-4">
@@ -40,7 +42,7 @@ export default function ProgressCircle({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#b86a3d"
+          stroke={ringColor}
           strokeWidth={strokeWidth}
           fill="transparent"
           strokeDasharray={circumference}
@@ -56,11 +58,11 @@ export default function ProgressCircle({
           {reportedHours}h
         </Text>
         {monthlyGoal > 0 ? (
-          <Text className="text-[10px] font-bold text-muted-foreground uppercase mt-0.5">
-            de {monthlyGoal}h ({cleanPercentage}%)
+          <Text className="text-[11px] font-bold text-muted-foreground uppercase mt-0.5">
+            {isGoalCompleted ? '¡Meta completada!' : `de ${monthlyGoal}h`}
           </Text>
         ) : (
-          <Text className="text-[10px] font-bold text-muted-foreground uppercase mt-0.5">
+          <Text className="text-[11px] font-bold text-muted-foreground uppercase mt-0.5">
             registrado
           </Text>
         )}

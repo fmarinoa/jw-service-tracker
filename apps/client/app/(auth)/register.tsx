@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -8,16 +8,72 @@ import {
   View,
 } from 'react-native';
 
+const INVITE_CODE_LENGTH = 8;
+
+import {
+  EyeIcon,
+  LockIcon,
+  PersonIcon,
+  PhoneIcon,
+  TicketIcon,
+} from '../../src/features/auth/icons';
 import { AuthApi } from '../../src/services/authApi';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [codeDigits, setCodeDigits] = useState<string[]>(
+    Array(INVITE_CODE_LENGTH).fill(''),
+  );
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const codeInputRefs = useRef<Array<TextInput | null>>([]);
+  const inviteCode = codeDigits.join('');
+
+  const setCodeDigit = (index: number, raw: string) => {
+    const clean = raw.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+
+    // Pasting a full (or partial) code: distribute across cells starting here.
+    if (clean.length > 1) {
+      setCodeDigits((prev) => {
+        const next = [...prev];
+        let pos = index;
+        for (const ch of clean) {
+          if (pos >= INVITE_CODE_LENGTH) break;
+          next[pos] = ch;
+          pos += 1;
+        }
+        return next;
+      });
+      const focusIndex = Math.min(index + clean.length, INVITE_CODE_LENGTH - 1);
+      codeInputRefs.current[focusIndex]?.focus();
+      return;
+    }
+
+    setCodeDigits((prev) => {
+      const next = [...prev];
+      next[index] = clean;
+      return next;
+    });
+    if (clean && index < INVITE_CODE_LENGTH - 1) {
+      codeInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleCodeKeyPress = (index: number, key: string) => {
+    if (key === 'Backspace' && !codeDigits[index] && index > 0) {
+      codeInputRefs.current[index - 1]?.focus();
+      setCodeDigits((prev) => {
+        const next = [...prev];
+        next[index - 1] = '';
+        return next;
+      });
+    }
+  };
 
   const handleRegister = async () => {
     setError('');
@@ -40,7 +96,12 @@ export default function RegisterPage() {
 
     setIsLoading(true);
     try {
-      await AuthApi.register({ name, phone, password });
+      await AuthApi.register({
+        name,
+        phone,
+        password,
+        invitationCode: inviteCode.trim() || undefined,
+      });
       setSuccess(true);
       setTimeout(() => {
         router.replace('/login');
@@ -54,93 +115,145 @@ export default function RegisterPage() {
 
   return (
     <View className="flex-1 justify-center items-center p-6 bg-background">
-      <View className="w-full max-w-md bg-card border border-border p-8 rounded-2xl shadow-lg">
-        <Text className="text-4xl font-extrabold text-primary text-center mb-2">
-          Crear Cuenta
+      <View className="w-full max-w-md bg-card border border-border p-8 rounded-3xl">
+        <Text className="text-2xl font-extrabold text-foreground text-center mb-1.5">
+          Crear cuenta
         </Text>
-        <Text className="text-muted-foreground text-center mb-8 font-medium">
-          Regístrate para empezar a trackear tu servicio.
+        <Text className="text-muted-foreground text-center mb-8 text-sm">
+          Regístrate para empezar a registrar tu servicio.
         </Text>
 
-        <View className="space-y-4">
-          <View>
-            <Text className="text-foreground font-bold mb-2">Nombre</Text>
+        <View>
+          <Text className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-1.5">
+            Nombre
+          </Text>
+          <View className="flex-row items-center gap-2.5 px-3.5 bg-background border border-border rounded-xl mb-4">
+            <PersonIcon />
             <TextInput
-              className="w-full bg-background border border-border text-foreground rounded-lg p-3 text-base"
+              className="flex-1 py-3 text-foreground text-[15px]"
               placeholder="Tu nombre completo"
-              placeholderTextColor="#7b726c"
+              placeholderTextColor="#a8a099"
               value={name}
               onChangeText={setName}
               autoCapitalize="words"
             />
           </View>
 
-          <View className="mt-4">
-            <Text className="text-foreground font-bold mb-2">Celular</Text>
+          <Text className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-1.5">
+            Celular
+          </Text>
+          <View className="flex-row items-center gap-2.5 px-3.5 bg-background border border-border rounded-xl">
+            <PhoneIcon />
             <TextInput
-              className="w-full bg-background border border-border text-foreground rounded-lg p-3 text-base"
-              placeholder="ej: 999888777"
-              placeholderTextColor="#7b726c"
+              className="flex-1 py-3 text-foreground text-[15px]"
+              placeholder="999 888 777"
+              placeholderTextColor="#a8a099"
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
               maxLength={9}
               autoCapitalize="none"
             />
-            <Text className="text-[10px] text-muted-foreground mt-1">
-              Ingresa tus 9 dígitos (se guardará con +51).
-            </Text>
           </View>
+          <Text className="text-[10.5px] text-muted-foreground mt-1 mb-4">
+            Se guardará como +51 {phone || '999888777'}
+          </Text>
 
-          <View className="mt-4">
-            <Text className="text-foreground font-bold mb-2">Contraseña</Text>
+          <Text className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-1.5">
+            Contraseña
+          </Text>
+          <View className="flex-row items-center gap-2.5 px-3.5 bg-background border border-border rounded-xl mb-4">
+            <LockIcon />
             <TextInput
-              className="w-full bg-background border border-border text-foreground rounded-lg p-3 text-base"
+              className="flex-1 py-3 text-foreground text-[15px]"
               placeholder="Mínimo 6 caracteres"
-              placeholderTextColor="#7b726c"
-              secureTextEntry
+              placeholderTextColor="#a8a099"
+              secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
               autoCapitalize="none"
             />
+            <Pressable
+              onPress={() => setShowPassword((v) => !v)}
+              className="p-1"
+            >
+              <EyeIcon />
+            </Pressable>
           </View>
 
+          <View className="flex-row items-center gap-1.5 mb-1.5">
+            <TicketIcon size={14} />
+            <Text className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+              Código de invitación (opcional)
+            </Text>
+          </View>
+          <View className="flex-row w-full gap-1.5">
+            {codeDigits.map((digit, index) => (
+              <View
+                key={index}
+                className={`flex-1 min-w-0 h-12 items-center justify-center bg-background border rounded-xl ${
+                  digit ? 'border-primary' : 'border-border'
+                }`}
+              >
+                <TextInput
+                  ref={(el) => {
+                    codeInputRefs.current[index] = el;
+                  }}
+                  value={digit}
+                  onChangeText={(val) => setCodeDigit(index, val)}
+                  onKeyPress={({ nativeEvent }) =>
+                    handleCodeKeyPress(index, nativeEvent.key)
+                  }
+                  maxLength={INVITE_CODE_LENGTH}
+                  autoCapitalize="characters"
+                  autoCorrect={false}
+                  selectTextOnFocus
+                  textAlign="center"
+                  className="w-full text-center text-foreground font-extrabold text-base"
+                />
+              </View>
+            ))}
+          </View>
+          <Text className="text-[10.5px] text-muted-foreground mt-1">
+            Sin código, tu cuenta quedará pendiente de aprobación manual.
+          </Text>
+
           {success && (
-            <View className="bg-green-50 border border-green-200 p-3 rounded-lg mt-4">
+            <View className="bg-green-50 border border-green-200 p-3 rounded-xl mt-4">
               <Text className="text-green-700 text-sm text-center font-bold">
                 ¡Registro exitoso! Redirigiendo...
               </Text>
             </View>
           )}
 
-          {error && (
-            <View className="bg-red-50 border border-red-200 p-3 rounded-lg mt-4">
+          {error ? (
+            <View className="bg-red-50 border border-red-200 p-3 rounded-xl mt-4">
               <Text className="text-red-600 text-sm text-center font-semibold">
                 {error}
               </Text>
             </View>
-          )}
+          ) : null}
 
           <Pressable
             onPress={handleRegister}
             disabled={isLoading || success}
-            className={`w-full h-12 bg-primary rounded-lg justify-center items-center mt-6 active:bg-primary/95 ${
+            className={`w-full py-4 bg-primary rounded-2xl justify-center items-center mt-5 active:bg-primary/90 ${
               isLoading || success ? 'opacity-50' : ''
             }`}
           >
             {isLoading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color="#fdfbf7" />
             ) : (
-              <Text className="text-primary-foreground font-bold text-base">
+              <Text className="text-primary-foreground font-bold text-[15.5px]">
                 Registrarse
               </Text>
             )}
           </Pressable>
         </View>
 
-        <View className="mt-6 flex-row justify-center items-center flex-wrap">
+        <View className="mt-5 flex-row justify-center items-center flex-wrap">
           <Text
-            className="text-muted-foreground text-sm select-none"
+            className="text-muted-foreground text-[13.5px] select-none"
             selectable={false}
           >
             ¿Ya tienes cuenta?{' '}
@@ -151,7 +264,7 @@ export default function RegisterPage() {
           >
             <Text
               pointerEvents="none"
-              className="text-primary font-bold text-sm select-none active:underline"
+              className="text-primary font-bold text-[13.5px] select-none active:underline"
               selectable={false}
             >
               Inicia Sesión

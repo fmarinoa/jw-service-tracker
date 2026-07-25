@@ -24,7 +24,12 @@ export class AuthApi extends BaseService {
     });
   }
 
-  static async register(data: any): Promise<any> {
+  static async register(data: {
+    name: string;
+    phone: string;
+    password: string;
+    invitationCode?: string;
+  }): Promise<any> {
     return this.handleRequest<any>({
       path: '/auth/register',
       method: 'POST',

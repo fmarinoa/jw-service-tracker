@@ -57,7 +57,7 @@ export function AppUpdateNotification() {
       className="absolute bottom-0 left-0 right-0 z-50 px-4 pt-2"
     >
       <View className="bg-card border border-border rounded-2xl p-3.5 shadow-lg flex-row items-center justify-between">
-        <View className="flex-row items-center flex-1 mr-3 space-x-3">
+        <View className="flex-row items-center flex-1 mr-3 gap-3">
           <View className="w-8 h-8 rounded-full bg-primary/10 items-center justify-center">
             <Text className="text-sm">🚀</Text>
           </View>
@@ -71,7 +71,7 @@ export function AppUpdateNotification() {
           </View>
         </View>
 
-        <View className="flex-row items-center space-x-2">
+        <View className="flex-row items-center gap-2">
           <Pressable
             onPress={handleUpdate}
             className="px-3.5 py-1.5 bg-primary rounded-xl active:bg-primary/90 shadow-sm"

@@ -19,7 +19,7 @@ export default function ConfirmDeleteDialog() {
           className="absolute inset-0"
           onPress={() => setShowDeleteModal(false)}
         />
-        <View className="bg-card border border-border rounded-2xl p-6 w-full max-w-sm space-y-4">
+        <View className="bg-card border border-border rounded-2xl p-6 w-full max-w-sm gap-4">
           <Text className="text-lg font-bold text-foreground">
             ¿Eliminar registro?
           </Text>
@@ -27,7 +27,7 @@ export default function ConfirmDeleteDialog() {
             Esta acción no se puede deshacer. El registro de predicación se
             borrará permanentemente.
           </Text>
-          <View className="flex-row space-x-3 pt-2">
+          <View className="flex-row gap-3 pt-2">
             <Pressable
               onPress={() => setShowDeleteModal(false)}
               disabled={isDeleting}

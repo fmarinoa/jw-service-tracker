@@ -98,7 +98,7 @@ export default function CalendarPicker({
   return (
     <View className="absolute inset-0 bg-black/60 justify-center items-center p-4 z-50">
       <Pressable className="absolute inset-0" onPress={onClose} />
-      <View className="bg-card border border-border rounded-2xl p-5 w-full max-w-sm space-y-4 shadow-2xl">
+      <View className="bg-card border border-border rounded-2xl p-5 w-full max-w-sm gap-4 shadow-2xl">
         {/* HEADER */}
         <View className="flex-row justify-between items-center pb-2">
           <Pressable
@@ -169,7 +169,7 @@ export default function CalendarPicker({
         </View>
 
         {/* FOOTER ACTIONS */}
-        <View className="flex-row space-x-3 pt-2 border-t border-border">
+        <View className="flex-row gap-3 pt-2 border-t border-border">
           <Pressable
             onPress={handleToday}
             className="flex-1 py-2.5 bg-muted rounded-xl items-center active:bg-muted/80"
