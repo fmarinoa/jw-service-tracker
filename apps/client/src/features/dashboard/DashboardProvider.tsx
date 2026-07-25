@@ -608,7 +608,7 @@ Generado por *JW Service Tracker*`;
           const tempId = `temp_${Date.now()}`;
           const newEntry = {
             id: tempId,
-            userId: user?.id || '',
+            user: { id: user?.id || '' },
             ...payload,
             createdAt: Date.now(),
             isOffline: true,
