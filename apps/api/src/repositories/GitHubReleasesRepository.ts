@@ -10,18 +10,24 @@ export class GitHubReleasesRepository extends BaseRepository {
   constructor(private readonly props: GitHubReleasesRepositoryProps) {
     super(props);
   }
+
+  private get headers() {
+    const headers: Record<string, string> = {
+      'User-Agent': 'JW-Service-Tracker-API',
+      Accept: 'application/vnd.github.v3+json',
+    };
+
+    const token = this.props.githubToken;
+    if (token) {
+      console.log('Using GitHub token for authentication');
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return headers;
+  }
+
   async getLatestRelease(): Promise<ReleaseInfo | null> {
     try {
-      const headers: Record<string, string> = {
-        'User-Agent': 'JW-Service-Tracker-API',
-        Accept: 'application/vnd.github.v3+json',
-      };
-
-      const token = this.props.githubToken;
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
       const response = await this.handlerHttpRequest<{
         tag_name: string;
         name: string;
@@ -36,7 +42,7 @@ export class GitHubReleasesRepository extends BaseRepository {
         {
           method: 'GET',
           url: '/releases/latest',
-          headers,
+          headers: this.headers,
         },
         { functionName: 'getLatestRelease', fastFail: false },
       );

@@ -100,7 +100,9 @@ export class UsersCommand extends BaseCommand {
 
     await usersService.approveUser(targetUser.id);
     console.log(
-      pc.green(`\n✓ Usuario ${pc.bold(targetUser.name)} aprobado. Ya puede iniciar sesión.\n`),
+      pc.green(
+        `\n✓ Usuario ${pc.bold(targetUser.name)} aprobado. Ya puede iniciar sesión.\n`,
+      ),
     );
   }
 }

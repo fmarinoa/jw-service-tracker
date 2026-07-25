@@ -1,9 +1,9 @@
 import crypto from 'node:crypto';
 
+import { DateTime } from 'luxon';
 import { Db } from 'mongodb';
 
 import { DbConnection } from '../db/connection';
-import { DateTime } from 'luxon';
 
 export interface InvitationDoc {
   id: string;
@@ -46,7 +46,9 @@ export class InvitationsService {
       code,
       expiresAt: today.plus({ days: expiresInDays }).toMillis(),
       createdAt: today.toMillis(),
-      ...(phone ? { phone: phone.startsWith('+51') ? phone : `+51${phone}` } : {}),
+      ...(phone
+        ? { phone: phone.startsWith('+51') ? phone : `+51${phone}` }
+        : {}),
     };
     const result = await invitationsCollection.insertOne(newDoc);
     return {

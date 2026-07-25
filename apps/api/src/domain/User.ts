@@ -21,11 +21,13 @@ export const registerSchema = z.object({
 
 const updateSettingsSchema = z.object({
   id: z.string(),
-  preacherType: z.enum(PreacherType),
+  preacherType: z.enum(PreacherType).optional(),
   monthlyGoal: z
     .number()
     .int()
-    .min(0, 'La meta debe ser un número entero no negativo'),
+    .min(0, 'La meta debe ser un número entero no negativo')
+    .optional(),
+  showTutorial: z.boolean().optional(),
 });
 
 export class User {
@@ -36,6 +38,7 @@ export class User {
   preacherType: PreacherType;
   monthlyGoal: number;
   status: UserStatus;
+  showTutorial: boolean;
   createdAt: number;
   updatedAt?: number;
 
@@ -53,8 +56,6 @@ export class User {
     return new User({
       ...validated,
       phone: `+51${validated.phone}`,
-      preacherType: 'publisher',
-      monthlyGoal: 0,
       status: UserStatus.PENDING,
     });
   }

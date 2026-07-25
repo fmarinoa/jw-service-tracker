@@ -29,6 +29,7 @@
     "mongodb": "7.5.0",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
+    "swagger-ui-dist": "5.32.8",
     "zod": "4.4.3"
   },
   "devDependencies": {
@@ -36,6 +37,7 @@
     "@eslint/js": "10.0.1",
     "@nestjs/cli": "11.0.24",
     "@nestjs/schematics": "11.1.0",
+    "@nestjs/swagger": "11.4.6",
     "@nestjs/testing": "11.1.28",
     "@types/bcrypt": "6.0.0",
     "@types/express": "5.0.6",

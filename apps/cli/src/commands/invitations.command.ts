@@ -1,9 +1,9 @@
 import { Command } from 'commander';
+import { DateTime } from 'luxon';
 import pc from 'picocolors';
 
 import { invitationsService } from '../services';
 import { BaseCommand } from './base.command';
-import { DateTime } from 'luxon';
 
 export interface CreateInvitationOptions {
   days: string;
@@ -60,10 +60,7 @@ export class InvitationsCommand extends BaseCommand {
       return;
     }
 
-    const invitation = await invitationsService.createInvitation(
-      phone,
-      days,
-    );
+    const invitation = await invitationsService.createInvitation(phone, days);
 
     console.log(pc.green('\n✓ Invitación creada:'));
     console.log(`  - Código:      ${pc.bold(pc.cyan(invitation.code))}`);

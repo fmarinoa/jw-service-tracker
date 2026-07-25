@@ -12,6 +12,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/auth/current-user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
@@ -20,6 +21,7 @@ import { FilterEntries } from '@/domain/FilterEntries';
 import { User } from '@/domain/User';
 import { EntriesService } from '@/services/EntriesService';
 
+@ApiTags('Entries')
 @Controller('entries')
 export class EntriesController {
   constructor(private readonly entriesService: EntriesService) {}

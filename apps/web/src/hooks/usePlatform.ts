@@ -2,17 +2,12 @@ import { useState } from 'react';
 
 export type Platform = 'android' | 'ios';
 
-const iosUserAgents = [
-  'iPhone',
-  'iPad',
-  'iPod',
-  'Macintosh',
-  'Mac OS X',
-];
+const iosUserAgents = ['iPhone', 'iPad', 'iPod', 'Macintosh', 'Mac OS X'];
 
 function detectPlatform(): Platform {
   const ua = navigator.userAgent || '';
-  const isIOSDevice = iosUserAgents.some((agent) => ua.includes(agent)) &&
+  const isIOSDevice =
+    iosUserAgents.some((agent) => ua.includes(agent)) &&
     !(window as unknown as { MSStream?: unknown }).MSStream;
   return isIOSDevice ? 'ios' : 'android';
 }

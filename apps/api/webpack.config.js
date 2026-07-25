@@ -24,10 +24,19 @@ module.exports = function (options) {
 
   return {
     ...options,
-    externals: {
+    externals: [
       // Treat bcrypt as a commonjs external so it compiles to require('bcrypt')
-      bcrypt: 'commonjs bcrypt',
-    },
+      { bcrypt: 'commonjs bcrypt' },
+      // swagger-ui-dist resolves its assets via path.resolve(__dirname) at runtime;
+      // inlining it (including subpath imports like absolute-path.js) breaks that
+      // resolution, so keep every import from it as a real require()
+      ({ request }, callback) => {
+        if (request === 'swagger-ui-dist' || request.startsWith('swagger-ui-dist/')) {
+          return callback(null, `commonjs ${request}`);
+        }
+        callback();
+      },
+    ],
     optimization: {
       ...options.optimization,
       minimize: true,

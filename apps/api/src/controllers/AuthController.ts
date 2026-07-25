@@ -8,6 +8,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/auth/current-user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
@@ -16,6 +17,7 @@ import { User } from '@/domain/User';
 import { AuthService } from '@/services/AuthService';
 import { UserService } from '@/services/UserService';
 
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(

@@ -1,3 +1,4 @@
+import { PreacherType } from '@jw-tracker/shared';
 import bcrypt from 'bcrypt';
 
 import { User } from '@/domain/User';
@@ -34,6 +35,9 @@ export class UsersRepository extends BaseRepository {
         ...this.cleanObject(user),
         name: user.name.toUpperCase(),
         password: hashedPassword,
+        preacherType: PreacherType.publisher,
+        monthlyGoal: 0,
+        showTutorial: true,
         createdAt: this.getTimestamp(),
       };
       const result = await collection.insertOne(item);
@@ -63,6 +67,30 @@ export class UsersRepository extends BaseRepository {
         updatedAt,
         monthlyGoal: user.monthlyGoal,
         preacherType: user.preacherType,
+      });
+    });
+  }
+
+  async confirmTutorial(user: Partial<User>): Promise<User> {
+    return this.handlerCollection(async (collection) => {
+      const id = user.id;
+      if (!id) {
+        throw new Error('User ID is required for update');
+      }
+
+      const updatedAt = this.getTimestamp();
+
+      await collection.updateOne(this.buildIdFilter(id), {
+        $set: {
+          showTutorial: false,
+          updatedAt,
+        },
+      });
+
+      return new User({
+        id,
+        showTutorial: false,
+        updatedAt,
       });
     });
   }
