@@ -4,6 +4,7 @@ import pc from 'picocolors';
 import { usersService } from '../services';
 import { OutputFormatter } from '../utils/formatter';
 import { BaseCommand } from './base.command';
+import { UserStatus } from '@jw-tracker/shared';
 
 export class UsersCommand extends BaseCommand {
   register(program: Command): void {
@@ -27,17 +28,10 @@ export class UsersCommand extends BaseCommand {
       .command('list')
       .alias('ls')
       .description('Lista todos los usuarios del sistema')
-      .action(async (_, command) => {
+      .option('-s, --status <status>', 'Filtrar por estado', 'all')
+      .action(async (options, command) => {
         const env = this.getEnv(command);
-        await this.executeWithDb(env, () => this.listUsers());
-      });
-
-    entriesGroup
-      .command('pending')
-      .description('Lista usuarios pendientes de aprobación manual')
-      .action(async (_, command) => {
-        const env = this.getEnv(command);
-        await this.executeWithDb(env, () => this.listPendingUsers());
+        await this.executeWithDb(env, () => this.listUsers(options));
       });
 
     entriesGroup
@@ -68,22 +62,21 @@ export class UsersCommand extends BaseCommand {
   /**
    * Action method to list all users.
    */
-  private async listUsers(): Promise<void> {
-    const users = await usersService.getAllUsers();
-    for (const user of users) {
-      OutputFormatter.printUserHeader(user);
-    }
-  }
+  private async listUsers(options: {
+    status: UserStatus | 'ALL';
+  }): Promise<void> {
+    const { status: statusOption } = options;
+    const status = statusOption.toUpperCase();
 
-  /**
-   * Action method to list users pending manual approval.
-   */
-  private async listPendingUsers(): Promise<void> {
-    const users = await usersService.getPendingUsers();
-    if (users.length === 0) {
-      console.log(pc.yellow('No hay usuarios pendientes de aprobación.'));
+    const isValidStatus =
+      status === 'ALL' || Object.values(UserStatus).includes(status as any);
+    if (!isValidStatus) {
+      console.error(pc.red(`\n✖ Estado inválido: ${pc.bold(statusOption)}\n`));
       return;
     }
+    const users = await usersService.getUsers({
+      status: status === 'ALL' ? undefined : status,
+    });
     for (const user of users) {
       OutputFormatter.printUserHeader(user);
     }

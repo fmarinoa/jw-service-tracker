@@ -1,6 +1,7 @@
 import { Db, ObjectId } from 'mongodb';
 
 import { DbConnection } from '../db/connection';
+import { UserStatus } from '@jw-tracker/shared';
 
 export interface UserDoc {
   id: string;
@@ -68,25 +69,14 @@ export class UsersService {
     }));
   }
 
-  async getAllUsers(): Promise<UserDoc[]> {
+  async getUsers(filters: { status?: string } = {}): Promise<UserDoc[]> {
+    const { status } = filters;
+    const query: any = {};
+    if (status !== undefined) {
+      query.status = status;
+    }
     const usersCollection = this.db.collection('users');
-    const docs = await usersCollection.find({}).toArray();
-    return docs.map((doc) => ({
-      id: doc._id.toString(),
-      name: doc.name,
-      phone: doc.phone,
-      preacherType: doc.preacherType,
-      monthlyGoal: doc.monthlyGoal,
-      status: doc.status,
-    }));
-  }
-
-  /**
-   * Retrieves all users whose registration is pending manual approval.
-   */
-  async getPendingUsers(): Promise<UserDoc[]> {
-    const usersCollection = this.db.collection('users');
-    const docs = await usersCollection.find({ status: 'PENDING' }).toArray();
+    const docs = await usersCollection.find(query).toArray();
     return docs.map((doc) => ({
       id: doc._id.toString(),
       name: doc.name,

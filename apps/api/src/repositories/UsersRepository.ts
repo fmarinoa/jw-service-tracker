@@ -33,7 +33,7 @@ export class UsersRepository extends BaseRepository {
       const hashedPassword = await bcrypt.hash(user.password, 10);
       const item = {
         ...this.cleanObject(user),
-        name: user.name.toUpperCase(),
+        name: user.name.trim().toUpperCase(),
         password: hashedPassword,
         preacherType: PreacherType.publisher,
         monthlyGoal: 0,
