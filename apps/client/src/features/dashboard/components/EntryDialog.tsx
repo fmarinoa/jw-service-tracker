@@ -81,7 +81,13 @@ export default function EntryDialog() {
     >
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={
+          Platform.OS === 'ios'
+            ? 'padding'
+            : Platform.OS === 'android'
+              ? 'height'
+              : undefined
+        }
       >
         <View className="flex-1 justify-center px-5 bg-black/50">
           <Pressable
@@ -141,7 +147,7 @@ export default function EntryDialog() {
                         value={formHours === '' ? '' : String(formHours)}
                         onChangeText={handleHoursInput}
                         selectTextOnFocus
-                        className="flex-1 text-center text-foreground font-extrabold text-base"
+                        className="flex-1 min-w-0 text-center text-foreground font-extrabold text-base"
                       />
                       <Pressable
                         onPress={() => stepHours(1)}
@@ -171,7 +177,7 @@ export default function EntryDialog() {
                         value={formMinutes === '' ? '' : String(formMinutes)}
                         onChangeText={handleMinutesInput}
                         selectTextOnFocus
-                        className="flex-1 text-center text-foreground font-extrabold text-base"
+                        className="flex-1 min-w-0 text-center text-foreground font-extrabold text-base"
                       />
                       <Pressable
                         onPress={() => stepMinutes(5)}
