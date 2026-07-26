@@ -1,7 +1,6 @@
 import { ReleaseInfo } from '@/domain/ReleaseInfo';
 
 import { BaseRepository, BaseRepositoryProps } from './BaseRepository';
-
 export interface GitHubReleasesRepositoryProps extends BaseRepositoryProps {
   githubToken?: string;
 }

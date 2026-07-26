@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 import { ReleaseInfo } from '@/domain/ReleaseInfo';
-import { HistoryReleasesRepository } from '@/repositories/HistoryReleasesRepository';
+import { HistoryReleasesRepository } from '@/repositories/persistence/HistoryReleasesRepository';
 
 describe('HistoryReleasesRepository', () => {
   let repository: HistoryReleasesRepository;

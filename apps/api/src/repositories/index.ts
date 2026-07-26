@@ -1,11 +1,11 @@
 import { MongoClient, MongoClientOptions, ServerApiVersion } from 'mongodb';
 
-import { AuthSessionsRepository } from './AuthSessionsRepository';
-import { EntriesRepository } from './EntriesRepository';
-import { GitHubReleasesRepository } from './GitHubReleasesRepository';
-import { HistoryReleasesRepository } from './HistoryReleasesRepository';
-import { InvitationsRepository } from './InvitationsRepository';
-import { UsersRepository } from './UsersRepository';
+import { GitHubReleasesRepository } from './external/GitHubReleasesRepository';
+import { AuthSessionsRepository } from './persistence/AuthSessionsRepository';
+import { EntriesRepository } from './persistence/EntriesRepository';
+import { HistoryReleasesRepository } from './persistence/HistoryReleasesRepository';
+import { InvitationsRepository } from './persistence/InvitationsRepository';
+import { UsersRepository } from './persistence/UsersRepository';
 
 const uri = process.env.MONGODB_URI!;
 const options: MongoClientOptions = {

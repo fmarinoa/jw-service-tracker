@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { ObjectId } from 'mongodb';
 
 import { User } from '@/domain/User';
-import { UsersRepository } from '@/repositories/UsersRepository';
+import { UsersRepository } from '@/repositories/persistence/UsersRepository';
 
 describe('UsersRepository', () => {
   let repository: UsersRepository;

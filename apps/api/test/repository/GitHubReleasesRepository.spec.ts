@@ -1,4 +1,4 @@
-import { GitHubReleasesRepository } from '@/repositories/GitHubReleasesRepository';
+import { GitHubReleasesRepository } from '@/repositories/external/GitHubReleasesRepository';
 
 describe('GitHubReleasesRepository', () => {
   let repository: GitHubReleasesRepository;

@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import { Entry } from '@/domain/Entry';
 import { FilterEntries } from '@/domain/FilterEntries';
 import { User } from '@/domain/User';
-import { EntriesRepository } from '@/repositories/EntriesRepository';
+import { EntriesRepository } from '@/repositories/persistence/EntriesRepository';
 
 describe('EntriesRepository', () => {
   let repository: EntriesRepository;
