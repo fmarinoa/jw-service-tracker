@@ -8,7 +8,7 @@ export interface BaseRepositoryProps {
 }
 
 export interface PayloadRequest {
-  url: string;
+  url?: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   headers?: Record<string, string>;
   body?: any;
@@ -18,6 +18,7 @@ export interface PayloadRequest {
 export interface HandlerOptions {
   functionName?: string;
   fastFail?: boolean;
+  parseResponse?: boolean;
   timeoutMs?: number;
   retries?: number;
   retryDelayMs?: number;
@@ -35,6 +36,18 @@ class HttpRequestError extends Error {
 export abstract class BaseRepository {
   constructor(private readonly baseProps: BaseRepositoryProps) {}
 
+  protected async handlerHttpRequest(
+    payload: PayloadRequest,
+    options: HandlerOptions & { parseResponse: false },
+  ): Promise<Response>;
+  protected async handlerHttpRequest<T = unknown>(
+    payload: PayloadRequest,
+    options: HandlerOptions & { fastFail: false; parseResponse?: true },
+  ): Promise<T | Response>;
+  protected async handlerHttpRequest<T = unknown>(
+    payload: PayloadRequest,
+    options?: HandlerOptions & { parseResponse?: true; fastFail?: true },
+  ): Promise<T>;
   protected async handlerHttpRequest<T = unknown>(
     payload: PayloadRequest,
     options: HandlerOptions = {},
@@ -45,9 +58,10 @@ export abstract class BaseRepository {
       timeoutMs = 10_000,
       retries = 0,
       retryDelayMs = 300,
+      parseResponse = true,
     } = options;
 
-    const urlBase = this.baseProps.config.urlBase;
+    const urlBase = this.baseProps.config?.urlBase;
     if (!urlBase) {
       throw new InternalServerErrorException(
         'URL base is not defined in the repository configuration.',
@@ -60,8 +74,9 @@ export abstract class BaseRepository {
     };
     const body =
       payload.body !== undefined ? JSON.stringify(payload.body) : undefined;
-    const fullUrl = `${urlBase}${payload.url}${this.buildQueryString(payload.queryParams)}`;
-    const tag = functionName ? `${urlBase} (${functionName})` : '';
+    const url = payload.url ? payload.url : '';
+    const fullUrl = `${urlBase}${url}${this.buildQueryString(payload.queryParams)}`;
+    const tag = `${urlBase}${url}${functionName ? ` (${functionName})` : ''}`;
 
     for (let attempt = 0; ; attempt++) {
       const start = Date.now();
@@ -89,13 +104,13 @@ export abstract class BaseRepository {
             );
           }
           console.log(
-            `[HTTP Request]${tag} - completed in ${duration}ms (status ${response.status}, fastFail off)`,
+            `[HTTP Request] ${tag} - completed in ${duration}ms (status ${response.status}, fastFail off)`,
           );
           return response;
         }
 
-        console.log(`[HTTP Request]${tag} - completed in ${duration}ms`);
-        return await this.parseResponseBody<T>(response);
+        console.log(`[HTTP Request] ${tag} - completed in ${duration}ms`);
+        return parseResponse ? this.parseResponseBody<T>(response) : response;
       } catch (error) {
         const duration = Date.now() - start;
         console.error(

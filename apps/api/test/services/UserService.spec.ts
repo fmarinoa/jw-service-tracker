@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { Invitation } from '@/domain/Invitation';
 import { User } from '@/domain/User';
@@ -26,10 +27,18 @@ import { invitationsRepository, usersRepository } from '@/repositories';
 
 describe('UserService', () => {
   let userService: UserService;
+  let eventEmitterMock: Partial<EventEmitter2>;
 
   beforeEach(async () => {
+    eventEmitterMock = {
+      emit: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UserService],
+      providers: [
+        UserService,
+        { provide: EventEmitter2, useValue: eventEmitterMock },
+      ],
     }).compile();
 
     userService = module.get<UserService>(UserService);
@@ -151,6 +160,10 @@ describe('UserService', () => {
       expect(invitationsRepository.findByCode).not.toHaveBeenCalled();
       expect(result.user.status).toBe('PENDING');
       expect(result.success).toBe(true);
+      expect(eventEmitterMock.emit).toHaveBeenCalledWith(
+        'user.created',
+        expect.any(Object),
+      );
     });
 
     it('should approve registration and mark invitation used when inviteCode is valid', async () => {
@@ -176,6 +189,10 @@ describe('UserService', () => {
       expect(invitationsRepository.markUsed).toHaveBeenCalledWith(
         'inv-1',
         'user-123',
+      );
+      expect(eventEmitterMock.emit).toHaveBeenCalledWith(
+        'user.created',
+        expect.any(Object),
       );
     });
 

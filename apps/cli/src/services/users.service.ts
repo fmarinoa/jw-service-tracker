@@ -1,7 +1,6 @@
 import { Db, ObjectId } from 'mongodb';
 
 import { DbConnection } from '../db/connection';
-import { UserStatus } from '@jw-tracker/shared';
 
 export interface UserDoc {
   id: string;

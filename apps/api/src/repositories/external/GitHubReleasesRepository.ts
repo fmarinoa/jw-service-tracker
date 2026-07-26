@@ -43,7 +43,11 @@ export class GitHubReleasesRepository extends BaseRepository {
           url: '/releases/latest',
           headers: this.headers,
         },
-        { functionName: 'getLatestRelease', fastFail: false },
+        {
+          functionName: 'getLatestRelease',
+          fastFail: false,
+          parseResponse: true,
+        },
       );
 
       if (response instanceof Response) {

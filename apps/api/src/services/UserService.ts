@@ -1,5 +1,6 @@
 import { PathcResponse, UserStatus } from '@jw-tracker/shared';
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { Invitation } from '@/domain/Invitation';
 import { User } from '@/domain/User';
@@ -7,6 +8,7 @@ import { invitationsRepository, usersRepository } from '@/repositories';
 
 @Injectable()
 export class UserService {
+  constructor(private readonly eventEmitter: EventEmitter2) {}
   async getUserById(userId: string) {
     const originalUser = await usersRepository.findById(userId);
     if (!originalUser) {
@@ -71,6 +73,11 @@ export class UserService {
     if (existInvitation) {
       await invitationsRepository.markUsed(existInvitation.id, createdUser.id);
     }
+
+    this.eventEmitter.emit('user.created', {
+      user: createdUser,
+      invitation: existInvitation,
+    });
 
     const { password: _, ...safeUser } = createdUser;
     return { user: safeUser, success: true };

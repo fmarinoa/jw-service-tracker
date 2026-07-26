@@ -1,10 +1,10 @@
+import { UserStatus } from '@jw-tracker/shared';
 import { Command } from 'commander';
 import pc from 'picocolors';
 
 import { usersService } from '../services';
 import { OutputFormatter } from '../utils/formatter';
 import { BaseCommand } from './base.command';
-import { UserStatus } from '@jw-tracker/shared';
 
 export class UsersCommand extends BaseCommand {
   register(program: Command): void {

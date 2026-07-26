@@ -1,6 +1,7 @@
 import { MongoClient, MongoClientOptions, ServerApiVersion } from 'mongodb';
 
 import { GitHubReleasesRepository } from './external/GitHubReleasesRepository';
+import { SlackRepository } from './external/SlackRepository';
 import { AuthSessionsRepository } from './persistence/AuthSessionsRepository';
 import { EntriesRepository } from './persistence/EntriesRepository';
 import { HistoryReleasesRepository } from './persistence/HistoryReleasesRepository';
@@ -67,5 +68,11 @@ export const gitHubReleasesRepository = new GitHubReleasesRepository({
   githubToken: process.env.GITHUB_TOKEN,
   config: {
     urlBase: 'https://api.github.com/repos/fmarinoa/jw-service-tracker',
+  },
+});
+
+export const slackRepository = new SlackRepository({
+  config: {
+    urlBase: process.env.SLACK_WEBHOOK_URL!,
   },
 });
