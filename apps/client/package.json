@@ -10,7 +10,7 @@
     "prettier": "prettier --write .",
     "android": "expo run:android",
     "ios": "expo run:ios --device",
-    "apk": "pnpm --filter @jw-tracker/shared build && expo prebuild --platform android && printf '\\norg.gradle.jvmargs=-Xmx3072m -XX:MaxMetaspaceSize=1024m -XX:+UseG1GC\\n' >> android/gradle.properties && cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a --build-cache --max-workers=2",
+    "apk": "pnpm --filter @jw-tracker/shared build && expo prebuild --platform android && printf '\\norg.gradle.jvmargs=-Xmx3072m -XX:MaxMetaspaceSize=1024m -XX:+UseG1GC\\n' >> android/gradle.properties && cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a --build-cache --max-workers=4",
     "android:release": "expo run:android --device --variant release --no-bundler",
     "ios:release": "expo run:ios --device --configuration Release --no-bundler",
     "xcode": "expo prebuild --platform ios && open ios/JWServiceTracker.xcworkspace"
