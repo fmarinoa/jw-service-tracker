@@ -17,6 +17,16 @@
       "patch": {
         "operationId": "update",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -31,6 +41,16 @@
       "post": {
         "operationId": "login",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -45,6 +65,16 @@
       "post": {
         "operationId": "refresh",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequestDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": ""
@@ -73,6 +103,16 @@
       "post": {
         "operationId": "register",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": ""
@@ -99,6 +139,16 @@
       "post": {
         "operationId": "createEntry",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEntryDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": ""
@@ -113,6 +163,20 @@
       "post": {
         "operationId": "syncEntries",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Array of entries to sync from client",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateEntryDto"
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": ""
@@ -157,6 +221,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEntryDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -231,6 +305,220 @@
         "description": "Bearer token authentication"
       }
     },
-    "schemas": {}
+    "schemas": {
+      "LoginRequestDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "Phone number with country code",
+            "example": "+51912345678"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password",
+            "example": "password123"
+          },
+          "platform": {
+            "type": "string",
+            "description": "Platform identifier",
+            "example": "web"
+          },
+          "deviceName": {
+            "type": "string",
+            "description": "Device name for session tracking",
+            "example": "iPhone 12"
+          }
+        },
+        "required": [
+          "phone",
+          "password"
+        ]
+      },
+      "RefreshRequestDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token for obtaining a new access token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "User full name",
+            "example": "Juan Pérez",
+            "minLength": 2,
+            "maxLength": 50
+          },
+          "phone": {
+            "type": "string",
+            "description": "Peruvian mobile phone number (9 digits starting with 9)",
+            "example": "912345678",
+            "pattern": "^9\\d{8}$"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password",
+            "example": "SecurePassword123",
+            "minLength": 6
+          },
+          "invitationCode": {
+            "type": "string",
+            "description": "Invitation code for registration",
+            "example": "INV123456"
+          }
+        },
+        "required": [
+          "name",
+          "phone",
+          "password"
+        ]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "preacherType": {
+            "type": "string",
+            "description": "Preacher type classification",
+            "enum": [
+              "publisher",
+              "pioneer",
+              "auxiliary_pioneer",
+              "interpreter"
+            ],
+            "example": "pioneer"
+          },
+          "monthlyGoal": {
+            "type": "integer",
+            "description": "Monthly preaching hours goal",
+            "example": 100,
+            "minimum": 0
+          },
+          "showTutorial": {
+            "type": "boolean",
+            "description": "Whether to show tutorial on next login",
+            "example": false
+          }
+        }
+      },
+      "CreateEntryDto": {
+        "type": "object",
+        "properties": {
+          "preachingDate": {
+            "type": "number",
+            "description": "Preaching date as Unix timestamp (milliseconds)",
+            "example": 1719446400000
+          },
+          "hours": {
+            "type": "integer",
+            "description": "Hours spent in preaching activity (0-24)",
+            "example": 2,
+            "minimum": 0,
+            "maximum": 24
+          },
+          "minutes": {
+            "type": "integer",
+            "description": "Minutes spent in preaching activity (0-59)",
+            "example": 30,
+            "minimum": 0,
+            "maximum": 59
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of preaching session",
+            "enum": [
+              "house_to_house",
+              "revisits",
+              "bible_study",
+              "other"
+            ],
+            "example": "house_to_house"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional notes about the session",
+            "example": "Good conversation",
+            "maxLength": 50
+          },
+          "tempId": {
+            "type": "string",
+            "description": "Temporary ID for offline sync",
+            "example": "temp_123abc"
+          }
+        },
+        "required": [
+          "preachingDate",
+          "hours",
+          "minutes",
+          "type"
+        ]
+      },
+      "UpdateEntryDto": {
+        "type": "object",
+        "properties": {
+          "preachingDate": {
+            "type": "number",
+            "description": "Preaching date as Unix timestamp (milliseconds)",
+            "example": 1719446400000
+          },
+          "hours": {
+            "type": "integer",
+            "description": "Hours spent in preaching activity (0-24)",
+            "example": 2,
+            "minimum": 0,
+            "maximum": 24
+          },
+          "minutes": {
+            "type": "integer",
+            "description": "Minutes spent in preaching activity (0-59)",
+            "example": 30,
+            "minimum": 0,
+            "maximum": 59
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of preaching session",
+            "enum": [
+              "house_to_house",
+              "revisits",
+              "bible_study",
+              "other"
+            ],
+            "example": "house_to_house"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional notes about the session",
+            "example": "Good conversation",
+            "maxLength": 50
+          },
+          "tempId": {
+            "type": "string",
+            "description": "Temporary ID for offline sync",
+            "example": "temp_123abc"
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the entry",
+            "example": "507f1f77bcf86cd799439011"
+          }
+        },
+        "required": [
+          "preachingDate",
+          "hours",
+          "minutes",
+          "type",
+          "id"
+        ]
+      }
+    }
   }
 }

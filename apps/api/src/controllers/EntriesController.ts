@@ -12,13 +12,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/auth/current-user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import { Entry } from '@/domain/Entry';
 import { FilterEntries } from '@/domain/FilterEntries';
 import { User } from '@/domain/User';
+import { CreateEntryDto, UpdateEntryDto } from '@/domain/dtos/entry.dto';
 import { EntriesService } from '@/services/EntriesService';
 
 @ApiTags('Entries')
@@ -42,6 +43,7 @@ export class EntriesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBody({ type: CreateEntryDto })
   @Post()
   async createEntry(@CurrentUser() user: User, @Body() body: any) {
     const userId = user?.id;
@@ -58,6 +60,11 @@ export class EntriesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBody({
+    type: CreateEntryDto,
+    isArray: true,
+    description: 'Array of entries to sync from client',
+  })
   @Post('/sync')
   async syncEntries(@CurrentUser() user: User, @Body() body: any) {
     const userId = user?.id;
@@ -86,6 +93,7 @@ export class EntriesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBody({ type: UpdateEntryDto })
   @Patch(':id')
   async updateEntry(
     @CurrentUser() user: User,

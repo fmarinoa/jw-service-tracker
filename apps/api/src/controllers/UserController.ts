@@ -7,11 +7,12 @@ import {
   Patch,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/auth/current-user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import { User } from '@/domain/User';
+import { UpdateUserDto } from '@/domain/dtos/user.dto';
 import { UserService } from '@/services/UserService';
 
 @ApiTags('User')
@@ -30,6 +31,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBody({ type: UpdateUserDto })
   @Patch()
   async update(@CurrentUser() user: User, @Body() body: unknown) {
     const instanceForUpdate = User.validateForUpdate({

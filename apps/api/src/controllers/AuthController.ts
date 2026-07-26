@@ -8,12 +8,17 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/auth/current-user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import { Invitation } from '@/domain/Invitation';
 import { User } from '@/domain/User';
+import {
+  LoginRequestDto,
+  RefreshRequestDto,
+  RegisterDto,
+} from '@/domain/dtos/auth.dto';
 import { AuthService } from '@/services/AuthService';
 import { UserService } from '@/services/UserService';
 
@@ -26,6 +31,7 @@ export class AuthController {
   ) {}
 
   @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: LoginRequestDto })
   @Post('login')
   async login(@Body() body: unknown) {
     const result = LoginRequestSchema.safeParse(body);
@@ -41,6 +47,7 @@ export class AuthController {
     return this.authService.login(phone, password, platform);
   }
 
+  @ApiBody({ type: RefreshRequestDto })
   @Post('refresh')
   async refresh(@Body() body: unknown) {
     const result = RefreshRequestSchema.safeParse(body);
@@ -65,6 +72,7 @@ export class AuthController {
     return { ok: true };
   }
 
+  @ApiBody({ type: RegisterDto })
   @Post('register')
   async register(@Body() body: any) {
     const userInstance = User.validateForRegistration({
