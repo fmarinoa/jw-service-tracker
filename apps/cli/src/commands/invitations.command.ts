@@ -1,3 +1,4 @@
+import { isValidPeruvianPhone } from '@jw-tracker/shared';
 import { Command } from 'commander';
 import { DateTime } from 'luxon';
 import pc from 'picocolors';
@@ -55,7 +56,7 @@ export class InvitationsCommand extends BaseCommand {
       return;
     }
 
-    if (phone && !/^9\d{8}$/.test(phone)) {
+    if (phone && !isValidPeruvianPhone(phone)) {
       console.log(pc.red('✗ El celular debe tener 9 dígitos y empezar con 9.'));
       return;
     }

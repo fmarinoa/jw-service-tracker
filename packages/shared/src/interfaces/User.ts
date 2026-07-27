@@ -35,9 +35,12 @@ export interface User {
   updatedAt?: number;
 }
 
-export interface PathcResponse {
+export interface PatchResponse {
   id: string;
-  preacherType: PreacherType;
-  monthlyGoal: number;
-  updatedAt?: number;
+  preacherType?: PreacherType;
+  monthlyGoal?: number;
+  status?: UserStatus;
+  phone?: string;
+  showTutorial?: boolean;
+  updatedAt: number;
 }

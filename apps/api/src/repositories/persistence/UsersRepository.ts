@@ -1,4 +1,5 @@
-import { PreacherType } from '@jw-tracker/shared';
+import { PreacherType, UserStatus } from '@jw-tracker/shared';
+import { NotFoundException } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 
 import { User } from '@/domain/User';
@@ -13,7 +14,9 @@ export class UsersRepository extends BaseRepository {
   async findByPhone(phone: string) {
     return this.handlerCollection(async (collection) => {
       const result = await collection.findOne({ phone });
-      if (!result) return null;
+      if (!result) {
+        throw new NotFoundException(`User with phone ${phone} not found`);
+      }
       const { _id, ...rest } = result;
       return new User({ ...rest, id: _id.toString() });
     });
@@ -22,7 +25,9 @@ export class UsersRepository extends BaseRepository {
   async findById(id: string) {
     return this.handlerCollection(async (collection) => {
       const result = await collection.findOne(this.buildIdFilter(id));
-      if (!result) return null;
+      if (!result) {
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
       const { _id, ...rest } = result;
       return new User({ ...rest, id: _id.toString() });
     });
@@ -90,6 +95,31 @@ export class UsersRepository extends BaseRepository {
       return new User({
         id,
         showTutorial: false,
+        updatedAt,
+      });
+    });
+  }
+
+  async confirmApproval(user: Partial<User>): Promise<User> {
+    return this.handlerCollection(async (collection) => {
+      const id = user.id;
+      if (!id) {
+        throw new Error('User ID is required for update');
+      }
+
+      const updatedAt = this.getTimestamp();
+      const status = user.status || UserStatus.APPROVED;
+
+      await collection.updateOne(this.buildIdFilter(id), {
+        $set: {
+          status,
+          updatedAt,
+        },
+      });
+
+      return new User({
+        id,
+        status,
         updatedAt,
       });
     });

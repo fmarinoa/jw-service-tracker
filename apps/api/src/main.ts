@@ -1,7 +1,5 @@
-import { loadEnvFile } from 'node:process';
-
 if (process.env.NODE_ENV !== 'production') {
-  loadEnvFile();
+  require('node:process').loadEnvFile();
 }
 
 import * as fs from 'node:fs';
@@ -17,7 +15,10 @@ import {
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+    rawBody: true,
+  });
 
   app.enableCors();
   app.setGlobalPrefix('api');
@@ -57,4 +58,5 @@ async function bootstrap() {
   const server = await app.listen(process.env.PORT ?? 3000);
   console.log('Server listening:', JSON.stringify(server.address()));
 }
+
 bootstrap();

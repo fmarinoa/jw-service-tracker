@@ -7,6 +7,7 @@ export class LoggerMiddleware implements NestMiddleware {
     'password',
     'refreshTokenHash',
     'refreshToken',
+    'token',
   ];
 
   use(req: Request, _res: Response, next: NextFunction) {

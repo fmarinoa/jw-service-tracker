@@ -1,4 +1,8 @@
-import { PreacherType, UserStatus } from '@jw-tracker/shared';
+import {
+  normalizePeruvianPhone,
+  PreacherType,
+  UserStatus,
+} from '@jw-tracker/shared';
 import { BadRequestException } from '@nestjs/common';
 import { z } from 'zod';
 
@@ -55,7 +59,7 @@ export class User {
     }
     return new User({
       ...validated,
-      phone: `+51${validated.phone}`,
+      phone: normalizePeruvianPhone(validated.phone),
       status: UserStatus.PENDING,
     });
   }

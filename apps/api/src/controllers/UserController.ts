@@ -11,8 +11,8 @@ import { ApiBody, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/auth/current-user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
-import { User } from '@/domain/User';
 import { UpdateUserDto } from '@/domain/dtos/user.dto';
+import { User } from '@/domain/User';
 import { UserService } from '@/services/UserService';
 
 @ApiTags('User')

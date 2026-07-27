@@ -1,4 +1,4 @@
-import { UnauthorizedException } from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import bcrypt from 'bcrypt';
 
@@ -96,7 +96,9 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException if user phone is not found', async () => {
-      (usersRepository.findByPhone as jest.Mock).mockResolvedValue(null);
+      (usersRepository.findByPhone as jest.Mock).mockRejectedValue(
+        new NotFoundException('User with phone +51932337417 not found'),
+      );
 
       await expect(
         authService.login('932337417', 'password123', 'web'),
@@ -224,7 +226,9 @@ describe('AuthService', () => {
       (authSessionsRepository.findByTokenHash as jest.Mock).mockResolvedValue(
         mockSession,
       );
-      (usersRepository.findById as jest.Mock).mockResolvedValue(null);
+      (usersRepository.findById as jest.Mock).mockRejectedValue(
+        new NotFoundException('User with ID deleted-user not found'),
+      );
 
       await expect(
         authService.refreshSession('valid-refresh-token'),

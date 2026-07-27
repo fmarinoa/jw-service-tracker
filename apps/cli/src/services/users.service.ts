@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { Db, ObjectId } from 'mongodb';
 
 import { DbConnection } from '../db/connection';
@@ -93,7 +94,7 @@ export class UsersService {
     const usersCollection = this.db.collection('users');
     await usersCollection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { status: 'APPROVED' } },
+      { $set: { status: 'APPROVED', updatedAt: DateTime.now().toMillis() } },
     );
   }
 }

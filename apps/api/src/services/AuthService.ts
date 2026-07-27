@@ -20,10 +20,14 @@ export class AuthService {
     platform: Platform,
   ): Promise<{ accessToken: string; refreshToken: string; expiresIn: number }> {
     const normalizedPhone = phone.startsWith('+51') ? phone : `+51${phone}`;
-    const user = await usersRepository.findByPhone(normalizedPhone);
-    if (!user) {
+
+    let user;
+    try {
+      user = await usersRepository.findByPhone(normalizedPhone);
+    } catch {
       throw new UnauthorizedException('Usuario no encontrado');
     }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Contraseña inválida');
@@ -59,10 +63,13 @@ export class AuthService {
       );
     }
 
-    const user = await usersRepository.findById(session.userId);
-    if (!user) {
+    let user;
+    try {
+      user = await usersRepository.findById(session.userId);
+    } catch {
       throw new UnauthorizedException('User not found');
     }
+
     const { accessToken, refreshToken: newRefreshToken } =
       await this.authSessionService.refreshSession(user, session);
 

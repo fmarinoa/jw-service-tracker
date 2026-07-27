@@ -16,10 +16,10 @@ import { ApiBody, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/auth/current-user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
+import { CreateEntryDto, UpdateEntryDto } from '@/domain/dtos/entry.dto';
 import { Entry } from '@/domain/Entry';
 import { FilterEntries } from '@/domain/FilterEntries';
 import { User } from '@/domain/User';
-import { CreateEntryDto, UpdateEntryDto } from '@/domain/dtos/entry.dto';
 import { EntriesService } from '@/services/EntriesService';
 
 @ApiTags('Entries')

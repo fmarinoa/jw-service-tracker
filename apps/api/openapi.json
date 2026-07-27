@@ -22,7 +22,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateUserDto"
+                "$ref": "#/components/schemas/u"
               }
             }
           }
@@ -46,7 +46,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginRequestDto"
+                "$ref": "#/components/schemas/s"
               }
             }
           }
@@ -70,7 +70,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RefreshRequestDto"
+                "$ref": "#/components/schemas/a"
               }
             }
           }
@@ -108,7 +108,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterDto"
+                "$ref": "#/components/schemas/u"
               }
             }
           }
@@ -144,7 +144,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateEntryDto"
+                "$ref": "#/components/schemas/u"
               }
             }
           }
@@ -171,7 +171,7 @@
               "schema": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/CreateEntryDto"
+                  "$ref": "#/components/schemas/u"
                 }
               }
             }
@@ -226,7 +226,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateEntryDto"
+                "$ref": "#/components/schemas/c"
               }
             }
           }
@@ -306,110 +306,7 @@
       }
     },
     "schemas": {
-      "LoginRequestDto": {
-        "type": "object",
-        "properties": {
-          "phone": {
-            "type": "string",
-            "description": "Phone number with country code",
-            "example": "+51912345678"
-          },
-          "password": {
-            "type": "string",
-            "description": "User password",
-            "example": "password123"
-          },
-          "platform": {
-            "type": "string",
-            "description": "Platform identifier",
-            "example": "web"
-          },
-          "deviceName": {
-            "type": "string",
-            "description": "Device name for session tracking",
-            "example": "iPhone 12"
-          }
-        },
-        "required": [
-          "phone",
-          "password"
-        ]
-      },
-      "RefreshRequestDto": {
-        "type": "object",
-        "properties": {
-          "refreshToken": {
-            "type": "string",
-            "description": "Refresh token for obtaining a new access token",
-            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-          }
-        },
-        "required": [
-          "refreshToken"
-        ]
-      },
-      "RegisterDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "User full name",
-            "example": "Juan Pérez",
-            "minLength": 2,
-            "maxLength": 50
-          },
-          "phone": {
-            "type": "string",
-            "description": "Peruvian mobile phone number (9 digits starting with 9)",
-            "example": "912345678",
-            "pattern": "^9\\d{8}$"
-          },
-          "password": {
-            "type": "string",
-            "description": "User password",
-            "example": "SecurePassword123",
-            "minLength": 6
-          },
-          "invitationCode": {
-            "type": "string",
-            "description": "Invitation code for registration",
-            "example": "INV123456"
-          }
-        },
-        "required": [
-          "name",
-          "phone",
-          "password"
-        ]
-      },
-      "UpdateUserDto": {
-        "type": "object",
-        "properties": {
-          "preacherType": {
-            "type": "string",
-            "description": "Preacher type classification",
-            "enum": [
-              "publisher",
-              "pioneer",
-              "auxiliary_pioneer",
-              "interpreter"
-            ],
-            "example": "pioneer"
-          },
-          "monthlyGoal": {
-            "type": "integer",
-            "description": "Monthly preaching hours goal",
-            "example": 100,
-            "minimum": 0
-          },
-          "showTutorial": {
-            "type": "boolean",
-            "description": "Whether to show tutorial on next login",
-            "example": false
-          }
-        }
-      },
-      "CreateEntryDto": {
+      "u": {
         "type": "object",
         "properties": {
           "preachingDate": {
@@ -461,7 +358,49 @@
           "type"
         ]
       },
-      "UpdateEntryDto": {
+      "s": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "Phone number with country code",
+            "example": "+51912345678"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password",
+            "example": "password123"
+          },
+          "platform": {
+            "type": "string",
+            "description": "Platform identifier",
+            "example": "web"
+          },
+          "deviceName": {
+            "type": "string",
+            "description": "Device name for session tracking",
+            "example": "iPhone 12"
+          }
+        },
+        "required": [
+          "phone",
+          "password"
+        ]
+      },
+      "a": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token for obtaining a new access token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "c": {
         "type": "object",
         "properties": {
           "preachingDate": {

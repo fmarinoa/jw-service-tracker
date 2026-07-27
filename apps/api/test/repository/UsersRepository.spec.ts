@@ -54,12 +54,12 @@ describe('UsersRepository', () => {
       expect(result?.name).toBe('FRANCO MARIÑO');
     });
 
-    it('should return null if user does not exist', async () => {
+    it('should throw NotFoundException if user does not exist', async () => {
       mockCollection.findOne.mockResolvedValue(null);
 
-      const result = await repository.findByPhone('+51932337417');
-
-      expect(result).toBeNull();
+      await expect(repository.findByPhone('+51932337417')).rejects.toThrow(
+        'User with phone +51932337417 not found',
+      );
     });
   });
 
@@ -80,6 +80,15 @@ describe('UsersRepository', () => {
         _id: new ObjectId(mockId),
       });
       expect(result?.id).toBe(mockId);
+    });
+
+    it('should throw NotFoundException if user does not exist', async () => {
+      const mockId = '6a2a3169441e2b16bc9d1867';
+      mockCollection.findOne.mockResolvedValue(null);
+
+      await expect(repository.findById(mockId)).rejects.toThrow(
+        `User with ID ${mockId} not found`,
+      );
     });
   });
 

@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
@@ -72,7 +72,9 @@ describe('UserService', () => {
     });
 
     it('should throw an error if user is not found', async () => {
-      (usersRepository.findById as jest.Mock).mockResolvedValue(null);
+      (usersRepository.findById as jest.Mock).mockRejectedValue(
+        new NotFoundException('User with ID user-123 not found'),
+      );
 
       await expect(userService.getUserById('user-123')).rejects.toThrow(
         'User with ID user-123 not found',
@@ -114,7 +116,9 @@ describe('UserService', () => {
     });
 
     it('should throw BadRequestException if user is not found during update', async () => {
-      (usersRepository.findById as jest.Mock).mockResolvedValue(null);
+      (usersRepository.findById as jest.Mock).mockRejectedValue(
+        new NotFoundException('User with ID user-123 not found'),
+      );
 
       const updatedUserPayload = new User({
         id: 'user-123',
@@ -150,7 +154,9 @@ describe('UserService', () => {
     });
 
     it('should register with status pending when no inviteCode is provided', async () => {
-      (usersRepository.findByPhone as jest.Mock).mockResolvedValue(null);
+      (usersRepository.findByPhone as jest.Mock).mockRejectedValue(
+        new NotFoundException('User with phone +51932337417 not found'),
+      );
       (usersRepository.create as jest.Mock).mockImplementation((u) =>
         Promise.resolve({ ...u, id: 'user-123' }),
       );
@@ -167,7 +173,9 @@ describe('UserService', () => {
     });
 
     it('should approve registration and mark invitation used when inviteCode is valid', async () => {
-      (usersRepository.findByPhone as jest.Mock).mockResolvedValue(null);
+      (usersRepository.findByPhone as jest.Mock).mockRejectedValue(
+        new NotFoundException('User with phone +51932337417 not found'),
+      );
       (usersRepository.create as jest.Mock).mockImplementation((u) =>
         Promise.resolve({ ...u, id: 'user-123' }),
       );
@@ -197,7 +205,9 @@ describe('UserService', () => {
     });
 
     it('should approve registration when invitation phone matches', async () => {
-      (usersRepository.findByPhone as jest.Mock).mockResolvedValue(null);
+      (usersRepository.findByPhone as jest.Mock).mockRejectedValue(
+        new NotFoundException('User with phone +51932337417 not found'),
+      );
       (usersRepository.create as jest.Mock).mockImplementation((u) =>
         Promise.resolve({ ...u, id: 'user-123' }),
       );
@@ -220,7 +230,9 @@ describe('UserService', () => {
     });
 
     it('should throw BadRequestException when inviteCode does not exist', async () => {
-      (usersRepository.findByPhone as jest.Mock).mockResolvedValue(null);
+      (usersRepository.findByPhone as jest.Mock).mockRejectedValue(
+        new NotFoundException('User with phone +51932337417 not found'),
+      );
       (invitationsRepository.findByCode as jest.Mock).mockResolvedValue(null);
 
       await expect(
@@ -230,7 +242,9 @@ describe('UserService', () => {
     });
 
     it('should throw BadRequestException when inviteCode is already used', async () => {
-      (usersRepository.findByPhone as jest.Mock).mockResolvedValue(null);
+      (usersRepository.findByPhone as jest.Mock).mockRejectedValue(
+        new NotFoundException('User with phone +51932337417 not found'),
+      );
       const invitation = new Invitation({
         id: 'inv-1',
         code: 'ABC123',
@@ -247,7 +261,9 @@ describe('UserService', () => {
     });
 
     it('should throw BadRequestException when inviteCode is expired', async () => {
-      (usersRepository.findByPhone as jest.Mock).mockResolvedValue(null);
+      (usersRepository.findByPhone as jest.Mock).mockRejectedValue(
+        new NotFoundException('User with phone +51932337417 not found'),
+      );
       const invitation = new Invitation({
         id: 'inv-1',
         code: 'ABC123',
@@ -263,7 +279,9 @@ describe('UserService', () => {
     });
 
     it('should throw BadRequestException when inviteCode is bound to a different phone', async () => {
-      (usersRepository.findByPhone as jest.Mock).mockResolvedValue(null);
+      (usersRepository.findByPhone as jest.Mock).mockRejectedValue(
+        new NotFoundException('User with phone +51932337417 not found'),
+      );
       const invitation = new Invitation({
         id: 'inv-1',
         code: 'ABC123',

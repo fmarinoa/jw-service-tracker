@@ -1,4 +1,4 @@
-import { InternalServerErrorException } from '@nestjs/common';
+import { HttpException, InternalServerErrorException } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import { Collection, Document, MongoClient, ObjectId } from 'mongodb';
 
@@ -53,6 +53,11 @@ export abstract class BaseRepository {
         `[MongoDB Error] ${collectionName}${options?.functionName ? ` (${options.functionName})` : ''} - failed in ${duration}ms: `,
         error instanceof Error ? error.message : String(error),
       );
+
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
       throw new InternalServerErrorException(
         '[MongoDB Error: ' +
           collectionName +

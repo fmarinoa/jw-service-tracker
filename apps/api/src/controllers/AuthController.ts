@@ -12,13 +12,13 @@ import { ApiBody, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/auth/current-user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
-import { Invitation } from '@/domain/Invitation';
-import { User } from '@/domain/User';
 import {
   LoginRequestDto,
   RefreshRequestDto,
   RegisterDto,
 } from '@/domain/dtos/auth.dto';
+import { Invitation } from '@/domain/Invitation';
+import { User } from '@/domain/User';
 import { AuthService } from '@/services/AuthService';
 import { UserService } from '@/services/UserService';
 

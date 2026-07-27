@@ -1,5 +1,13 @@
-import { PathcResponse, UserStatus } from '@jw-tracker/shared';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  normalizePeruvianPhone,
+  PatchResponse,
+  UserStatus,
+} from '@jw-tracker/shared';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { Invitation } from '@/domain/Invitation';
@@ -10,40 +18,69 @@ import { invitationsRepository, usersRepository } from '@/repositories';
 export class UserService {
   constructor(private readonly eventEmitter: EventEmitter2) {}
   async getUserById(userId: string) {
-    const originalUser = await usersRepository.findById(userId);
-    if (!originalUser) {
-      throw new Error(`User with ID ${userId} not found`);
+    let originalUser: User;
+    try {
+      originalUser = await usersRepository.findById(userId);
+    } catch {
+      throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
     const { password: _, ...user } = originalUser;
     return user;
   }
 
-  async updateUser(user: User): Promise<PathcResponse> {
-    const originalUser = await usersRepository.findById(user.id);
-    if (!originalUser) {
+  async getUserByPhone(phone: string) {
+    let originalUser: User;
+    try {
+      originalUser = await usersRepository.findByPhone(phone);
+    } catch {
+      throw new NotFoundException(
+        `Usuario con celular ${phone} no encontrado.`,
+      );
+    }
+
+    const { password: _, ...user } = originalUser;
+    return user;
+  }
+
+  async updateUser(user: User): Promise<PatchResponse> {
+    let originalUser: User;
+    try {
+      originalUser = await usersRepository.findById(user.id);
+    } catch {
       throw new BadRequestException(`User with ID ${user.id} not found`);
     }
 
     if (user.showTutorial === false) {
-      await usersRepository.confirmTutorial(originalUser);
+      return (await usersRepository.confirmTutorial(
+        originalUser,
+      )) as PatchResponse;
+    }
+
+    if (user.status === UserStatus.APPROVED) {
+      const updatedUser = await usersRepository.confirmApproval(originalUser);
+      return { ...updatedUser, phone: user.phone } as PatchResponse;
     }
 
     originalUser.updateGoals(user.monthlyGoal, user.preacherType);
 
-    return usersRepository.update(originalUser);
+    return (await usersRepository.update(originalUser)) as PatchResponse;
   }
 
   async register(
     user: User,
     invitation?: Invitation,
   ): Promise<{ user: any; success: boolean }> {
-    const normalizedPhone = user.phone.startsWith('+51')
-      ? user.phone
-      : `+51${user.phone}`;
-    const existingUser = await usersRepository.findByPhone(normalizedPhone);
-    if (existingUser) {
+    const normalizedPhone = normalizePeruvianPhone(user.phone);
+
+    try {
+      await usersRepository.findByPhone(normalizedPhone);
       throw new BadRequestException('El celular ya está registrado.');
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      // findByPhone throws NotFoundException when the phone is free: registration can continue.
     }
 
     let existInvitation: Invitation | null = null;
