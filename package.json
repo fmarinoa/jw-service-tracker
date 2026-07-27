@@ -10,7 +10,8 @@
     "prettier": "pnpm run -r prettier",
     "cli": "pnpm --filter jw-cli start",
     "commit": "sh -c 'git commit -m \"$(agy -p \"Generate a concise conventional commit message based on this diff, response only in text format, without any extra text or markdown: $(git diff --staged)\")\"'",
-    "commit:all": "git add . && npm run commit"
+    "commit:all": "git add . && npm run commit",
+    "pr:create": "gh pr create -t \"$(git branch --show-current)\" -b \"\""
   },
   "engines": {
     "node": "24"

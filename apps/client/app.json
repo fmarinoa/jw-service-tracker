@@ -2,7 +2,7 @@
   "expo": {
     "name": "JW Service Tracker",
     "slug": "jw-service-tracker",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "experiments": {
       "baseUrl": "/app"
     },
