@@ -7,7 +7,7 @@ import {
   Patch,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/auth/current-user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
@@ -16,6 +16,7 @@ import { User } from '@/domain/User';
 import { UserService } from '@/services/UserService';
 
 @ApiTags('User')
+@ApiBearerAuth('BearerAuth')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}

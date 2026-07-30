@@ -12,7 +12,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/auth/current-user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
@@ -23,6 +23,7 @@ import { User } from '@/domain/User';
 import { EntriesService } from '@/services/EntriesService';
 
 @ApiTags('Entries')
+@ApiBearerAuth('BearerAuth')
 @Controller('entries')
 export class EntriesController {
   constructor(private readonly entriesService: EntriesService) {}
