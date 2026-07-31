@@ -52,9 +52,19 @@ export class UserService {
 
     switch (context.applicationType) {
       case ApplicationType.EXTERNAL:
-        if (user.status === UserStatus.APPROVED) {
+        if (
+          user.status === UserStatus.APPROVED &&
+          originalUser.status !== UserStatus.APPROVED
+        ) {
           const updatedUser =
             await usersRepository.confirmApproval(originalUser);
+          this.eventEmitter.emit('user.approved', {
+            user: {
+              id: originalUser.id,
+              name: originalUser.name,
+              email: originalUser.email,
+            },
+          });
           return { ...updatedUser, phone: user.phone } as PatchResponse;
         }
         break;

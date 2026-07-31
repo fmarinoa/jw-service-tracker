@@ -13,6 +13,7 @@ const INVITE_CODE_LENGTH = 8;
 import {
   EyeIcon,
   LockIcon,
+  MailIcon,
   PersonIcon,
   PhoneIcon,
   TicketIcon,
@@ -22,6 +23,7 @@ import { AuthApi } from '../../src/services/authApi';
 export default function RegisterPage() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [codeDigits, setCodeDigits] = useState<string[]>(
@@ -94,12 +96,18 @@ export default function RegisterPage() {
       return;
     }
 
+    if (email.trim() && !/^\S+@\S+\.\S+$/.test(email.trim())) {
+      setError('El correo electrónico no es válido.');
+      return;
+    }
+
     setIsLoading(true);
     try {
       await AuthApi.register({
         name,
         phone,
         password,
+        email: email.trim() || undefined,
         invitationCode: inviteCode.trim() || undefined,
       });
       setSuccess(true);
@@ -157,6 +165,26 @@ export default function RegisterPage() {
           </View>
           <Text className="text-[10.5px] text-muted-foreground mt-1 mb-4">
             Se guardará como +51 {phone || '999888777'}
+          </Text>
+
+          <Text className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-1.5">
+            Correo electrónico (opcional)
+          </Text>
+          <View className="flex-row items-center gap-2.5 px-3.5 bg-background border border-border rounded-xl">
+            <MailIcon />
+            <TextInput
+              className="flex-1 py-3 text-foreground text-[15px]"
+              placeholder="tucorreo@ejemplo.com"
+              placeholderTextColor="#a8a099"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
+          <Text className="text-[10.5px] text-muted-foreground mt-1 mb-4">
+            Te avisaremos a este correo cuando tu cuenta sea aprobada.
           </Text>
 
           <Text className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-1.5">

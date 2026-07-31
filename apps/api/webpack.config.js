@@ -39,7 +39,7 @@ module.exports = function (options) {
     ],
     optimization: {
       ...options.optimization,
-      minimize: true,
+      minimize: false,
     },
     plugins: [
       ...options.plugins,

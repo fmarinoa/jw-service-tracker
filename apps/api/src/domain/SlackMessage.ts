@@ -28,36 +28,41 @@ export class SlackMessage {
     const message = [
       header,
       `• Nombre: ${user.name}`,
-      `• Teléfono: ${user.phone}`,
+      `• Id: ${user.id}`,
       `• Código de invitación: ${invitation ? invitation.code : 'N/A'}`,
       `• Estado: ${user.status}`,
     ].join('\n');
     return new SlackMessage({ message });
   }
 
-  static buildUserApprovedMessage(user: User): SlackCommandResponse {
+  static buildUserApprovedMessage(
+    user: User,
+    createdBy: string,
+  ): SlackCommandResponse {
     const text = [
       `:white_check_mark: Usuario con teléfono ${user.phone} aprobado exitosamente.`,
+      `• Aprobado por: <@${createdBy}>`,
     ].join('\n');
 
     return {
-      response_type: 'ephemeral',
+      response_type: 'in_channel',
       text,
     };
   }
 
   static buildInvitationCreatedMessage(
     invitation: Invitation,
+    createdBy: string,
   ): SlackCommandResponse {
     const text = [
-      ':white_check_mark: *Invitación creada:*',
+      `:white_check_mark: *Invitación creada por:* <@${createdBy}>`,
       `• Código: \`${invitation.code}\``,
       `• Celular: ${invitation.phone ?? 'cualquiera (uso único)'}`,
       `• Expira: ${DateTime.fromMillis(invitation.expiresAt).toLocaleString(DateTime.DATETIME_MED)}`,
     ].join('\n');
 
     return {
-      response_type: 'ephemeral',
+      response_type: 'in_channel',
       text,
     };
   }

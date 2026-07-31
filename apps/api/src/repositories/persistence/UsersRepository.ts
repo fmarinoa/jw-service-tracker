@@ -108,7 +108,7 @@ export class UsersRepository extends BaseRepository {
       }
 
       const updatedAt = this.getTimestamp();
-      const status = user.status || UserStatus.APPROVED;
+      const status = UserStatus.APPROVED;
 
       await collection.updateOne(this.buildIdFilter(id), {
         $set: {

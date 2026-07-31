@@ -96,9 +96,7 @@ describe('UserController', () => {
         monthlyGoal: -10, // Invalid range
       };
 
-      await expect(
-        controller.update(mockBody, mockContext),
-      ).rejects.toThrow();
+      await expect(controller.update(mockBody, mockContext)).rejects.toThrow();
       expect(userService.updateUser).not.toHaveBeenCalled();
     });
   });

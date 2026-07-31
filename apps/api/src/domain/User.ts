@@ -21,6 +21,7 @@ export const registerSchema = z.object({
   name: z.string().min(2, 'Nombre muy corto').max(50),
   phone: phoneSchema,
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+  email: z.email('Correo electrónico inválido').optional(),
 });
 
 const updateSettingsSchema = z.object({
@@ -39,6 +40,7 @@ export class User {
   name: string;
   phone: string;
   password: string;
+  email?: string;
   preacherType: PreacherType;
   monthlyGoal: number;
   status: UserStatus;

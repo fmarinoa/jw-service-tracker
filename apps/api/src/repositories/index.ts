@@ -1,14 +1,27 @@
 import { MongoClient, MongoClientOptions, ServerApiVersion } from 'mongodb';
+import { Resend } from 'resend';
 
+import { EmailRepository } from './EmailRepository';
 import { GitHubReleasesRepository } from './external/GitHubReleasesRepository';
+import { RenderRepository } from './external/RenderRepository';
 import { SlackRepository } from './external/SlackRepository';
 import { AuthSessionsRepository } from './persistence/AuthSessionsRepository';
+import { CachedEmailsRepository } from './persistence/CachedEmailsRepository';
 import { EntriesRepository } from './persistence/EntriesRepository';
+import { FailedEmailsRepository } from './persistence/FailedEmailsRepository';
 import { HistoryReleasesRepository } from './persistence/HistoryReleasesRepository';
 import { InvitationsRepository } from './persistence/InvitationsRepository';
 import { UsersRepository } from './persistence/UsersRepository';
 
-const uri = process.env.MONGODB_URI!;
+const {
+  MONGODB_URI,
+  RESEND_API_KEY,
+  GITHUB_TOKEN,
+  SLACK_WEBHOOK_URL,
+  EMAIL_FROM,
+} = process.env;
+
+const uri = MONGODB_URI!;
 const options: MongoClientOptions = {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -57,6 +70,13 @@ export const authSessionsRepository = new AuthSessionsRepository({
   },
 });
 
+export const failedEmailsRepository = new FailedEmailsRepository({
+  dbClient,
+  config: {
+    collectionName: 'failed_emails',
+  },
+});
+
 export const historyReleasesRepository = new HistoryReleasesRepository({
   dbClient,
   config: {
@@ -65,7 +85,7 @@ export const historyReleasesRepository = new HistoryReleasesRepository({
 });
 
 export const gitHubReleasesRepository = new GitHubReleasesRepository({
-  githubToken: process.env.GITHUB_TOKEN,
+  githubToken: GITHUB_TOKEN,
   config: {
     urlBase: 'https://api.github.com/repos/fmarinoa/jw-service-tracker',
   },
@@ -73,6 +93,24 @@ export const gitHubReleasesRepository = new GitHubReleasesRepository({
 
 export const slackRepository = new SlackRepository({
   config: {
-    urlBase: process.env.SLACK_WEBHOOK_URL!,
+    urlBase: SLACK_WEBHOOK_URL!,
   },
 });
+
+// EMAIL_CACHE_ONLY decides which EmailRepository gets constructed: Resend's
+// client throws synchronously without an API key, so it must not be
+// instantiated in environments that don't have access to it.
+export const emailRepository: EmailRepository =
+  process.env.EMAIL_CACHE_ONLY === 'true'
+    ? new CachedEmailsRepository({
+        dbClient,
+        config: {
+          collectionName: 'cached_emails',
+        },
+      })
+    : new RenderRepository({
+        resend: new Resend(RESEND_API_KEY),
+        config: {
+          from: EMAIL_FROM!,
+        },
+      });

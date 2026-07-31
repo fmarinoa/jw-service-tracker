@@ -1,0 +1,4 @@
+<div>
+  <h1>Hola {{name}}</h1>
+  <p>Tu cuenta fue aprobada. Ya puedes iniciar sesión en <a href="https://jw-service-tracker.vercel.app/app">JW Reporta</a>.</p>
+</div>

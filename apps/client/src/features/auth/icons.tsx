@@ -78,6 +78,29 @@ export function PersonIcon({
   );
 }
 
+export function MailIcon({ size = 18, color = DEFAULT_COLOR }: AuthIconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Rect
+        x="3"
+        y="5"
+        width="18"
+        height="14"
+        rx="2"
+        stroke={color}
+        strokeWidth={2}
+      />
+      <Path
+        d="m3 7 9 6 9-6"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 export function TicketIcon({
   size = 18,
   color = DEFAULT_COLOR,

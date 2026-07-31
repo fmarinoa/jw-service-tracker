@@ -53,6 +53,14 @@ export class RegisterDto {
   phone: string;
 
   @ApiProperty({
+    description: 'User email address',
+    example: 'jw@example.com',
+    format: 'email',
+    required: false,
+  })
+  email: string;
+
+  @ApiProperty({
     description: 'User password',
     example: 'SecurePassword123',
     minLength: 6,

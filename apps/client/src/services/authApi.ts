@@ -28,6 +28,7 @@ export class AuthApi extends BaseService {
     name: string;
     phone: string;
     password: string;
+    email?: string;
     invitationCode?: string;
   }): Promise<any> {
     return this.handleRequest<any>({

@@ -58,10 +58,7 @@ describe('SlackController', () => {
     });
 
     it('returns the usage hint when text is empty', async () => {
-      const result = await controller.handleCommand(
-        buildBody(''),
-        mockContext,
-      );
+      const result = await controller.handleCommand(buildBody(''), mockContext);
 
       expect(result.text).toContain('/invitations');
     });

@@ -76,6 +76,7 @@ export class AuthController {
       phone: body.phone,
       name: body.name,
       password: body.password,
+      email: body.email,
     });
 
     const invitation = body.invitationCode
