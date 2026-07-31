@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -14,11 +13,12 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 
-import { CurrentUser } from '@/auth/current-user.decorator';
+import { AppContext } from '@/auth/app-context.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import { CreateEntryDto, UpdateEntryDto } from '@/domain/dtos/entry.dto';
 import { Entry } from '@/domain/Entry';
 import { FilterEntries } from '@/domain/FilterEntries';
+import { RequestContext } from '@/domain/RequestContext';
 import { User } from '@/domain/User';
 import { EntriesService } from '@/services/EntriesService';
 
@@ -30,15 +30,13 @@ export class EntriesController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async retrieveEntries(@CurrentUser() user: User, @Query() query: any) {
-    const userId = user?.id;
-    if (!userId) {
-      throw new BadRequestException('User not found in request context');
-    }
-
+  async retrieveEntries(
+    @AppContext() context: RequestContext,
+    @Query() query: any,
+  ) {
     const filters = FilterEntries.validateInstance(query);
     return await this.entriesService.getByUser(
-      new User({ ...user, id: userId }),
+      new User({ id: context.requireUserId() }),
       filters,
     );
   }
@@ -46,16 +44,11 @@ export class EntriesController {
   @UseGuards(JwtAuthGuard)
   @ApiBody({ type: CreateEntryDto })
   @Post()
-  async createEntry(@CurrentUser() user: User, @Body() body: any) {
-    const userId = user?.id;
-    if (!userId) {
-      throw new BadRequestException('User not found in request context');
-    }
-
+  async createEntry(@AppContext() context: RequestContext, @Body() body: any) {
     const entry = Entry.validateForCreate(body);
 
     return await this.entriesService.create(
-      new User({ ...user, id: userId }),
+      new User({ id: context.requireUserId() }),
       entry as Entry,
     );
   }
@@ -67,15 +60,10 @@ export class EntriesController {
     description: 'Array of entries to sync from client',
   })
   @Post('/sync')
-  async syncEntries(@CurrentUser() user: User, @Body() body: any) {
-    const userId = user?.id;
-    if (!userId) {
-      throw new BadRequestException('User not found in request context');
-    }
-
+  async syncEntries(@AppContext() context: RequestContext, @Body() body: any) {
     const entries = Entry.validateForCreate(body, true);
     return await this.entriesService.createMany(
-      new User({ ...user, id: userId }),
+      new User({ id: context.requireUserId() }),
       entries as Entry[],
     );
   }
@@ -83,13 +71,14 @@ export class EntriesController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async deleteEntry(@CurrentUser() user: User, @Param('id') id: string) {
-    const userId = user?.id;
-    if (!userId) {
-      throw new BadRequestException('User not found in request context');
-    }
-
-    await this.entriesService.delete(new User({ ...user, id: userId }), id);
+  async deleteEntry(
+    @AppContext() context: RequestContext,
+    @Param('id') id: string,
+  ) {
+    await this.entriesService.delete(
+      new User({ id: context.requireUserId() }),
+      id,
+    );
     return;
   }
 
@@ -97,19 +86,14 @@ export class EntriesController {
   @ApiBody({ type: UpdateEntryDto })
   @Patch(':id')
   async updateEntry(
-    @CurrentUser() user: User,
+    @AppContext() context: RequestContext,
     @Param('id') id: string,
     @Body() body: any,
   ) {
-    const userId = user?.id;
-    if (!userId) {
-      throw new BadRequestException('User not found in request context');
-    }
-
     const entry = Entry.validateForUpdate({ ...body, id });
 
     return await this.entriesService.update(
-      new User({ ...user, id: userId }),
+      new User({ id: context.requireUserId() }),
       entry,
     );
   }

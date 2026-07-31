@@ -9,9 +9,10 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 
-import { CurrentUser } from '@/auth/current-user.decorator';
+import { AppContext } from '@/auth/app-context.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import { UpdateUserDto } from '@/domain/dtos/user.dto';
+import { RequestContext } from '@/domain/RequestContext';
 import { User } from '@/domain/User';
 import { UserService } from '@/services/UserService';
 
@@ -24,21 +25,20 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get()
-  async me(@CurrentUser() user: User) {
-    if (!user || !user.id) {
-      throw new Error('User not found in request context');
-    }
-    return await this.userService.getUserById(user.id);
+  async me(@AppContext() context: RequestContext) {
+    return await this.userService.getUserById(context.requireUserId());
   }
 
   @UseGuards(JwtAuthGuard)
   @ApiBody({ type: UpdateUserDto })
   @Patch()
-  async update(@CurrentUser() user: User, @Body() body: unknown) {
+  async update(@Body() body: any, @AppContext() context: RequestContext) {
     const instanceForUpdate = User.validateForUpdate({
-      ...(body as any),
-      id: user.id,
+      id: context.requireUserId(),
+      preacherType: body.preacherType,
+      monthlyGoal: body.monthlyGoal,
+      showTutorial: body.showTutorial,
     });
-    return await this.userService.updateUser(instanceForUpdate);
+    return await this.userService.updateUser(instanceForUpdate, context);
   }
 }

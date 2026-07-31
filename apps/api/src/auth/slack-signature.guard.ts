@@ -8,6 +8,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
+import { ApplicationType } from '@/domain/RequestContext';
+
 const MAX_TIMESTAMP_SKEW_SECONDS = 60 * 5; // 5 minutes
 
 @Injectable()
@@ -37,8 +39,8 @@ export class SlackSignatureGuard implements CanActivate {
     ) {
       throw new UnauthorizedException('Slack request timestamp is stale');
     }
-
-    const baseString = `v0:${timestamp}:${rawBody.toString('utf8')}`;
+    const bodyString = rawBody.toString('utf8');
+    const baseString = `v0:${timestamp}:${bodyString}`;
     const expectedSignature = `v0=${crypto
       .createHmac('sha256', signingSecret)
       .update(baseString)
@@ -55,6 +57,8 @@ export class SlackSignatureGuard implements CanActivate {
       throw new UnauthorizedException('Invalid Slack signature');
     }
 
+    request.applicationType = ApplicationType.EXTERNAL;
+    request.entityCode = 'SLACK';
     return true;
   }
 }

@@ -2,6 +2,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
+import { ApplicationType, RequestContext } from '@/domain/RequestContext';
 import { Invitation } from '@/domain/Invitation';
 import { User } from '@/domain/User';
 import { UserService } from '@/services/UserService';
@@ -107,7 +108,13 @@ describe('UserService', () => {
         monthlyGoal: 50,
       });
 
-      const result = await userService.updateUser(updatedUserPayload);
+      const result = await userService.updateUser(
+        updatedUserPayload,
+        new RequestContext({
+          applicationType: ApplicationType.CUSTOMER,
+          userId: 'user-123',
+        }),
+      );
 
       expect(usersRepository.findById).toHaveBeenCalledWith('user-123');
       expect(usersRepository.update).toHaveBeenCalled();
@@ -115,7 +122,7 @@ describe('UserService', () => {
       expect(result.monthlyGoal).toBe(50);
     });
 
-    it('should throw BadRequestException if user is not found during update', async () => {
+    it('should throw NotFoundException if user is not found during update', async () => {
       (usersRepository.findById as jest.Mock).mockRejectedValue(
         new NotFoundException('User with ID user-123 not found'),
       );
@@ -126,9 +133,15 @@ describe('UserService', () => {
         monthlyGoal: 50,
       });
 
-      await expect(userService.updateUser(updatedUserPayload)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        userService.updateUser(
+          updatedUserPayload,
+          new RequestContext({
+            applicationType: ApplicationType.CUSTOMER,
+            userId: 'user-123',
+          }),
+        ),
+      ).rejects.toThrow(NotFoundException);
       expect(usersRepository.update).not.toHaveBeenCalled();
     });
   });

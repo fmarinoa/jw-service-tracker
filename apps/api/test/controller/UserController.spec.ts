@@ -15,12 +15,15 @@ jest.mock('@/auth/jwt-auth.guard', () => ({
 }));
 
 import { UserController } from '@/controllers/UserController';
+import { RequestContext } from '@/domain/RequestContext';
 import { User } from '@/domain/User';
 import { UserService } from '@/services/UserService';
 
 describe('UserController', () => {
   let controller: UserController;
   let userService: UserService;
+  const mockContext = new RequestContext({ userId: 'user-123' });
+  const mockContextNoId = new RequestContext({});
 
   beforeEach(async () => {
     const mockUserService = {
@@ -39,7 +42,6 @@ describe('UserController', () => {
 
   describe('me', () => {
     it('should return the current user details', async () => {
-      const mockCurrentUser = new User({ id: 'user-123', name: 'Franco' });
       (userService.getUserById as jest.Mock).mockResolvedValue({
         id: 'user-123',
         name: 'Franco',
@@ -47,7 +49,7 @@ describe('UserController', () => {
         monthlyGoal: 0,
       });
 
-      const result = await controller.me(mockCurrentUser);
+      const result = await controller.me(mockContext);
 
       expect(userService.getUserById).toHaveBeenCalledWith('user-123');
       expect(result).toEqual({
@@ -59,9 +61,7 @@ describe('UserController', () => {
     });
 
     it('should throw an error if user is missing id', async () => {
-      const mockCurrentUser = new User({ name: 'Franco' }); // No ID
-
-      await expect(controller.me(mockCurrentUser)).rejects.toThrow(
+      await expect(controller.me(mockContextNoId)).rejects.toThrow(
         'User not found in request context',
       );
     });
@@ -69,7 +69,6 @@ describe('UserController', () => {
 
   describe('update', () => {
     it('should successfully update user details when valid', async () => {
-      const mockCurrentUser = new User({ id: 'user-123' });
       const mockBody = {
         preacherType: 'regular_pioneer',
         monthlyGoal: 50,
@@ -85,21 +84,20 @@ describe('UserController', () => {
         expectedUpdatedUser,
       );
 
-      const result = await controller.update(mockCurrentUser, mockBody);
+      const result = await controller.update(mockBody, mockContext);
 
       expect(userService.updateUser).toHaveBeenCalled();
       expect(result).toEqual(expectedUpdatedUser);
     });
 
     it('should throw validation error if body parameters are invalid', async () => {
-      const mockCurrentUser = new User({ id: 'user-123' });
       const mockBody = {
         preacherType: 'invalid_type', // Invalid enum option
         monthlyGoal: -10, // Invalid range
       };
 
       await expect(
-        controller.update(mockCurrentUser, mockBody),
+        controller.update(mockBody, mockContext),
       ).rejects.toThrow();
       expect(userService.updateUser).not.toHaveBeenCalled();
     });

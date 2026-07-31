@@ -11,13 +11,14 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { Invitation } from '@/domain/Invitation';
+import { ApplicationType, RequestContext } from '@/domain/RequestContext';
 import { User } from '@/domain/User';
 import { invitationsRepository, usersRepository } from '@/repositories';
 
 @Injectable()
 export class UserService {
   constructor(private readonly eventEmitter: EventEmitter2) {}
-  async getUserById(userId: string) {
+  async getUserById(userId: string): Promise<User> {
     let originalUser: User;
     try {
       originalUser = await usersRepository.findById(userId);
@@ -26,10 +27,10 @@ export class UserService {
     }
 
     const { password: _, ...user } = originalUser;
-    return user;
+    return new User(user);
   }
 
-  async getUserByPhone(phone: string) {
+  async getUserByPhone(phone: string): Promise<User> {
     let originalUser: User;
     try {
       originalUser = await usersRepository.findByPhone(phone);
@@ -40,37 +41,44 @@ export class UserService {
     }
 
     const { password: _, ...user } = originalUser;
-    return user;
+    return new User(user);
   }
 
-  async updateUser(user: User): Promise<PatchResponse> {
-    let originalUser: User;
-    try {
-      originalUser = await usersRepository.findById(user.id);
-    } catch {
-      throw new BadRequestException(`User with ID ${user.id} not found`);
+  async updateUser(
+    user: User,
+    context: RequestContext,
+  ): Promise<PatchResponse> {
+    const originalUser = await usersRepository.findById(user.id);
+
+    switch (context.applicationType) {
+      case ApplicationType.EXTERNAL:
+        if (user.status === UserStatus.APPROVED) {
+          const updatedUser =
+            await usersRepository.confirmApproval(originalUser);
+          return { ...updatedUser, phone: user.phone } as PatchResponse;
+        }
+        break;
+      case ApplicationType.CUSTOMER: {
+        if (user.showTutorial === false) {
+          return (await usersRepository.confirmTutorial(
+            originalUser,
+          )) as PatchResponse;
+        } else {
+          originalUser.updateGoals(user.monthlyGoal, user.preacherType);
+          return (await usersRepository.update(originalUser)) as PatchResponse;
+        }
+      }
     }
 
-    if (user.showTutorial === false) {
-      return (await usersRepository.confirmTutorial(
-        originalUser,
-      )) as PatchResponse;
-    }
-
-    if (user.status === UserStatus.APPROVED) {
-      const updatedUser = await usersRepository.confirmApproval(originalUser);
-      return { ...updatedUser, phone: user.phone } as PatchResponse;
-    }
-
-    originalUser.updateGoals(user.monthlyGoal, user.preacherType);
-
-    return (await usersRepository.update(originalUser)) as PatchResponse;
+    throw new BadRequestException(
+      'Invalid update request for the given application type',
+    );
   }
 
   async register(
     user: User,
     invitation?: Invitation,
-  ): Promise<{ user: any; success: boolean }> {
+  ): Promise<{ user: User; success: boolean }> {
     const normalizedPhone = normalizePeruvianPhone(user.phone);
 
     try {
@@ -117,6 +125,6 @@ export class UserService {
     });
 
     const { password: _, ...safeUser } = createdUser;
-    return { user: safeUser, success: true };
+    return { user: new User(safeUser), success: true };
   }
 }

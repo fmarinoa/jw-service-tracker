@@ -17,12 +17,15 @@ jest.mock('@/auth/jwt-auth.guard', () => ({
 
 import { EntriesController } from '@/controllers/EntriesController';
 import { Entry } from '@/domain/Entry';
+import { RequestContext } from '@/domain/RequestContext';
 import { User } from '@/domain/User';
 import { EntriesService } from '@/services/EntriesService';
 
 describe('EntriesController', () => {
   let controller: EntriesController;
   let entriesService: EntriesService;
+  const mockContext = new RequestContext({ userId: 'user-123' });
+  const mockContextNoId = new RequestContext({});
 
   beforeEach(async () => {
     const mockEntriesService = {
@@ -44,7 +47,6 @@ describe('EntriesController', () => {
 
   describe('retrieveEntries', () => {
     it('should retrieve entries for a valid user and query filters', async () => {
-      const mockUser = new User({ id: 'user-123' });
       const mockQuery = {
         monthOffset: '0',
         page: '1',
@@ -61,18 +63,17 @@ describe('EntriesController', () => {
         expectedResponse,
       );
 
-      const result = await controller.retrieveEntries(mockUser, mockQuery);
+      const result = await controller.retrieveEntries(mockContext, mockQuery);
 
       expect(entriesService.getByUser).toHaveBeenCalled();
       expect(result).toEqual(expectedResponse);
     });
 
     it('should throw BadRequestException if user id is missing', async () => {
-      const mockUser = new User({ name: 'Franco' }); // No ID
       const mockQuery = {};
 
       await expect(
-        controller.retrieveEntries(mockUser, mockQuery),
+        controller.retrieveEntries(mockContextNoId, mockQuery),
       ).rejects.toThrow(BadRequestException);
       expect(entriesService.getByUser).not.toHaveBeenCalled();
     });
@@ -80,7 +81,6 @@ describe('EntriesController', () => {
 
   describe('createEntry', () => {
     it('should successfully create an entry with valid body', async () => {
-      const mockUser = new User({ id: 'user-123' });
       const mockBody = {
         hours: 1,
         minutes: 30,
@@ -97,14 +97,13 @@ describe('EntriesController', () => {
         expectedCreatedEntry,
       );
 
-      const result = await controller.createEntry(mockUser, mockBody);
+      const result = await controller.createEntry(mockContext, mockBody);
 
       expect(entriesService.create).toHaveBeenCalled();
       expect(result).toEqual(expectedCreatedEntry);
     });
 
     it('should throw BadRequestException if creation body contains invalid data', async () => {
-      const mockUser = new User({ id: 'user-123' });
       const mockBody = {
         hours: -5, // Invalid negative hours
         minutes: 70, // Invalid minutes
@@ -112,28 +111,25 @@ describe('EntriesController', () => {
         type: 'invalid_type',
       };
 
-      await expect(controller.createEntry(mockUser, mockBody)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        controller.createEntry(mockContext, mockBody),
+      ).rejects.toThrow(BadRequestException);
       expect(entriesService.create).not.toHaveBeenCalled();
     });
   });
 
   describe('deleteEntry', () => {
     it('should call delete on EntriesService successfully', async () => {
-      const mockUser = new User({ id: 'user-123' });
       (entriesService.delete as jest.Mock).mockResolvedValue(undefined);
 
-      await controller.deleteEntry(mockUser, 'entry-123');
+      await controller.deleteEntry(mockContext, 'entry-123');
 
       expect(entriesService.delete).toHaveBeenCalled();
     });
 
     it('should throw BadRequestException if user id is missing during delete', async () => {
-      const mockUser = new User({ name: 'Franco' }); // No ID
-
       await expect(
-        controller.deleteEntry(mockUser, 'entry-123'),
+        controller.deleteEntry(mockContextNoId, 'entry-123'),
       ).rejects.toThrow(BadRequestException);
       expect(entriesService.delete).not.toHaveBeenCalled();
     });
@@ -141,7 +137,6 @@ describe('EntriesController', () => {
 
   describe('syncEntries', () => {
     it('should successfully sync entries with valid bodies', async () => {
-      const mockUser = new User({ id: 'user-123' });
       const mockBody = [
         {
           tempId: 'temp-1',
@@ -172,14 +167,13 @@ describe('EntriesController', () => {
         expectedResponse,
       );
 
-      const result = await controller.syncEntries(mockUser, mockBody);
+      const result = await controller.syncEntries(mockContext, mockBody);
 
       expect(entriesService.createMany).toHaveBeenCalled();
       expect(result).toEqual(expectedResponse);
     });
 
     it('should throw BadRequestException if sync body contains invalid data', async () => {
-      const mockUser = new User({ id: 'user-123' });
       const mockBody = [
         {
           hours: -5, // Invalid negative hours
@@ -189,14 +183,13 @@ describe('EntriesController', () => {
         },
       ];
 
-      await expect(controller.syncEntries(mockUser, mockBody)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        controller.syncEntries(mockContext, mockBody),
+      ).rejects.toThrow(BadRequestException);
       expect(entriesService.createMany).not.toHaveBeenCalled();
     });
 
     it('should throw BadRequestException if sync body elements are missing tempId', async () => {
-      const mockUser = new User({ id: 'user-123' });
       const mockBody = [
         {
           hours: 1,
@@ -206,16 +199,15 @@ describe('EntriesController', () => {
         },
       ];
 
-      await expect(controller.syncEntries(mockUser, mockBody)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        controller.syncEntries(mockContext, mockBody),
+      ).rejects.toThrow(BadRequestException);
       expect(entriesService.createMany).not.toHaveBeenCalled();
     });
   });
 
   describe('updateEntry', () => {
     it('should successfully update an entry with valid body', async () => {
-      const mockUser = new User({ id: 'user-123' });
       const mockBody = {
         hours: 2,
         minutes: 0,
@@ -233,7 +225,7 @@ describe('EntriesController', () => {
       );
 
       const result = await controller.updateEntry(
-        mockUser,
+        mockContext,
         'entry-123',
         mockBody,
       );
@@ -243,7 +235,6 @@ describe('EntriesController', () => {
     });
 
     it('should throw BadRequestException if update body contains invalid data', async () => {
-      const mockUser = new User({ id: 'user-123' });
       const mockBody = {
         hours: -5,
         minutes: 70,
@@ -252,7 +243,7 @@ describe('EntriesController', () => {
       };
 
       await expect(
-        controller.updateEntry(mockUser, 'entry-123', mockBody),
+        controller.updateEntry(mockContext, 'entry-123', mockBody),
       ).rejects.toThrow(BadRequestException);
       expect(entriesService.update).not.toHaveBeenCalled();
     });

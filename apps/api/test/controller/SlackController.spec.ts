@@ -10,6 +10,7 @@ jest.mock('@/repositories', () => ({
 
 import { SlackController } from '@/controllers/SlackController';
 import { Invitation } from '@/domain/Invitation';
+import { ApplicationType, RequestContext } from '@/domain/RequestContext';
 import { InvitationsService } from '@/services/InvitationsService';
 import { UserService } from '@/services/UserService';
 
@@ -17,13 +18,17 @@ describe('SlackController', () => {
   let controller: SlackController;
   let invitationsService: InvitationsService;
   let userService: UserService;
+  const mockContext = new RequestContext({
+    applicationType: ApplicationType.EXTERNAL,
+    entityCode: 'SLACK',
+  });
 
   beforeEach(async () => {
     const mockInvitationsService = {
       createInvitation: jest.fn(),
     };
     const mockUserService = {
-      getUserByPhone: jest.fn(),
+      getUserById: jest.fn(),
       updateUser: jest.fn(),
     };
 
@@ -44,13 +49,19 @@ describe('SlackController', () => {
 
   describe('unknown or empty subcommand', () => {
     it('returns the usage hint for an unknown subcommand', async () => {
-      const result = await controller.handleCommand(buildBody('bogus'));
+      const result = await controller.handleCommand(
+        buildBody('bogus'),
+        mockContext,
+      );
 
       expect(result.text).toContain('/invitations');
     });
 
     it('returns the usage hint when text is empty', async () => {
-      const result = await controller.handleCommand(buildBody(''));
+      const result = await controller.handleCommand(
+        buildBody(''),
+        mockContext,
+      );
 
       expect(result.text).toContain('/invitations');
     });
@@ -66,7 +77,10 @@ describe('SlackController', () => {
         invitation,
       );
 
-      const result = await controller.handleCommand(buildBody('create'));
+      const result = await controller.handleCommand(
+        buildBody('create'),
+        mockContext,
+      );
 
       expect(invitationsService.createInvitation).toHaveBeenCalledWith(
         undefined,
@@ -86,6 +100,7 @@ describe('SlackController', () => {
 
       const result = await controller.handleCommand(
         buildBody('create 987654321'),
+        mockContext,
       );
 
       expect(invitationsService.createInvitation).toHaveBeenCalledWith(
@@ -95,7 +110,10 @@ describe('SlackController', () => {
     });
 
     it('rejects an invalid phone without calling the service', async () => {
-      const result = await controller.handleCommand(buildBody('create 12345'));
+      const result = await controller.handleCommand(
+        buildBody('create 12345'),
+        mockContext,
+      );
 
       expect(invitationsService.createInvitation).not.toHaveBeenCalled();
       expect(result.text).toContain('9 dígitos');
@@ -103,38 +121,41 @@ describe('SlackController', () => {
   });
 
   describe('approve', () => {
-    it('requires a phone number', async () => {
-      const result = await controller.handleCommand(buildBody('approve'));
+    it('requires a user id', async () => {
+      const result = await controller.handleCommand(
+        buildBody('approve'),
+        mockContext,
+      );
 
-      expect(userService.getUserByPhone).not.toHaveBeenCalled();
+      expect(userService.getUserById).not.toHaveBeenCalled();
       expect(result.text).toContain('obligatorio');
     });
 
     it('returns a friendly message when the user does not exist', async () => {
-      (userService.getUserByPhone as jest.Mock).mockRejectedValue(
-        new NotFoundException(
-          'Usuario con celular +51987654321 no encontrado.',
-        ),
+      (userService.getUserById as jest.Mock).mockRejectedValue(
+        new NotFoundException('No se pudo encontrar el usuario con id user-1'),
       );
 
       const result = await controller.handleCommand(
-        buildBody('approve 987654321'),
+        buildBody('approve user-1'),
+        mockContext,
       );
 
       expect(result.response_type).toBe('ephemeral');
-      expect(result.text).toContain('no encontrado');
+      expect(result.text).toContain('No se pudo encontrar');
       expect(userService.updateUser).not.toHaveBeenCalled();
     });
 
     it('returns a friendly message when the user is not pending', async () => {
-      (userService.getUserByPhone as jest.Mock).mockResolvedValue({
+      (userService.getUserById as jest.Mock).mockResolvedValue({
         id: 'user-1',
         phone: '+51987654321',
         status: UserStatus.APPROVED,
       });
 
       const result = await controller.handleCommand(
-        buildBody('approve 987654321'),
+        buildBody('approve user-1'),
+        mockContext,
       );
 
       expect(result.text).toContain('APPROVED');
@@ -142,7 +163,7 @@ describe('SlackController', () => {
     });
 
     it('approves a pending user', async () => {
-      (userService.getUserByPhone as jest.Mock).mockResolvedValue({
+      (userService.getUserById as jest.Mock).mockResolvedValue({
         id: 'user-1',
         phone: '+51987654321',
         status: UserStatus.PENDING,
@@ -154,7 +175,8 @@ describe('SlackController', () => {
       });
 
       const result = await controller.handleCommand(
-        buildBody('approve 987654321'),
+        buildBody('approve user-1'),
+        mockContext,
       );
 
       expect(userService.updateUser).toHaveBeenCalledWith(
@@ -163,6 +185,7 @@ describe('SlackController', () => {
           phone: '+51987654321',
           status: UserStatus.APPROVED,
         }),
+        mockContext,
       );
       expect(result.text).toContain('+51987654321');
       expect(result.text).toContain('aprobado');

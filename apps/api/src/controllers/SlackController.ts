@@ -9,17 +9,23 @@ import {
 } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 
+import { AppContext } from '@/auth/app-context.decorator';
 import { SlackSignatureGuard } from '@/auth/slack-signature.guard';
 import type {
   SlackCommandResponse,
   SlackSlashCommandBody,
 } from '@/domain/dtos/slack.dto';
+import { ApplicationType, RequestContext } from '@/domain/RequestContext';
 import { SlackMessage } from '@/domain/SlackMessage';
 import { User } from '@/domain/User';
 import { InvitationsService } from '@/services/InvitationsService';
 import { UserService } from '@/services/UserService';
 
-type SlackCommandHandler = (args: string[]) => Promise<SlackCommandResponse>;
+type SlackCommandHandler = (
+  args: string[],
+  context: RequestContext,
+  userSlackId: string,
+) => Promise<SlackCommandResponse>;
 
 @ApiExcludeController()
 @Controller('slack')
@@ -40,9 +46,14 @@ export class SlackController {
   @Post('commands')
   async handleCommand(
     @Body() body: SlackSlashCommandBody,
+    @AppContext() context: RequestContext,
   ): Promise<SlackCommandResponse> {
+    context.validateSecurity([
+      { type: ApplicationType.EXTERNAL, requiredEntities: ['SLACK'] },
+    ]);
     const args = (body.text ?? '').trim().split(/\s+/).filter(Boolean);
     const [subcommand, ...rest] = args;
+    const userName = body?.user_name || 'unknown';
 
     const handler = subcommand
       ? this.subcommands[subcommand.toLowerCase()]
@@ -53,7 +64,7 @@ export class SlackController {
     }
 
     try {
-      return await handler(rest);
+      return await handler(rest, context, userName);
     } catch (error) {
       console.error('Error handling Slack command:', error);
       const message =
@@ -66,6 +77,8 @@ export class SlackController {
 
   private async createInvitation(
     args: string[],
+    _context: RequestContext,
+    userSlackId: string,
   ): Promise<SlackCommandResponse> {
     const phone = args[0];
     const validated = SlackMessage.validatePhone(phone, false);
@@ -77,17 +90,30 @@ export class SlackController {
       validated.phone,
     );
 
-    return SlackMessage.buildInvitationCreatedMessage(invitation);
+    return SlackMessage.buildInvitationCreatedMessage(invitation, userSlackId);
   }
 
-  private async approveUser(args: string[]): Promise<SlackCommandResponse> {
-    const phone = args[0];
-    const validated = SlackMessage.validatePhone(phone, true);
-    if (!validated.valid) {
-      return validated.error!;
+  private async approveUser(
+    args: string[],
+    context: RequestContext,
+    userSlackId: string,
+  ): Promise<SlackCommandResponse> {
+    const userId = args[0];
+
+    if (!userId) {
+      throw new BadRequestException(
+        'El id del usuario es obligatorio para aprobarlo.',
+      );
     }
 
-    const user = await this.usersService.getUserByPhone(validated.phone!);
+    let user: User;
+    try {
+      user = await this.usersService.getUserById(userId);
+    } catch (error) {
+      throw new BadRequestException(
+        `No se pudo encontrar el usuario con id ${userId}`,
+      );
+    }
 
     if (user.status !== UserStatus.PENDING) {
       throw new BadRequestException(
@@ -97,8 +123,9 @@ export class SlackController {
 
     const updatedUser = (await this.usersService.updateUser(
       new User({ id: user.id, phone: user.phone, status: UserStatus.APPROVED }),
+      context,
     )) as User;
 
-    return SlackMessage.buildUserApprovedMessage(updatedUser);
+    return SlackMessage.buildUserApprovedMessage(updatedUser, userSlackId);
   }
 }

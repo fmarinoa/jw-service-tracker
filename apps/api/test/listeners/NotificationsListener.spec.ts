@@ -62,7 +62,7 @@ describe('NotificationsListener', () => {
       );
       expect(notificationsServiceMock.sendSlackMessage).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: expect.stringContaining('+51987654321'),
+          message: expect.stringContaining('123'),
         }),
       );
     });

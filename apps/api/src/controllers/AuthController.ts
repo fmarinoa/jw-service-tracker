@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 
-import { CurrentUser } from '@/auth/current-user.decorator';
+import { AppContext } from '@/auth/app-context.decorator';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import {
   LoginRequestDto,
@@ -18,6 +18,7 @@ import {
   RegisterDto,
 } from '@/domain/dtos/auth.dto';
 import { Invitation } from '@/domain/Invitation';
+import { RequestContext } from '@/domain/RequestContext';
 import { User } from '@/domain/User';
 import { AuthService } from '@/services/AuthService';
 import { UserService } from '@/services/UserService';
@@ -33,7 +34,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: LoginRequestDto })
   @Post('login')
-  async login(@Body() body: unknown) {
+  async login(@Body() body: LoginRequestDto) {
     const result = LoginRequestSchema.safeParse(body);
     if (!result.success) {
       throw new BadRequestException(
@@ -49,7 +50,7 @@ export class AuthController {
 
   @ApiBody({ type: RefreshRequestDto })
   @Post('refresh')
-  async refresh(@Body() body: unknown) {
+  async refresh(@Body() body: RefreshRequestDto) {
     const result = RefreshRequestSchema.safeParse(body);
     if (!result.success) {
       throw new BadRequestException(
@@ -64,13 +65,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('BearerAuth')
   @Post('logout')
-  async logout(@CurrentUser() user: User) {
-    if (!user || !user.id) {
-      throw new Error('User not found in request context');
-    }
-
-    await this.authService.revokeSession(user.id);
-    return { ok: true };
+  async logout(@AppContext() context: RequestContext) {
+    await this.authService.revokeSession(context.requireUserId());
   }
 
   @ApiBody({ type: RegisterDto })

@@ -1,9 +1,12 @@
 import {
   CanActivate,
   ExecutionContext,
+  HttpException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+
+import { ApplicationType } from '@/domain/RequestContext';
 
 import { authSessionsRepository } from '../repositories';
 import { AuthTokenService } from '../services/auth/AuthTokenService';
@@ -41,12 +44,13 @@ export class JwtAuthGuard implements CanActivate {
         }
       }
 
-      request.user = {
-        ...payload,
-        id: payload.sub,
-      };
+      request.userId = payload.sub;
+      request.applicationType = ApplicationType.CUSTOMER;
       return true;
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       const message = error instanceof Error ? error.message : 'Invalid token';
       throw new UnauthorizedException(message);
     }

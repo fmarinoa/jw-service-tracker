@@ -46,9 +46,12 @@ describe('SlackMessage.buildInvitationCreatedMessage', () => {
       expiresAt: Date.now() + 100_000,
     });
 
-    const result = SlackMessage.buildInvitationCreatedMessage(invitation);
+    const result = SlackMessage.buildInvitationCreatedMessage(
+      invitation,
+      'U12345',
+    );
 
-    expect(result.response_type).toBe('ephemeral');
+    expect(result.response_type).toBe('in_channel');
     expect(result.text).toContain('ABCD1234');
     expect(result.text).toContain('+51987654321');
   });
@@ -59,7 +62,10 @@ describe('SlackMessage.buildInvitationCreatedMessage', () => {
       expiresAt: Date.now() + 100_000,
     });
 
-    const result = SlackMessage.buildInvitationCreatedMessage(invitation);
+    const result = SlackMessage.buildInvitationCreatedMessage(
+      invitation,
+      'U12345',
+    );
 
     expect(result.text).toContain('cualquiera');
   });
@@ -73,9 +79,9 @@ describe('SlackMessage.buildUserApprovedMessage', () => {
       status: UserStatus.APPROVED,
     });
 
-    const result = SlackMessage.buildUserApprovedMessage(user);
+    const result = SlackMessage.buildUserApprovedMessage(user, 'U12345');
 
-    expect(result.response_type).toBe('ephemeral');
+    expect(result.response_type).toBe('in_channel');
     expect(result.text).toContain('+51987654321');
     expect(result.text).toContain('aprobado');
   });

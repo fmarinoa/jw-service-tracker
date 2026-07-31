@@ -16,6 +16,7 @@ jest.mock('@/auth/jwt-auth.guard', () => ({
 }));
 
 import { AuthController } from '@/controllers/AuthController';
+import { RequestContext } from '@/domain/RequestContext';
 import { User } from '@/domain/User';
 import { AuthService } from '@/services/AuthService';
 import { UserService } from '@/services/UserService';
@@ -137,19 +138,19 @@ describe('AuthController', () => {
 
   describe('logout', () => {
     it('should successfully revoke session and return ok', async () => {
-      const mockCurrentUser = new User({ id: 'user-123' });
+      const mockContext = new RequestContext({ userId: 'user-123' });
       (authService.revokeSession as jest.Mock).mockResolvedValue(undefined);
 
-      const result = await controller.logout(mockCurrentUser);
+      const result = await controller.logout(mockContext);
 
       expect(authService.revokeSession).toHaveBeenCalledWith('user-123');
-      expect(result).toEqual({ ok: true });
+      expect(result).toBeUndefined();
     });
 
     it('should throw error if current user is missing id', async () => {
-      const mockCurrentUser = new User({ name: 'Franco' }); // No ID
+      const mockContext = new RequestContext({}); // No ID
 
-      await expect(controller.logout(mockCurrentUser)).rejects.toThrow(
+      await expect(controller.logout(mockContext)).rejects.toThrow(
         'User not found in request context',
       );
     });
