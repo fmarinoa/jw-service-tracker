@@ -1,5 +1,5 @@
 import { Controller, Get, HttpCode, HttpStatus, Query } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 
 import { ReleasesService } from '@/services/ReleasesService';
 
@@ -10,6 +10,7 @@ export class ReleasesController {
 
   @HttpCode(HttpStatus.OK)
   @Get('check')
+  @ApiQuery({ name: 'version', required: false, type: String })
   async checkUpdate(@Query('version') clientVersion?: string) {
     return await this.releasesService.checkUpdate(clientVersion);
   }

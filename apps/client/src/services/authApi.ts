@@ -5,6 +5,8 @@ import {
   LogoutResponseDto,
   RefreshRequestDto,
   RefreshResponseDto,
+  RegisterRequestDto,
+  RegisterResponseDto,
 } from '@jw-tracker/shared';
 import { Platform } from 'react-native';
 
@@ -24,14 +26,10 @@ export class AuthApi extends BaseService {
     });
   }
 
-  static async register(data: {
-    name: string;
-    phone: string;
-    password: string;
-    email?: string;
-    invitationCode?: string;
-  }): Promise<any> {
-    return this.handleRequest<any>({
+  static async register(
+    data: RegisterRequestDto,
+  ): Promise<RegisterResponseDto> {
+    return this.handleRequest<RegisterResponseDto>({
       path: '/auth/register',
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

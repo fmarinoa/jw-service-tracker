@@ -31,7 +31,10 @@ module.exports = function (options) {
       // inlining it (including subpath imports like absolute-path.js) breaks that
       // resolution, so keep every import from it as a real require()
       ({ request }, callback) => {
-        if (request === 'swagger-ui-dist' || request.startsWith('swagger-ui-dist/')) {
+        if (
+          request === 'swagger-ui-dist' ||
+          request.startsWith('swagger-ui-dist/')
+        ) {
           return callback(null, `commonjs ${request}`);
         }
         callback();

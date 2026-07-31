@@ -1,7 +1,4 @@
 {
   "deep": true,
-  "reject": [
-    "typescript",
-    "tailwindcss"
-  ]
+  "reject": ["typescript", "tailwindcss"]
 }

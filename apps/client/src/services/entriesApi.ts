@@ -1,7 +1,9 @@
 import {
+  CreateEntryRequestDto,
   EntriesResponse,
   Entry,
   SyncEntriesResponse,
+  UpdateEntryRequestDto,
 } from '@jw-tracker/shared';
 
 import { BaseService } from './baseApi';
@@ -17,13 +19,7 @@ export class EntriesApi extends BaseService {
     });
   }
 
-  static async createEntry(data: {
-    preachingDate: number;
-    hours: number;
-    minutes: number;
-    type: string;
-    notes?: string;
-  }): Promise<Entry> {
+  static async createEntry(data: CreateEntryRequestDto): Promise<Entry> {
     return this.handleRequest<Entry>({
       path: `/entries`,
       method: 'POST',
@@ -32,14 +28,7 @@ export class EntriesApi extends BaseService {
   }
 
   static async createMany(
-    data: {
-      preachingDate: number;
-      hours: number;
-      minutes: number;
-      type: string;
-      notes?: string;
-      tempId?: string;
-    }[],
+    data: CreateEntryRequestDto[],
   ): Promise<SyncEntriesResponse> {
     return this.handleRequest<SyncEntriesResponse>({
       path: `/entries/sync`,
@@ -50,13 +39,7 @@ export class EntriesApi extends BaseService {
 
   static async updateEntry(
     id: string,
-    data: {
-      preachingDate: number;
-      hours: number;
-      minutes: number;
-      type: string;
-      notes?: string;
-    },
+    data: Omit<UpdateEntryRequestDto, 'id'>,
   ): Promise<Entry> {
     return this.handleRequest<Entry>({
       path: `/entries/${id}`,

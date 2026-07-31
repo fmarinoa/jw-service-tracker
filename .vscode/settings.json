@@ -10,5 +10,20 @@
         ".specify/scripts/bash/": true,
         ".specify/scripts/powershell/": true
     },
-    "files.associations": { "*.html.template": "html" }
+    "files.associations": { "*.html.template": "html" },
+    "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/android/**": true,
+        "**/ios/**": true,
+        "**/.expo/**": true
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/android": true,
+        "**/ios": true,
+        "**/.agents": true,
+        "pnpm-lock.yaml": true,
+    }
 }

@@ -301,7 +301,7 @@
         "parameters": [
           {
             "name": "version",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -351,19 +351,20 @@
         "properties": {
           "preacherType": {
             "type": "string",
-            "description": "Preacher type classification",
             "enum": [
               "regular_pioneer",
               "auxiliary_pioneer",
               "publisher"
             ],
+            "description": "Preacher type classification",
             "example": "pioneer"
           },
           "monthlyGoal": {
             "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
             "description": "Monthly preaching hours goal",
-            "example": 100,
-            "minimum": 0
+            "example": 100
           },
           "showTutorial": {
             "type": "boolean",
@@ -377,11 +378,13 @@
         "properties": {
           "phone": {
             "type": "string",
+            "minLength": 1,
             "description": "Phone number with country code",
             "example": "+51912345678"
           },
           "password": {
             "type": "string",
+            "minLength": 1,
             "description": "User password",
             "example": "password123"
           },
@@ -406,6 +409,7 @@
         "properties": {
           "refreshToken": {
             "type": "string",
+            "minLength": 1,
             "description": "Refresh token for obtaining a new access token",
             "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
           }
@@ -419,28 +423,29 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "User full name",
-            "example": "Juan Pérez",
             "minLength": 2,
-            "maxLength": 50
+            "maxLength": 50,
+            "description": "User full name",
+            "example": "Juan Pérez"
           },
           "phone": {
             "type": "string",
+            "pattern": "^9\\d{8}$",
             "description": "Peruvian mobile phone number (9 digits starting with 9)",
-            "example": "912345678",
-            "pattern": "^9\\d{8}$"
-          },
-          "email": {
-            "type": "string",
-            "description": "User email address",
-            "example": "jw@example.com",
-            "format": "email"
+            "example": "912345678"
           },
           "password": {
             "type": "string",
+            "minLength": 6,
             "description": "User password",
-            "example": "SecurePassword123",
-            "minLength": 6
+            "example": "SecurePassword123"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+            "description": "User email address",
+            "example": "jw@example.com"
           },
           "invitationCode": {
             "type": "string",
@@ -464,34 +469,34 @@
           },
           "hours": {
             "type": "integer",
-            "description": "Hours spent in preaching activity (0-24)",
-            "example": 2,
             "minimum": 0,
-            "maximum": 24
+            "maximum": 24,
+            "description": "Hours spent in preaching activity (0-24)",
+            "example": 2
           },
           "minutes": {
             "type": "integer",
-            "description": "Minutes spent in preaching activity (0-59)",
-            "example": 30,
             "minimum": 0,
-            "maximum": 59
+            "maximum": 59,
+            "description": "Minutes spent in preaching activity (0-59)",
+            "example": 30
           },
           "type": {
             "type": "string",
-            "description": "Type of preaching session",
             "enum": [
               "house_to_house",
               "revisits",
               "bible_study",
               "other"
             ],
+            "description": "Type of preaching session",
             "example": "house_to_house"
           },
           "notes": {
             "type": "string",
+            "maxLength": 50,
             "description": "Optional notes about the session",
-            "example": "Good conversation",
-            "maxLength": 50
+            "example": "Good conversation"
           },
           "tempId": {
             "type": "string",
@@ -516,34 +521,34 @@
           },
           "hours": {
             "type": "integer",
-            "description": "Hours spent in preaching activity (0-24)",
-            "example": 2,
             "minimum": 0,
-            "maximum": 24
+            "maximum": 24,
+            "description": "Hours spent in preaching activity (0-24)",
+            "example": 2
           },
           "minutes": {
             "type": "integer",
-            "description": "Minutes spent in preaching activity (0-59)",
-            "example": 30,
             "minimum": 0,
-            "maximum": 59
+            "maximum": 59,
+            "description": "Minutes spent in preaching activity (0-59)",
+            "example": 30
           },
           "type": {
             "type": "string",
-            "description": "Type of preaching session",
             "enum": [
               "house_to_house",
               "revisits",
               "bible_study",
               "other"
             ],
+            "description": "Type of preaching session",
             "example": "house_to_house"
           },
           "notes": {
             "type": "string",
+            "maxLength": 50,
             "description": "Optional notes about the session",
-            "example": "Good conversation",
-            "maxLength": 50
+            "example": "Good conversation"
           },
           "tempId": {
             "type": "string",

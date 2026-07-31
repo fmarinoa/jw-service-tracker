@@ -11,6 +11,7 @@ import {
   SwaggerDocumentOptions,
   SwaggerModule,
 } from '@nestjs/swagger';
+import { cleanupOpenApiDoc } from 'nestjs-zod';
 
 import { AppModule } from './app.module';
 
@@ -44,7 +45,9 @@ async function bootstrap() {
     operationIdFactory: (_controllerKey: string, methodKey: string) =>
       methodKey,
   };
-  const document = SwaggerModule.createDocument(app, config, options);
+  const document = cleanupOpenApiDoc(
+    SwaggerModule.createDocument(app, config, options),
+  );
 
   if (process.env.NODE_ENV !== 'production') {
     fs.writeFileSync(

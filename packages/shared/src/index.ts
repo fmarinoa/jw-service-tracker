@@ -1,5 +1,4 @@
-export * from './auth/auth.dto';
-export * from './auth/auth.schema';
+export * from './dto';
 export * from './interfaces/Entry';
 export * from './interfaces/Offline';
 export * from './interfaces/Release';
