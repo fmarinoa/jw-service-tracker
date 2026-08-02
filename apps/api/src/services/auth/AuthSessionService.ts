@@ -11,16 +11,16 @@ import { AuthTokenService } from './AuthTokenService';
 export class AuthSessionService {
   constructor(private readonly authTokenService: AuthTokenService) {}
 
-  async createSession(
+  createSession(
     user: User,
     platform: Platform,
     deviceName: string | null = null,
-  ): Promise<{
+  ): {
     accessToken: string;
     refreshToken: string;
     expiresIn: number;
     session: AuthSession;
-  }> {
+  } {
     const sessionSid = randomUUID();
 
     const accessToken = this.authTokenService.generateAccessToken({
@@ -56,10 +56,10 @@ export class AuthSessionService {
     };
   }
 
-  async refreshSession(
+  refreshSession(
     user: User,
     session: AuthSession,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): { accessToken: string; refreshToken: string } {
     const newAccessToken = this.authTokenService.generateAccessToken({
       sub: user.id,
       sid: session.sid,
