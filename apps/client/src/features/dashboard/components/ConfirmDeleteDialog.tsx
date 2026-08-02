@@ -4,8 +4,7 @@ import { Modal, Pressable, Text, View } from 'react-native';
 import { useDashboard } from '../DashboardProvider';
 
 export default function ConfirmDeleteDialog() {
-  const { showDeleteModal, setShowDeleteModal, isDeleting, handleDelete } =
-    useDashboard();
+  const { showDeleteModal, setShowDeleteModal, handleDelete } = useDashboard();
 
   return (
     <Modal
@@ -30,7 +29,6 @@ export default function ConfirmDeleteDialog() {
           <View className="flex-row gap-3 pt-2">
             <Pressable
               onPress={() => setShowDeleteModal(false)}
-              disabled={isDeleting}
               className="flex-1 py-2.5 bg-muted border border-border rounded-xl items-center active:bg-muted/80"
             >
               <Text className="text-foreground font-semibold text-sm">
@@ -39,12 +37,9 @@ export default function ConfirmDeleteDialog() {
             </Pressable>
             <Pressable
               onPress={handleDelete}
-              disabled={isDeleting}
               className="flex-1 py-2.5 bg-red-600 rounded-xl items-center active:bg-red-700"
             >
-              <Text className="text-white font-bold text-sm">
-                {isDeleting ? 'Eliminando...' : 'Eliminar'}
-              </Text>
+              <Text className="text-white font-bold text-sm">Eliminar</Text>
             </Pressable>
           </View>
         </View>

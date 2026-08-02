@@ -17,7 +17,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { Alert, Clipboard, Share } from 'react-native';
+import { Alert, Clipboard, Platform, Share } from 'react-native';
 
 import { NetworkError } from '../../services/baseApi';
 import { EntriesApi } from '../../services/entriesApi';
@@ -40,7 +40,6 @@ interface DashboardContextType {
   setShowDeleteModal: (val: boolean) => void;
   entryToDelete: string | null;
   setEntryToDelete: (val: string | null) => void;
-  isDeleting: boolean;
   editingEntry: Entry | null;
   formError: string;
   setFormError: (val: string) => void;
@@ -346,7 +345,6 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -498,7 +496,11 @@ Generado por *JW Service Tracker*`;
       }
     } catch (err) {
       console.error(err);
-      Alert.alert('Error', 'No se pudo exportar el informe.');
+      if (Platform.OS === 'web') {
+        window.alert('No se pudo exportar el informe.');
+      } else {
+        Alert.alert('Error', 'No se pudo exportar el informe.');
+      }
     } finally {
       setExportingMonthOffset(null);
     }
@@ -648,7 +650,42 @@ Generado por *JW Service Tracker*`;
 
   const handleDelete = async () => {
     if (!entryToDelete) return;
-    setIsDeleting(true);
+
+    const entryObj = entries.find((e) => e.id === entryToDelete);
+    if (!entryObj) {
+      setShowDeleteModal(false);
+      setEntryToDelete(null);
+      return;
+    }
+
+    // Snapshot para poder revertir si el borrado falla en el servidor
+    const previousEntries = entries;
+    const previousStats = stats;
+    const previousTotalEntries = totalEntries;
+    const previousTotalPages = totalPages;
+
+    const updatedEntries = entries.filter((e) => e.id !== entryToDelete);
+    const newTotal = Math.max(0, totalEntries - 1);
+    const entryMins = entryObj.hours * 60 + entryObj.minutes;
+    const updatedStats = {
+      totalMinutes: Math.max(0, stats.totalMinutes - entryMins),
+      byType: {
+        ...stats.byType,
+        [entryObj.type]: Math.max(
+          0,
+          (stats.byType[entryObj.type as SessionType] || 0) - entryMins,
+        ),
+      },
+    };
+
+    // Actualización optimista: se refleja de inmediato en la UI
+    setEntries(updatedEntries);
+    setStats(updatedStats);
+    setTotalEntries(newTotal);
+    setTotalPages(Math.ceil(newTotal / 10) || 1);
+    setShowDeleteModal(false);
+    setEntryToDelete(null);
+
     try {
       const isOffline = await OfflineSyncService.isOffline();
       if (isOffline) {
@@ -656,54 +693,38 @@ Generado por *JW Service Tracker*`;
       }
 
       await EntriesApi.deleteEntry(entryToDelete);
-      await fetchDashboardData(page, monthOffset);
-      setShowDeleteModal(false);
+
+      await OfflineStorage.setCachedDashboardData(monthOffset, page, {
+        entries: updatedEntries,
+        stats: updatedStats,
+        total: newTotal,
+      });
     } catch (err) {
       if (err instanceof NetworkError) {
-        const entryObj = entries.find((e) => e.id === entryToDelete);
-        if (entryObj) {
-          const updatedEntries = entries.filter((e) => e.id !== entryToDelete);
-          const newTotal = Math.max(0, totalEntries - 1);
-
-          const entryMins = entryObj.hours * 60 + entryObj.minutes;
-          const updatedStats = {
-            totalMinutes: Math.max(0, stats.totalMinutes - entryMins),
-            byType: {
-              ...stats.byType,
-              [entryObj.type]: Math.max(
-                0,
-                (stats.byType[entryObj.type as SessionType] || 0) - entryMins,
-              ),
-            },
-          };
-
-          setEntries(updatedEntries);
-          setStats(updatedStats);
-          setTotalEntries(newTotal);
-          setTotalPages(Math.ceil(newTotal / 10) || 1);
-
-          await OfflineStorage.setCachedDashboardData(monthOffset, page, {
-            entries: updatedEntries,
-            stats: updatedStats,
-            total: newTotal,
-          });
-        }
+        await OfflineStorage.setCachedDashboardData(monthOffset, page, {
+          entries: updatedEntries,
+          stats: updatedStats,
+          total: newTotal,
+        });
 
         await OfflineSyncService.queueMutation({
           type: 'DELETE_ENTRY',
           entryId: entryToDelete,
           payload: null,
         });
-
-        setShowDeleteModal(false);
         return;
       }
-      Alert.alert(
-        'Error',
-        err instanceof Error ? err.message : 'Error al eliminar la entrada',
-      );
-    } finally {
-      setIsDeleting(false);
+
+      // Rollback: el borrado falló en el servidor, se restaura el registro en la UI
+      setEntries(previousEntries);
+      setStats(previousStats);
+      setTotalEntries(previousTotalEntries);
+      setTotalPages(previousTotalPages);
+      if (Platform.OS === 'web') {
+        window.alert('No se pudo eliminar el registro');
+      } else {
+        Alert.alert('Error', 'No se pudo eliminar el registro');
+      }
     }
   };
 
@@ -736,7 +757,6 @@ Generado por *JW Service Tracker*`;
         setShowDeleteModal,
         entryToDelete,
         setEntryToDelete,
-        isDeleting,
         editingEntry,
         formError,
         setFormError,
